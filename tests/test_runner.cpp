@@ -1,0 +1,4 @@
+#define BOOST_TEST_DYN_LINK
+
+#define BOOST_TEST_MODULE "Statistics Unit Tests"
+#include <boost/test/unit_test.hpp>
