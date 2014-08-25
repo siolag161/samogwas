@@ -4,8 +4,8 @@
 #endif  
 #include <boost/test/unit_test.hpp>
 
-#include "fisher.hpp"
-#include "test_statistics.hpp"
+#include "statistics/fisher.hpp"
+#include "statistics/test_statistics.hpp"
 #include <boost/random.hpp> // boost::mt19937
 #include <vector>
 #include <cmath>

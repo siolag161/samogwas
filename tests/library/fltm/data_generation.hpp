@@ -28,6 +28,7 @@ typedef plVariablesConjunction Variables;
 
 typedef boost::uniform_real<> RealDistribution; // choose a distribution
 typedef boost::uniform_int<> NumberDistribution; // choose a distribution
+
 typedef boost::mt19937 RandomNumberGenerator;    // pick the random number generator method,
 typedef boost::variate_generator< RandomNumberGenerator&, NumberDistribution > Generator;  // link the generator to the distribution
 

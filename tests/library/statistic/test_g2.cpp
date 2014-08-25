@@ -4,7 +4,7 @@
 #endif  
 #include <boost/test/unit_test.hpp>
 
-#include "test_statistics.hpp"
+#include "statistics/test_statistics.hpp"
 #include <omp.h>
 #include <chrono>
 class Data 
