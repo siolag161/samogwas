@@ -42,7 +42,7 @@ struct CAST: public AlgoClust<SimiMatrix>  {
   /**
    *
    */
-  virtual Partition operator()() {
+  virtual Partition run() {
     std::vector<CAST_Item> unAssignedCluster;
     for ( int i = 0; i < this->comp->size(); ++i ) { 
       unAssignedCluster.push_back(CAST_Item(i, 0.0) );    

@@ -17,9 +17,13 @@ namespace samogwas
  */
 class AlgoClustering {
  public:
-  virtual Partition operator()() = 0;
+  virtual Partition operator()() { return run(); }
+  virtual Partition run() = 0;
   virtual char* name() const = 0;
   virtual void invalidCache() = 0;
+
+ // static Partition to_partition( const std::vector<int>& labels );
+
 };
 
 
@@ -29,7 +33,7 @@ class AlgoClustering {
 template<typename CompareMatrix>
 class AlgoClust: public AlgoClustering {
  public:
-  virtual Partition operator()() = 0;
+  virtual Partition run() = 0;
   virtual char* name() const = 0;
   virtual void invalidCache() { comp->invalidCache(); }
 
