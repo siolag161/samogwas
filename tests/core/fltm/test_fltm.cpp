@@ -59,10 +59,10 @@ BOOST_AUTO_TEST_CASE( Test_Def ) {
   FLTM_Result result;
   initData( input, nclusts, N, ncols, CARD );
   std::vector<int> positions; for ( int i = 0; i < nrows; ++i ) positions.push_back(i);
-  auto data = GenerateClusteredData( nclusts, N, CARD, ncols )();
+  // auto data = GenerateClusteredData( nclusts, N, CARD, ncols )();
   typedef samogwas::MutInfoDissimilarity<data_gen::Matrix> MutInfoDiss;
 
-  MutInfoDiss* diss = new MutInfoDiss(data, positions, MAX_POS, -1);
+  MutInfoDiss* diss = new MutInfoDiss( input.matrix, input.positions, MAX_POS, -1);
   
   initOptions(opt);
 

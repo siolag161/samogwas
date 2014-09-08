@@ -43,12 +43,12 @@ void FLTM::operator()( FLTM_Result& result, FLTM_Data& input, FLTM_Options& opt 
       if ( clt.size() > 1 ) {
         Matrix emMat; ResultEM resultEM;
         Variables emVars; 
-        Variable latentVar = createLatentVar( boost::num_vertices(input.graph), cardFunc(clt) );        
-        prepareEM( emMat, emVars, input, clt, mat2GraphIndex );        
+        Variable latentVar = createLatentVar( boost::num_vertices(input.graph), cardFunc(clt) );
+        prepareEM( emMat, emVars, input, clt, mat2GraphIndex );
         std::cout << "Cluster: " << num_Clust++ << " over " << clustering.size() - singletonCount << " of step: " << step << std::endl;
         std::cout << "executing EM on cluster of size: " << clt.size() << std::endl;
         emFunc->run( resultEM, latentVar, emVars, emMat, opt.emThres );
-        std::cout << "done EM" << std::endl << std::endl;
+        std::cout << "done EM" << std::endl << std::endl;        
         if ( goodLatentVariable( resultEM.imputedData, input.matrix, clt, opt.infoThres ) ) { // @todo: minASMI --> thresLatent                
           vertex_t vertex = addLatentNode( input.graph, latentVar, resultEM, label2GraphIndex ); // vertex is the index of the newly added node
           goodClusterCount++;
@@ -121,16 +121,20 @@ void FLTM::prepareEM( Matrix& emMat,
                       const FLTM_Data& input,
                       const std::vector<int>& cluster,
                       const std::vector<int> mat2GraphIndex )  {
-  
+  std::cout << "prepare-1" << std::endl;
   Matrix *tEMMat = new Matrix();
   tEMMat->reserve(cluster.size());
   vars.clear();  
-  tEMMat->push_back( std::vector<int>( ncols(input.matrix), -1) );  
-  for ( auto& it: cluster ) {    
+  tEMMat->push_back( std::vector<int>( ncols(input.matrix), -1) );
+  std::cout << "prepare-2" << std::endl;
+  for ( auto& it: cluster ) {
+    printf("%d: %d (%d)\n", (int)it, (int)mat2GraphIndex.size(), (int)cluster.size());
     vars ^= input.graph[mat2GraphIndex.at(it)].variable;
     tEMMat->push_back( input.matrix.at(it) );      
   }
   emMat = Transpose(*tEMMat);
+  std::cout << "prepare-3" << std::endl;
+
   delete(tEMMat);
 }
 

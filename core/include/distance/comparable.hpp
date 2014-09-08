@@ -7,7 +7,7 @@
  ***************************************************************************************/
 #ifndef SAMOGWAS_COMPARABLE_HPP
 #define SAMOGWAS_COMPARABLE_HPP
-
+ 
 #include "stddef.h" // size_t
 namespace samogwas
 {

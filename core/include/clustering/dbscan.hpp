@@ -65,11 +65,12 @@ namespace samogwas
  *
  */
 template<typename DistanceMatrix>
-Partition DBSCAN<DistanceMatrix>::run() { 
+Partition DBSCAN<DistanceMatrix>::run() {
   size_t nvars = this->comp->size(); // number of total variables
   std::vector<int> m_labels( nvars, -1); 
   std::vector<int> visited( nvars, 0 ); // to keep track of visit state for every objects
   int cluster_id = 0; // initially there is no cluster formed
+  printf("----------------------- DBSCAN: %d vars--------------------------\n", (int)nvars);
   
   for (int pid = 0; pid < nvars; ++pid) { // we visit every non-visited object in this cluster
     if ( !visited[pid] ) {
