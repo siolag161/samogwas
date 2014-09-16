@@ -1,5 +1,5 @@
 /****************************************************************************************
- * File: Clustering.hpp
+ * File: partition.hpp // CS I need to see the difference between Clustering.hpp and partition.hpp
  * Description: A data structure representing a partition of the data set - i.e a division of the data set into
  * -----------  non-overlapping subsets.
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
