@@ -1,7 +1,7 @@
 /****************************************************************************************
  * File: clustering.hpp
- * Description: Common interfaces for Clustering algorithms
- * @author: siolag161 (thanh.phan@outlook.com)
+ * Description: Common interfaces for clustering algorithms
+ * @author: CS siolag161 (thanh.phan@outlook.com)
  * @date: 30/07/2014
 
  ***************************************************************************************/
@@ -12,10 +12,10 @@
 namespace samogwas
 {
 
-/** Any clustering algorithm is derived from this based class.
- *  This provide common methods like invalide caching and the name of the derived method
+/** Any clustering algorithm is derived from this base class.
+ *  This provides common methods like invalid caching and the name of the derived method CS INCOMPREHENSIBLE
  */
-class AlgoClustering {
+class AlgoClustering { // CS Is this level mandatory? Many redundancies with class AlgoClust.
  public:
   virtual Partition operator()() { return run(); }
   virtual Partition run() = 0;
@@ -29,8 +29,9 @@ class AlgoClustering {
 
 /** The AlgoClust @Todo: Name changing is a specific case of AlgoClustering where the algorihm
  *  categorizes objects using a similarity/distance matrix.
+ * CS
  */
-template<typename CompareMatrix>
+template<typename CompareMatrix> // CS CompareMatrix should be ComparisonMatrix
 class AlgoClust: public AlgoClustering {
  public:
   virtual Partition run() = 0;
@@ -41,12 +42,12 @@ class AlgoClust: public AlgoClustering {
   virtual ~AlgoClust() { delete comp; }
   
  protected:
-  // Matrix of similarity/distance
-  CompareMatrix* comp;
+  // Matrix of similarities or distances
+  CompareMatrix* comp; // CS Bad identifier - Confusing with comparator - compMat should be used instead.
 };
 
 
-} // namespace samogwasends here. samogwas
+} // namespace samogwas ends here. samogwas // CS INCOMPREHENSIBLE
 
 /****************************************************************************************/
 #endif // SAMOGWAS_CLUSTERING_HPP
