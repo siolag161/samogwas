@@ -2,11 +2,14 @@
  * File: CAST.hpp
  * Description: CAST is an algorith for clustering which is based on the usage of a
  * -----------  dissimilarity matrix. 
- * @author: siolag161 (thanh.phan@outlook.com)
+ * // CS This description could apply to other algorithms.
+ * // At least, cite the publication and technical report.
+ * @author: siolag161 (thanh.phan@outlook.com) // CS Remark about affiliations not taken into account, since
+ *                                             // the first checking round in autumn 2013 
  * @date: 11/07/2014
 
  ***************************************************************************************/
-#ifndef CLUSTERING_CAST_HPP
+#ifndef CLUSTERING_CAST_HPP // CS Homogeneize the names all throughout the project.
 #define CLUSTERING_CAST_HPP
 
 #include "distance/similarity.hpp"
@@ -18,15 +21,16 @@ namespace samogwas
 {
 
 
-/** The CAST methods returns a repartition of the dataset in the form of non-overlapping set of CAST_Item.
- *  A CAST_Item is a structure which holds an index of of the object ( relatively in the original dataset ) and
- * the current affinity computed relatively to its current cluster.
+/** The CAST methods returns a repartition CS repartition or partition ??? of the dataset 
+ * CS CS CLARIFY in the form of non-overlapping set sets ??? of <objects of type> CAST_Item ???.
+ *  A CAST_Item is a structure which holds an index of the object ( <CS suggestion index relative to the> relatively in the original dataset ) and
+ * the current object's affinity computed relatively to its current assigned cluster.
  *
  */
 struct CAST_Item {  
   int index;
   double affinity;
-  CAST_Item(const int matIdx, // const int glbIdx,
+  CAST_Item(const int matIdx, // const int glbIdx, // CS Why this specification?
             const double aff):
       index(matIdx), // globalIndex(glbIdx)
       affinity(aff) {}
@@ -38,13 +42,14 @@ struct CAST: public AlgoClust<SimiMatrix>  {
    *
    */
   CAST ( SimiMatrix* sim, const double& thres): AlgoClust<SimiMatrix>(sim), thresCAST(thres) {}
+  // CS It is not the first time I demand that sim be renamed in the more informative name simMat.
 
   /**
    *
    */
   virtual Partition run() {
     std::vector<CAST_Item> unAssignedCluster;
-    for ( int i = 0; i < this->comp->size(); ++i ) { 
+    for ( int i = 0; i < this->comp->size(); ++i ) { // CS Nobody can guess that comp is a matrix. 
       unAssignedCluster.push_back(CAST_Item(i, 0.0) );    
     }
     return run( unAssignedCluster );
