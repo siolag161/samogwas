@@ -6,7 +6,7 @@
  * @date: 09/07/2014
 
  ***************************************************************************************/
-#ifndef FLTM_CLUSTERING_HPP
+#ifndef FLTM_CLUSTERING_HPP // CS (it should be SAMOGWAS_PARTITION_HPP)
 #define FLTM_CLUSTERING_HPP
 
 #include "distance/comparable.hpp"
