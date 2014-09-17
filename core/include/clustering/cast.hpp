@@ -49,7 +49,7 @@ struct CAST: public AlgoClust<SimiMatrix>  {
    */
   virtual Partition run() {
     std::vector<CAST_Item> unAssignedCluster;
-    for ( int i = 0; i < this->comp->size(); ++i ) { // CS Nobody can guess that comp is a matrix. 
+    for ( int i = 0; i < this->comp->size(); ++i ) { // CS Nobody can guess that comp is a matrix. compMat should be used.
       unAssignedCluster.push_back(CAST_Item(i, 0.0) );    
     }
     return run( unAssignedCluster );
@@ -70,23 +70,24 @@ struct CAST: public AlgoClust<SimiMatrix>  {
    */
   inline Partition run( std::vector<CAST_Item>& unassignedCluster );
 
-  /** Reset the current affinity matrix
+  /** Resets the current affinity matrix
    *
    */
   inline void resetAffinity( std::vector<CAST_Item>& unAssignedCluster );
 
  protected:
-  // main parameter: the threshold for assigning objects
+  // main parameter: CS unuseful 
+  // CS the threshold involved in the computation of the CAST criterion for assigning an object to a cluster
   double thresCAST;     
 };
 
 //////////////////////////////////////////////////////////////////////////////
-struct AffinityCompute {
+struct AffinityCompute { // CS heterogeneous resetAffinity versus AffinityCompute 
   template<typename Compare>
   const int operator()(const std::vector<CAST_Item>& clust, Compare comp) const;    
 };
 
-/** Resets the current affinity of the given cluster as parameter
+/** Resets the current affinity of the cluster given as parameter
  *
  */
 inline void resetAffinity( std::vector<CAST_Item>& cluster);
