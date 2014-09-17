@@ -92,11 +92,16 @@ struct AffinityCompute { // CS heterogeneous resetAffinity versus AffinityComput
  */
 inline void resetAffinity( std::vector<CAST_Item>& cluster);
 // CS I do not see that there is such a step in the original CAST algorithm.
-// INsetad I see : When a new cluster Copen is started, the initial affinity of all genes are 0 since is Copen is empty
-
+// Instead I see : When a new cluster Copen is started, the initial affinities of all genes are 0 since Copen is empty.
+// CS Is it this step you describe here?
 // http://faculty.washington.edu/kayee/cluster/algs.pdf
+// Is it resetAffinity for the clusterofUnassignedObjects?
 
 
+// CS is unassignedCluster the equivalent of COpen?
+// In CAST, objects are assigned to clusters.
+// It is incomprehensible that a cluster would be unassigned. Do you mean "under construction"?
+// Or is it clusterOfUnassignedObjects?
 inline void addGoodItem( std::vector<CAST_Item>& unassignedCluster, std::vector<CAST_Item>& openCluster, 
                          CompMatrix& simMatrix, const int clusterIdx );
 
@@ -106,6 +111,7 @@ inline void removeBadItem( std::vector<CAST_Item>& unassignedCluster, std::vecto
 inline void updateClustersAffinity( std::vector<CAST_Item>& sourceCluster, std::vector<CAST_Item>& targetCluster, 
                                     CompMatrix& simMatrix,
                                     const int clusterIndex );
+// CS LILOU                                    
 
 inline void moveItemBetweenClusters( std::vector<CAST_Item>& source, std::vector<CAST_Item>& target, const int clusterIndex );
 
