@@ -5,8 +5,9 @@
  * @date: 30/07/2014
 
  ***************************************************************************************/
-#ifndef SAMOGWAS_CLUSTERING_HPP // CS Name assigment is not consistent throughout the project - 
-                                // see partition.hpp where
+#ifndef SAMOGWAS_CLUSTERING_HPP // CS Directive name assigment is not consistent throughout the project - 
+                                // see partition.hpp where the directive FLTM_CLUSTERING_HPP is used 
+                                // (it should be SAMOGWAS_PARTITION)
 #define SAMOGWAS_CLUSTERING_HPP
 
 #include "partition.hpp"
