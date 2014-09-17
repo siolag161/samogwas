@@ -91,6 +91,8 @@ struct AffinityCompute { // CS heterogeneous resetAffinity versus AffinityComput
  *
  */
 inline void resetAffinity( std::vector<CAST_Item>& cluster);
+// CS I do not see that there is such a step in the original CAST algorithm.
+// http://faculty.washington.edu/kayee/cluster/algs.pdf
 
 
 inline void addGoodItem( std::vector<CAST_Item>& unassignedCluster, std::vector<CAST_Item>& openCluster, 
