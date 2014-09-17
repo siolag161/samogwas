@@ -36,7 +36,8 @@ struct CAST_Item {
       affinity(aff) {}
 };
 ////////////////////////////////////////////////////////////////////////////
-template<typename SimiMatrix>
+template<typename SimiMatrix> // CS I am lost 
+                              // I do not know if your SimiMatrix is elsewhere your compMatrix.
 struct CAST: public AlgoClust<SimiMatrix>  {
   /**
    *
