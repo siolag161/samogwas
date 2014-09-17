@@ -82,7 +82,8 @@ struct CAST: public AlgoClust<SimiMatrix>  {
 };
 
 //////////////////////////////////////////////////////////////////////////////
-struct AffinityCompute { // CS heterogeneous resetAffinity versus AffinityCompute 
+
+struct AffinityCompute { // CS heterogeneous notation: resetAffinity versus AffinityCompute 
   template<typename Compare>
   const int operator()(const std::vector<CAST_Item>& clust, Compare comp) const;    
 };
@@ -91,6 +92,8 @@ struct AffinityCompute { // CS heterogeneous resetAffinity versus AffinityComput
  *
  */
 inline void resetAffinity( std::vector<CAST_Item>& cluster);
+// What is the link with the above inline void resetAffinity?
+//
 // CS I do not see that there is such a step in the original CAST algorithm.
 // Instead I see : When a new cluster Copen is started, the initial affinities of all genes are 0 since Copen is empty.
 // CS Is it this step you describe here?
@@ -101,7 +104,7 @@ inline void resetAffinity( std::vector<CAST_Item>& cluster);
 // CS is unassignedCluster the equivalent of COpen?
 // In CAST, objects are assigned to clusters.
 // It is incomprehensible that a cluster would be unassigned. Do you mean "under construction"?
-// Or is it clusterOfUnassignedObjects?
+// Or is it clusterOfUnassignedObjects rather (as I guess)?
 inline void addGoodItem( std::vector<CAST_Item>& unassignedCluster, std::vector<CAST_Item>& openCluster, 
                          CompMatrix& simMatrix, const int clusterIdx );
 
@@ -111,7 +114,7 @@ inline void removeBadItem( std::vector<CAST_Item>& unassignedCluster, std::vecto
 inline void updateClustersAffinity( std::vector<CAST_Item>& sourceCluster, std::vector<CAST_Item>& targetCluster, 
                                     CompMatrix& simMatrix,
                                     const int clusterIndex );
-// CS LILOU                                    
+// CS heterogeneous notation: clusterIdx versus clusterIndex                                    
 
 inline void moveItemBetweenClusters( std::vector<CAST_Item>& source, std::vector<CAST_Item>& target, const int clusterIndex );
 
@@ -122,21 +125,23 @@ namespace samogwas
 {
 
 
-/** Implements the CAST algorithm following the original paper
+/** Implements the CAST algorithm following the original paper mentioned in the filehead
  *
  */
 template<typename SimiMatrix>
 Partition CAST<SimiMatrix>::run( std::vector<CAST_Item>& unAssignedCluster ) {
   Partition result;
-  while ( unAssignedCluster.size() ) {  // as long as there is still object remains to be classified
+  while ( unAssignedCluster.size() ) {  // as long as there is still remains an object to be classified
     std::vector<CAST_Item> openCluster; // creates a new cluster
-    resetAffinity( unAssignedCluster ); // reset the affinity related to the remaining objects
+    resetAffinity( unAssignedCluster ); // reset the affinities of the objects remaining to be classified
     bool changesOccurred = true; 
-    while (changesOccurred && unAssignedCluster.size()) { // beging organizing objects
+    while (changesOccurred && unAssignedCluster.size()) { // begin organizing objets CS vague 
+                                                          // CS starts assigning objects to openCluster
       changesOccurred = false;
       AffinityCompute maxCompute;
       AffinityCompute minCompute;
       while ( unAssignedCluster.size() ) { // tries to put the best-affinity objects in the open cluster
+                                           // CS tries to assign the objects with the best affinities to openCluster
         int maxAffIdx = maxCompute( unAssignedCluster, std::greater<double>() );
         if ( unAssignedCluster.at(maxAffIdx).affinity >= thresCAST*openCluster.size() ) {
           changesOccurred = true;
