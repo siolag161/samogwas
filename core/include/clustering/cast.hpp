@@ -130,7 +130,7 @@ namespace samogwas
  */
 template<typename SimiMatrix>
 Partition CAST<SimiMatrix>::run( std::vector<CAST_Item>& unAssignedCluster ) {
-  Partition result;
+  Partition result; // CS growingPartition ?
   while ( unAssignedCluster.size() ) {  // as long as there is still remains an object to be classified
     std::vector<CAST_Item> openCluster; // creates a new cluster
     resetAffinity( unAssignedCluster ); // reset the affinities of the objects remaining to be classified
@@ -141,9 +141,9 @@ Partition CAST<SimiMatrix>::run( std::vector<CAST_Item>& unAssignedCluster ) {
       AffinityCompute maxCompute;
       AffinityCompute minCompute;
       while ( unAssignedCluster.size() ) { // tries to put the best-affinity objects in the open cluster
-                                           // CS tries to assign the objects with the best affinities to openCluster
+                                           // CS successively tries to assign the objects with the best affinities to openCluster
         int maxAffIdx = maxCompute( unAssignedCluster, std::greater<double>() );
-        if ( unAssignedCluster.at(maxAffIdx).affinity >= thresCAST*openCluster.size() ) {
+        if ( unAssignedCluster.at(maxAffIdx).affinity >= thresCAST * openCluster.size() ) {
           changesOccurred = true;
           addGoodItem( unAssignedCluster, openCluster, *this->comp, maxAffIdx );
         } else {
@@ -151,18 +151,19 @@ Partition CAST<SimiMatrix>::run( std::vector<CAST_Item>& unAssignedCluster ) {
         }
       }
       while( unAssignedCluster.size() ) { // tries to remove the worst-affinity objects from the open cluster
+                                          // CS successively tries to remove the objects with the worst affinities from openCluster
         int minAffIdx = minCompute( openCluster, std::less<double>() );
-        if ( openCluster.at(minAffIdx).affinity < thresCAST*openCluster.size() ) {
+        if ( openCluster.at(minAffIdx).affinity < thresCAST * openCluster.size() ) {
           changesOccurred = true;
           removeBadItem( unAssignedCluster, openCluster, *this->comp, minAffIdx );
         } else {
           break;
         }       
       }
-    }  // until stablized
-    // put the newly created open cluster into the current repartition and continues
-    int cluster_id =  result.nbrClusters(); 
-    for ( auto& item: openCluster ) {
+    }  // until stabilized
+    // puts the newly created openCluster into the current partition and continues
+    int cluster_id =  result.nbrClusters(); // CS growingPartition ?
+    for ( auto& item: openCluster ) { // CS INCOMPREHENSIBLE
       result.cluster( item.index, cluster_id );
     }
   }  
