@@ -1,7 +1,8 @@
 /****************************************************************************************
- * File: DBSCAN.hpp
+ * File: DBSCAN.hpp // CS incorrect
  * Description: An implementation of DBSCAN algorithm for clustering of data.
- * @author: siolag161 (thanh.phan@outlook.com)
+ * // CS reference
+ * @author: siolag161 (thanh.phan@outlook.com) // CS affiliations
  * @date: 12/07/2014
 
  ***************************************************************************************/
@@ -15,6 +16,7 @@ namespace samogwas
 {
 
 /** DBSCAN is a functor that implements AlgoClust interface for data clustering.
+ * // CS same commentary for CAST 
  *
  */
 template<typename DistanceMatrix>
