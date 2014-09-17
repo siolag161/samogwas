@@ -16,22 +16,29 @@ namespace samogwas
 {
 
 /** DBSCAN is a functor that implements AlgoClust interface for data clustering.
- * // CS same commentary for CAST 
+ * // CS Why not same commentary for CAST?
  *
  */
-template<typename DistanceMatrix>
+template<typename DistanceMatrix> 
+// CS I refer to in clustering.hpp : AlgoClust( CompareMatrix* c): comp(c) {}
+// CS For clarity, keep  a (good) type identifier throughout the whole application.
 struct DBSCAN: public AlgoClust<DistanceMatrix> {
   
-  typedef size_t Index;
-  typedef std::vector<Index> Neighbors; // An important concept of DBSCAN involves Neighbors: a set of nearby objects
+  typedef size_t Index; // CS I do not like Index as a type name
+                        // I do not see the usefulness of not keeping size_t as in other parts of the application.    
+  typedef std::vector<Index> Neighbors; // An important concept of DBSCAN involves Neighbors, a set of nearby objects.
   typedef std::vector<Index> Labels; 
 
-  /** The constructor which takes three parameters: a distance matrix that holds the dissimilarities between pairs of object, the minimum number of a points to form a dense region, and the density threshold which determines whether two points are `close'.
+  /** The constructor which takes three parameters: 
+   * a distance matrix that holds the dissimilarities between pairs of object, 
+   * the minimum number of a points to form a dense region, 
+   * and the density threshold which determines whether two points are `close'.
    *  
    * 
    */
   DBSCAN( DistanceMatrix* d, const int eles, const double eps ):
-      AlgoClust<DistanceMatrix>(d), min_elems(eles), epsilon(eps) {   
+      AlgoClust<DistanceMatrix>(d), min_elems(eles), epsilon(eps) { // CS eles: not a nice identifier minElems (?)
+                                                                    // CS eps: epsi would be more informative
   }
 
   /** The main method that executes the algorithm
@@ -40,30 +47,39 @@ struct DBSCAN: public AlgoClust<DistanceMatrix> {
 
   /// The method that returns the name of this algorithm, along with its parameters
   virtual char* name() const {
-    char* name = new char[80];
+    char* name = new char[81];
     sprintf( name, "DBSCAN_%d_%.3f", min_elems, epsilon);
     return name;
   }
 
  protected:
-  /// Internal method that returns a set of `density-reachable' from a given point.
-  Neighbors find_neighbors( const Index pid ) const;
+  /// Internal method that returns a set of `density-reachable' <points ???> from a given point.
+  Neighbors find_neighbors( const Index pid ) const; // CS What is your rule for function identifiers all throughout 
+                                                     // the application? findNeighbors versus find_neighbors
 
   /// Converts current clustering to the partition type
-  static Partition to_partition( const std::vector<int>& labels );
+  static Partition to_partition( const std::vector<int>& labels ); // CS, in CAST, you use indexes, in DBSCAN, you use
+                                                                   // labels?
+                                                                   // to_partition versus toPartition?
     
  protected:
   int min_elems;
   double epsilon;
 };
 
-} // namespace gwas ends here. fltm
+} // namespace gwas ends here. fltm CS ????
 
 /****************************************************************************************/
 namespace samogwas
 {
 
-/** The main method that executes the algorithm. The idea is based on the `density-reachability' concept. We visit every non-visited object in the data set and from there try to reach other non-visited objects that are considered close to this one. An object is reachable from another when the distance between them is less than the density-threshold parameter. A region is formed once we cannot reach any more point outside of this group. If the cardinality of this region is below the minPts parameter, we discard and consider it as noise. Otherwise a new cluster is formed and we continue to proceed with the rest of non-visited objects ( if any b).
+/** The main method that executes the algorithm. The idea is based on the `density-reachability' concept. 
+ * We visit every non-visited object in the data set and from there try to reach other non-visited objects 
+ * that are considered close to this one. 
+ * An object is reachable from another when the distance between them is less than the density-threshold parameter. 
+ * A region <CS a region ??? a cluster ????> is formed once we cannot reach any more point outside of this group. If the 
+ * cardinality of this region <CS group ?> is below the minPts <CS unknown> parameter, we discard <CS the cluster> and 
+ * consider it as noise. Otherwise a new cluster is formed and we continue to proceed with the rest of non-visited objects ( if any b).
  *
  */
 template<typename DistanceMatrix>
