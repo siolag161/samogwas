@@ -92,6 +92,8 @@ struct AffinityCompute { // CS heterogeneous resetAffinity versus AffinityComput
  */
 inline void resetAffinity( std::vector<CAST_Item>& cluster);
 // CS I do not see that there is such a step in the original CAST algorithm.
+// INsetad I see : When a new cluster Copen is started, the initial affinity of all genes are 0 since is Copen is empty
+
 // http://faculty.washington.edu/kayee/cluster/algs.pdf
 
 
