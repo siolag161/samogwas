@@ -82,11 +82,14 @@ struct CAST: public AlgoClust<SimiMatrix>  {
 };
 
 //////////////////////////////////////////////////////////////////////////////
+// CS What about the separation rules? Where to insert /////////// or /*********/?
 
 struct AffinityCompute { // CS heterogeneous notation: resetAffinity versus AffinityCompute 
   template<typename Compare>
   const int operator()(const std::vector<CAST_Item>& clust, Compare comp) const;    
 };
+
+// CS What about the separation rules? Where to insert /////////// or /*********/?
 
 /** Resets the current affinity of the cluster given as parameter
  *
@@ -164,30 +167,32 @@ Partition CAST<SimiMatrix>::run( std::vector<CAST_Item>& unAssignedCluster ) {
     // puts the newly created openCluster into the current partition and continues
     int cluster_id =  result.nbrClusters(); // CS growingPartition ?
     for ( auto& item: openCluster ) { // CS INCOMPREHENSIBLE
-      result.cluster( item.index, cluster_id );
+      result.cluster( item.index, cluster_id ); // CS The procedure's name is ambiguous.
     }
   }  
   return result;  
 }
 
-// sets all the affinity valuse to zeroes
+// sets all the affinity values to zeroes
 template<typename SimiMatrix>
-void CAST<SimiMatrix>::resetAffinity( std::vector<CAST_Item>& cluster ) {
+void CAST<SimiMatrix>::resetAffinity( std::vector<CAST_Item>& cluster ) { // CS resetAffinityValuesToZero
   for ( std::vector<CAST_Item>::iterator it = cluster.begin(); it != cluster.end(); ++it ) {
     it->affinity = 0.0;
   } 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+// CS What is the rule for using //////////// or /*****************/?
 /** Searches for the object in given cluster which has the optimal (best/worst) affinity
  *
  */
 template<typename Compare>
 const int AffinityCompute::operator()( const std::vector<CAST_Item>& clust, Compare comp) const
-{
-  int result = 0; 
+// CS obligatorily specify precondition
+{ // CS change in presentation - left bracket should be after const
+  int result = 0; // CS bad identifier idx_optimum
   for (int idx = 1; idx < clust.size(); idx++) {
-    if ( comp(clust.at(idx).affinity, clust.at(result).affinity) ) { 
+    if ( comp(clust.at(idx).affinity, clust.at(result).affinity) ) { // CS not optimized
       result = idx;    
     }
   }
@@ -197,33 +202,41 @@ const int AffinityCompute::operator()( const std::vector<CAST_Item>& clust, Comp
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-/// Adds a candidate item to the open cluster
+/// Adds a potentially good candidate item to openCluster
 void addGoodItem( std::vector<CAST_Item>& unAssignedCluster, std::vector<CAST_Item>& openCluster, 
                   CompMatrix& simCompute, const int clusterIdx ) {  
-  updateClustersAffinity( unAssignedCluster, openCluster, simCompute,
-                          clusterIdx );  
+  updateClustersAffinity( unAssignedCluster, openCluster, 
+                          simCompute, clusterIdx );  
 }
 
-/// removes a potentially bad item from the cluster
+/// removes a bad item from the cluster CS from openCluster ?
 void removeBadItem( std::vector<CAST_Item>& unAssignedCluster, std::vector<CAST_Item>& openCluster, 
                     CompMatrix& simCompute, const int clusterIdx ) {
-  updateClustersAffinity( openCluster, unAssignedCluster, simCompute,
-                          clusterIdx); 
+  updateClustersAffinity( openCluster, unAssignedCluster, 
+                          simCompute, clusterIdx); 
 }
 
-/// updates the affinity after changes are made to reflect current repartition
+// updates the affinity after changes are made to reflect current assignment
+// CS updates the affinity values in sourceCluster and targetCluster after the move of indeXItem
 void updateClustersAffinity( std::vector<CAST_Item>& sourceCluster, std::vector<CAST_Item>& targetCluster,
                              CompMatrix& simCompute, 
-                             const int clusterIndex )
+                             const int clusterIndex ) // CS bad denomination
+                                                      // indexOfItemInSourceCluster
 {
   const CAST_Item item = sourceCluster.at(clusterIndex);
-  moveItemBetweenClusters( sourceCluster, targetCluster, clusterIndex );
+  // CS not optimized?
+  // CS const int itemIndex = sourceCluster.at(clusterIndex).index;
+  moveItemBetweenClusters( sourceCluster, targetCluster, clusterIndex ); 
   for (int i = 0; i < sourceCluster.size(); i++) {
-    sourceCluster[i].affinity += simCompute( sourceCluster[i].index, item.index );
+    sourceCluster[i].affinity += simCompute( sourceCluster[i].index, item.index ); // CS I am lost
+                                                                                   // Is type CompMatrix for ComparisonMatrix
+                                                                                   // or is it for simComputationFromMatrix?
+                                                                                   // suggestion for type identifier: CompSimFromMatrix?
+                                                                                   // + itemIndex instead of item.index
   }
 
   for (int i = 0; i < targetCluster.size(); i++) {
-    targetCluster[i].affinity += simCompute( targetCluster[i].index, item.index );
+    targetCluster[i].affinity += simCompute( targetCluster[i].index, item.index ); // CS itemIndex 
   } 
 
 }
@@ -231,10 +244,12 @@ void updateClustersAffinity( std::vector<CAST_Item>& sourceCluster, std::vector<
 /// Moves item from source cluster to target cluster
 void moveItemBetweenClusters( std::vector<CAST_Item>& source,
                               std::vector<CAST_Item>& target,
-                              const int clusterIndex ) {
+                              const int clusterIndex ) { // indexOfItemInSourceCluster
   target.push_back( source.at(clusterIndex) );
   //source.remove(clusterIndex);
-  source.erase( source.begin() + clusterIndex );
+  source.erase( source.begin() + clusterIndex ); // CS I do not understand this argument
+                                                 // CS C++ vector erase Removes the element at pos.
+                                                  // CS I would have expected indexOfItemInSourceCluster
 }
 
 
