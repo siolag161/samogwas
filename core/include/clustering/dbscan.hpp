@@ -82,43 +82,61 @@ namespace samogwas
  * consider it as noise. Otherwise a new cluster is formed and we continue to proceed with the rest of non-visited objects ( if any b).
  *
  */
-template<typename DistanceMatrix>
+template<typename DistanceMatrix> // CS bad type identifier, 
+                                  // is it CompareMatrix as in clustering.hpp : AlgoClust( CompareMatrix* c): comp(c) {}
+                                  // or is it really a dissimilarity matrix?
 Partition DBSCAN<DistanceMatrix>::run() {
   size_t nvars = this->comp->size(); // number of total variables
-  std::vector<int> m_labels( nvars, -1); 
-  std::vector<int> visited( nvars, 0 ); // to keep track of visit state for every objects
+                                     // CS comp is not an informative identifier
+  std::vector<int> m_labels( nvars, -1); // CS What is stored in m_labels?
+  std::vector<int> visited( nvars, 0 ); // to keep track of visiting state for each object
   int cluster_id = 0; // initially there is no cluster formed
   printf("----------------------- DBSCAN: %d vars--------------------------\n", (int)nvars);
   
-  for (int pid = 0; pid < nvars; ++pid) { // we visit every non-visited object in this cluster
+  for (int pid = 0; pid < nvars; ++pid) { // CS we visit every non-visited object in this cluster
+                                          // I do not see that there is a cluster, since you iterate on all objects.
+                                          // CS Why pid and not i?
+                                          // CS use j or k
     if ( !visited[pid] ) {
       visited[pid] = 1;
       Neighbors ne = find_neighbors(pid); // we find all the reachable objects from the current point
+                                          // heterogeneous style. finds all the reachable objects from the current point
+                                          // Vocabulary is very confusing: do not mix points and objets
+                                          // Keep to one unique term.
+                                          // + neighbs instead of ne
+                                          
       if ( ne.size() >= min_elems ) { // if the found region is not a noisy one
+                                      // CS region???
+                                      // CS + neighbs instead of ne
         m_labels[pid] = cluster_id; // partition.cluster( pid, cluster_id ); // we form a new cluster
-        for ( int i = 0; i < ne.size(); ++i) { // and proceed to grow this cluster by trying to reach from its memebers
-          int nPid = ne[i]; // like above, we visit 
+                                    // CS bad identifier -> ObjectIdToClusterId ???
+        for ( int i = 0; i < ne.size(); ++i) { // CS grows this cluster by trying to reach <CS other objects?>
+                                               // from each of its members
+          int nPid = ne[i]; // like above, we visit CS unuseful
           if ( !visited[nPid] ) {
             visited[nPid] = 1;
-            Neighbors ne1 = find_neighbors(nPid); // trying to find a new neighbors
+            Neighbors ne1 = find_neighbors(nPid); // trying to find a new neighbor // CS new neighbours
+                                                  // CS neighbs1 
             if ( ne1.size() >= min_elems ) {
-              for (const auto & n1 : ne1) {
+              for (const auto & n1 : ne1) { // CS Again, I hate this syntax. Is is necessary? Is it an optimization?
                 ne.push_back(n1); // adds all the newly-found object to the current reachability region
+                                  // CS adds all the newly found objects to the current cluster
               }
             }
           }
           if ( m_labels[nPid] == -1 ) {
-            m_labels[nPid] = cluster_id; // assigns object to its cluster
+            m_labels[nPid] = cluster_id; // CS assigns object to its cluster <the cluster under construction>
           }
         }
         ++cluster_id; // increments the current cluster id
       }
     }
   }
-  return to_partition(m_labels); //
+  return to_partition(m_labels); // CS to_partition is a function?
 }
 
 /** A neighborhood of a given object is defined as all the points that are within a certain given distance.
+ * CS A neighborhood of a given object is defined as all the objects that are within a given distance.
  *
  */
 template<typename DistanceMatrix>
