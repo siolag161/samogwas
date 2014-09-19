@@ -1,17 +1,17 @@
 /****************************************************************************************
- * File: Diss.hpp
+ * File: Diss.hpp // CS This is not the name of the file.
  * Description: 
- * @author: siolag161 (thanh.phan@outlook.com)
+ * @author: siolag161 (thanh.phan@outlook.com) // CS Affiliation
  * @date: 09/07/2014
 
  ***************************************************************************************/
-#ifndef FLTM_DISS_HPP
+#ifndef FLTM_DISS_HPP // CS Heterogeneous name assignement rule
 #define FLTM_DISS_HPP
 
 #include <vector>
 
 #include "mut_info_distance.hpp"
-namespace fltm
+namespace fltm // CS Heterogeneous name assignement rule
 {
 
 struct Comp {
