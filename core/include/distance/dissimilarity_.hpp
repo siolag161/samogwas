@@ -38,7 +38,8 @@ struct MutInfoDiss: public Distance {
 private:
   MutInfoDistance< std::vector< std::vector<int> > > m_diss; // CS I expect the type MutInfoDistance to be defined in
                                                              // the unique included file "mut_info_distance.hpp"
-                                                             // But I do not see the expected definition in this code. 
+                                                             // CS !!!!!!!!!!!!!!!!!!!!
+                                                             // But I do not even see that the file mut_info_distance.hpp exists.
 };
 
 
