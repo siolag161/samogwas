@@ -3,6 +3,10 @@
  * Description: Dissimilarity based on mutual information metric.
  * @author: siolag161 (thanh.phan@outlook.com)
  * @date: 12/06/2014
+ * // CS specify that this dissimilarity is thresholded (< median -> 0, > median -> 1) (ex CAST_bin)
+ * // specify for = median
+ * // Is there some code elsewhere for unthresholded dissimilarities? (ex CAST_real)
+ *
 
  ***************************************************************************************/
 #ifndef CLUSTERING_DISTANCE_HPP // CS Yet another name!
