@@ -136,14 +136,14 @@ Partition DBSCAN<DistanceMatrix>::run() {
 }
 
 /** A neighborhood of a given object is defined as all the points that are within a certain given distance.
- * CS A neighborhood of a given object is defined as all the objects that are within a given distance.
+ * CS The neighborhood of a given object is defined as all the objects that are within a given distance.
  *
  */
 template<typename DistanceMatrix>
 typename DBSCAN<DistanceMatrix>::Neighbors DBSCAN<DistanceMatrix>::find_neighbors( const Index pid ) const {
   Neighbors ne;
   size_t nvars = this->comp->size();
-  for ( Index i = 0; i < nvars; ++i ) { // Simply try to add every point if the distance between it and the given object is within the threshold parameter 
+  for ( Index i = 0; i < nvars; ++i ) { // tries to add each point if the distance between it and the given object is within the threshold parameter 
     if ( this->comp->compute( i, pid ) <= epsilon ) {
       ne.push_back(i);
     }
@@ -163,7 +163,7 @@ Partition DBSCAN<DistanceMatrix>::to_partition( const std::vector<int>& labels )
   std::vector<int> singletons;
   for ( size_t i = 0; i < labels.size(); ++i ) {
     if ( labels.at(i) != -1 ) {
-      partition.cluster( i,labels.at(i) );
+      partition.cluster( i,labels.at(i) ); // CS identifier could be more informative.
       unique_labs.insert( labels.at(i) );
     } else {
       singletons.push_back(i);
@@ -173,7 +173,7 @@ Partition DBSCAN<DistanceMatrix>::to_partition( const std::vector<int>& labels )
   for ( auto& i: singletons ) {
     size_t cur_cluster = unique_labs.size();
     partition.cluster(i, cur_cluster);
-    unique_labs.insert(cur_cluster);
+    unique_labs.insert(cur_cluster); // CS semantics?
   }
   
   return partition;
