@@ -36,7 +36,9 @@ struct MutInfoDiss: public Distance {
   virtual void invalidCache() { m_diss.invalidCache(); }
  
 private:
-  MutInfoDistance< std::vector< std::vector<int> > > m_diss;
+  MutInfoDistance< std::vector< std::vector<int> > > m_diss; // CS I expect the type MutInfoDistance to be defined in
+                                                             // the unique included file "mut_info_distance.hpp"
+                                                             // But I do not see the expected definition in this code. 
 };
 
 
