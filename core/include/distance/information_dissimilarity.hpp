@@ -38,24 +38,25 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
   
   /** The construction which takes a reference to the actual dataset, the position.
    *  The thres value determines whether this returns a 0/1 distance or the actual distance.
-   *  The 0/1 distance is obtainable if `thres` is set as a positive value and return `1` if actual
-   *  value is greater than this threshold, otherwise returns 0. If `thres` negative then return actual
+   *  The thresholded 0/1 distance is obtainable if `thres` is set as a positive value: the dissimilarity value returned
+   *  is `1` if actual dissimilarity value is greater than this threshold; otherwise, the dissimilarity value returned
+   *  is 0. If `thres` is negative, then the dissimilarity value returned is the actual dissimilarity value.
    *  distance.
    */
   MutInfoDissimilarity( DataMatrix& dm, std::vector<int>& pos, unsigned maxPos, double thres );
 
   
-  /** Computes and returns the distance between 2 variables, indexed by varA and varB
+  /** Computes and returns the distance between two variables, indexed by varA and varB
    *  in the dataset.
    */
   virtual double compute( const size_t varA, const size_t varB );
   
-  /** Returns the number of variables
+  /** Returns the number of variables // CS vague
    *
    */
   virtual size_t size() const { return dataMat.size(); }
 
-  /** Invalidaes current caching values
+  /** Invalidates current caching values // Cs which means?
    *
    */
   virtual void invalidCache() {
@@ -70,23 +71,24 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
   // reference to the actual data
   DataMatrix& dataMat;
 
-  // reference to the positions data
+  // reference to the positions data // CS Which means?
   std::vector<int>& positions;
 
-  // the maximum threshold for position
+  // the maximum threshold for position // CS Is it the maximal distance (in bp???) below which two objects are allowed
+                                        // in the same cluster? Is it delta_dist?
   unsigned maxPosition;
 
   // threshold for 0/1 data casting
-  double m_thres;
+  double m_thres; // CS Could this be _thres, more simply?
 
-  // for caching the entropy during computation
-  std::vector<double> entropyMap;
+  // for caching the entropy during computation // CS What do you mean by caching?
+  std::vector<double> entropyMap; // CS Why map?
 
-  // for caching the distance during computation
-  std::map< size_t, double > distCache;
+  // for caching the distance <CS dissimilarity???> during computation ?????
+  std::map< size_t, double > distCache; // explain key and value
 
-  // the current median value
-  double m_median;
+  // the current median value // CS of what? 
+  double m_median; // CS Could this be _median, more simply?
 };
 
   
@@ -98,11 +100,11 @@ double mutualInformationDistance( std::vector<double>& entropyMap,
                                   const size_t varB );
 template<class DM>
 MutInfoDissimilarity<DM>::MutInfoDissimilarity( DM& dm,
-                                                std::vector<int>& pos,
-                                                unsigned maxPos,
+                                                std::vector<int>& pos, // bad identifier -> positions
+                                                unsigned maxPos, // bad identifier
                                                 double thres ):
     dataMat(dm), positions(pos),
-    maxPosition(maxPos), entropyMap(std::vector<double> (pos.size(), -MAX_DISTANCE)),
+    maxPosition(maxPos), entropyMap(std::vector<double> (pos.size(), -MAX_DISTANCE)), // CS unclear
     m_thres(thres)
 {
   size_t nbrVars = positions.size();
