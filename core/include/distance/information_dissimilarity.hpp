@@ -1,19 +1,19 @@
 /****************************************************************************************
- * File: Distance.hpp
+ * File: Distance.hpp // CS Happy to see this for the information_dissimilarity.hpp file
  * Description: Dissimilarity based on mutual information metric.
  * @author: siolag161 (thanh.phan@outlook.com)
  * @date: 12/06/2014
 
  ***************************************************************************************/
-#ifndef CLUSTERING_DISTANCE_HPP
+#ifndef CLUSTERING_DISTANCE_HPP // CS Yet another name!
 #define CLUSTERING_DISTANCE_HPP
 
 #include <stdlib.h> /* abs */
 #include <map>
 
-#include <boost/accumulators/accumulators.hpp> /** for computing median **/
+#include <boost/accumulators/accumulators.hpp> /** to compute median **/
 #include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/median.hpp> /* computing median */
+#include <boost/accumulators/statistics/median.hpp> /* to compute median */
 
 #include "comparable.hpp"
 #include "statistics/mutual_information.hpp"
@@ -25,8 +25,9 @@ const static double MAX_DISTANCE = 1.0, MIN_DISTANCE = 0.0;
 
 /** Metric values are scaled to the [0,1] range. 
  *  This method also takes into consideration the position ( physical distance in the genomics context )
- *  for computing. Normal usage, without this contraint, can be done by setting the constrains correspondingly.
- *  For example by setting the threshold as infinity. We can override this class to provide more flexibility also.
+ *  for computing. Normal usage, without this contraint, can be done by setting the constraints correspondingly,
+ *  for example by setting the threshold as infinity. 
+ * CS We can override this class to provide more flexibility also. // CS Is it done?
  */
 template<class DataMatrix>
 struct MutInfoDissimilarity: public DissimilarityMatrix {
