@@ -1,5 +1,5 @@
 /****************************************************************************************
- * File: Diss.hpp // CS This is not the name of the file.
+ * File: Diss.hpp // CS This is not the name of the file. Is this file obsolete?
  * Description: 
  * @author: siolag161 (thanh.phan@outlook.com) // CS Affiliation
  * @date: 09/07/2014
@@ -39,7 +39,9 @@ private:
   MutInfoDistance< std::vector< std::vector<int> > > m_diss; // CS I expect the type MutInfoDistance to be defined in
                                                              // the unique included file "mut_info_distance.hpp"
                                                              // CS !!!!!!!!!!!!!!!!!!!!
-                                                             // But I do not even see that the file mut_info_distance.hpp exists.
+                                                             // But I do not even see that the file mut_info_distance.hpp
+                                                             // exists.
+                                                             // Is this file obsolete?
 };
 
 
