@@ -1,17 +1,17 @@
 /****************************************************************************************
- * File: Diss.hpp
+ * File: Diss.hpp // CS This is not the name of the file. Is this file obsolete?
  * Description: 
- * @author: siolag161 (thanh.phan@outlook.com)
+ * @author: siolag161 (thanh.phan@outlook.com) // CS Affiliation
  * @date: 09/07/2014
 
  ***************************************************************************************/
-#ifndef FLTM_DISS_HPP
+#ifndef FLTM_DISS_HPP // CS Heterogeneous name assignement rule
 #define FLTM_DISS_HPP
 
 #include <vector>
 
-#include "mut_info_distance.hpp"
-namespace fltm
+#include "mut_info_distance.hpp" // CS How can this code work. This file does not even exist.
+namespace fltm // CS Heterogeneous name assignement rule
 {
 
 struct Comp {
@@ -36,7 +36,12 @@ struct MutInfoDiss: public Distance {
   virtual void invalidCache() { m_diss.invalidCache(); }
  
 private:
-  MutInfoDistance< std::vector< std::vector<int> > > m_diss;
+  MutInfoDistance< std::vector< std::vector<int> > > m_diss; // CS I expect the type MutInfoDistance to be defined in
+                                                             // the unique included file "mut_info_distance.hpp"
+                                                             // CS !!!!!!!!!!!!!!!!!!!!
+                                                             // But I do not even see that the file mut_info_distance.hpp
+                                                             // exists.
+                                                             // Is this file obsolete?
 };
 
 

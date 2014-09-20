@@ -26,3 +26,7 @@ The `samogwas` project is organized structurally as follows:
   *  stand-alone or projects that depend on `SAMOGWAS core` project
 * sample: sample dataset for test purposes
 * tests: unit tests for `core` and evolving projects
+
+
+
+8888
