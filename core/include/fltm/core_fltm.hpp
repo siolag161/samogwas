@@ -15,10 +15,10 @@ namespace samogwas
 typedef std::vector< std::vector<int> > Matrix;
 typedef plSymbol Variable;
 typedef int Index;  
-typedef std::string Label;
+typedef std::string StrLabel;
 typedef int Position;
-typedef std::map<Label, Index> Label2GraphIndex; // for a variable, label to global index
-typedef std::map<Label, Position> Label2Pos;
+typedef std::map<StrLabel, Index> StrLabel2GraphIndex; // for a variable, label to global index
+typedef std::map<StrLabel, Position> StrLabel2Pos;
 typedef std::vector<Index> Matrix2GraphIndex;
 
 struct FLTM_Result {
@@ -37,7 +37,7 @@ struct FLTM_Result {
 
 
 struct FLTM_Data {  
-  std::vector<Label> labels;
+  std::vector<StrLabel> labels;
   std::vector<Position> positions;
   std::vector<unsigned> ids;
   std::vector< std::vector<int> > matrix;

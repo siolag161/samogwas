@@ -15,7 +15,7 @@ namespace samogwas
 {
 
 /** Any clustering algorithm is derived from this base class.
- *  This provides common methods like invalid caching and the name of the derived method CS INCOMPREHENSIBLE
+ *  This provides common methods like invalidate caching and the name of the derived method CS INCOMPREHENSIBLE
  */
 class AlgoClustering { // CS Is this level mandatory? Many redundancies with class AlgoClust.
  public:
@@ -38,18 +38,18 @@ class AlgoClust: public AlgoClustering {
  public:
   virtual Partition run() = 0;
   virtual char* name() const = 0;
-  virtual void invalidCache() { comp->invalidCache(); }
+  virtual void invalidCache() { compMatrix->invalidCache(); }
 
-  AlgoClust( CompareMatrix* c): comp(c) {}
-  virtual ~AlgoClust() { delete comp; }
+  AlgoClust( CompareMatrix* c): compMatrix(c) {}
+  virtual ~AlgoClust() { delete compMatrix; }
   
  protected:
   // Matrix of similarities or distances
-  CompareMatrix* comp; // CS Bad identifier - Confusing with comparator - compMat should be used instead.
+  CompareMatrix* compMatrix; 
 };
 
 
-} // namespace samogwas ends here. samogwas // CS INCOMPREHENSIBLE
+} // namespace samogwas ends here.
 
 /****************************************************************************************/
 #endif // SAMOGWAS_CLUSTERING_HPP

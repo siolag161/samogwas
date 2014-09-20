@@ -5,11 +5,11 @@
  * @date: 11/07/2014
 
  ***************************************************************************************/
-#ifndef FLTM_EM_HPP
-#define FLTM_EM_HPP  
+#ifndef SAMOGWAS_EM_HPP
+#define SAMOGWAS_EM_HPP  
 
 #include "core_em.hpp"
 #include "naive_bayes_em.hpp"
 
 /****************************************************************************************/
-#endif // FLTM_EM_HPP
+#endif // SAMOGWAS_EM_HPP

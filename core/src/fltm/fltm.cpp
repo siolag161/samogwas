@@ -19,7 +19,7 @@ namespace samogwas {
  *
  */
 void FLTM::operator()( FLTM_Result& result, FLTM_Data& input, FLTM_Options& opt ) {
-  Matrix2GraphIndex mat2GraphIndex; Label2GraphIndex label2GraphIndex;
+  Matrix2GraphIndex mat2GraphIndex; StrLabel2GraphIndex label2GraphIndex;
   const unsigned nbrObsVars = input.matrix.size();
   std::cout << "beginning FLTM..." << std::endl;
   setupVariables( input, result, mat2GraphIndex, label2GraphIndex, nbrObsVars, opt.cardinality );
@@ -79,7 +79,7 @@ void FLTM::operator()( FLTM_Result& result, FLTM_Data& input, FLTM_Options& opt 
 void FLTM::setupVariables( FLTM_Data& input,
                            FLTM_Result& result,
                            Matrix2GraphIndex& mat2GraphIndex,
-                           Label2GraphIndex& label2GraphIndex,
+                           StrLabel2GraphIndex& label2GraphIndex,
                            const size_t& nbrVars,
                            const size_t& cardinality) {
   for (size_t i = 0; i < input.labels.size(); ++i) {
@@ -152,7 +152,7 @@ bool FLTM::goodLatentVariable( std::vector<int>& latentCol,
 vertex_t FLTM::addLatentNode( Graph& graph,
                               const Variable& latentVar,
                               ResultEM& resultEM,
-                              Label2GraphIndex& label2GraphIndex ) {
+                              StrLabel2GraphIndex& label2GraphIndex ) {
   const vertex_t vertex = createVertex( graph,
                                         latentVar.cardinality(),
                                         false, // isLeaf

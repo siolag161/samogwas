@@ -25,9 +25,9 @@ template<typename DistanceMatrix>
 struct DBSCAN: public AlgoClust<DistanceMatrix> {
   
   typedef size_t Index; // CS I do not like Index as a type name
-                        // I do not see the usefulness of not keeping size_t as in other parts of the application.    
+                        // I do not see the usefulness of not keeping size_t as in other parts of the application. @pdt: it does not suppress size_t in other part. simply mean in this class we can use Index instead of size_t
   typedef std::vector<Index> Neighbors; // An important concept of DBSCAN involves Neighbors, a set of nearby objects.
-  typedef std::vector<Index> Labels; 
+  typedef std::vector<Index> Labels; // A Labels maps an Item Index to its Cluster Index
 
   /** The constructor which takes three parameters: 
    * a distance matrix that holds the dissimilarities between pairs of object, 
@@ -58,7 +58,7 @@ struct DBSCAN: public AlgoClust<DistanceMatrix> {
                                                      // the application? findNeighbors versus find_neighbors
 
   /// Converts current clustering to the partition type
-  static Partition to_partition( const std::vector<int>& labels ); // CS, in CAST, you use indexes, in DBSCAN, you use
+  static Partition to_partition( const Labels& labels ); // CS, in CAST, you use indexes, in DBSCAN, you use
                                                                    // labels?
                                                                    // to_partition versus toPartition?
     
@@ -75,52 +75,50 @@ namespace samogwas
 
 /** The main method that executes the algorithm. The idea is based on the `density-reachability' concept. 
  * We visit every non-visited object in the data set and from there try to reach other non-visited objects 
- * that are considered close to this one. 
- * An object is reachable from another when the distance between them is less than the density-threshold parameter. 
- * A region <CS a region ??? a cluster ????> is formed once we cannot reach any more point outside of this group. If the 
- * cardinality of this region <CS group ?> is below the minPts <CS unknown> parameter, we discard <CS the cluster> and 
- * consider it as noise. Otherwise a new cluster is formed and we continue to proceed with the rest of non-visited objects ( if any b).
- *
+ * that are considered close to this one.
+ * An object is reachable from another when the distance between them is less than the density-threshold parameter.
+ * For this purpose, first we try to find for each point all of its direct neighbors. If the number of such neigbors
+ * is below a given threshold minPts, we consider it as noisy point and move on to the next non-visited point.
+ * Otherwise, we proceed to grow this group by trying to add to it other points that could be reach from other members of the group.
+ * We continue until we cannot reach any more point outside of this group. A new cluster is then formed.
+ * 
  */
 template<typename DistanceMatrix> // CS bad type identifier, 
                                   // is it CompareMatrix as in clustering.hpp : AlgoClust( CompareMatrix* c): comp(c) {}
                                   // or is it really a dissimilarity matrix?
 Partition DBSCAN<DistanceMatrix>::run() {
-  size_t nvars = this->comp->size(); // number of total variables
+  size_t nvars = this->compMatrix->size(); // number of total variables
                                      // CS comp is not an informative identifier
-  std::vector<int> m_labels( nvars, -1); // CS What is stored in m_labels?
-  std::vector<int> visited( nvars, 0 ); // to keep track of visiting state for each object
-  int cluster_id = 0; // initially there is no cluster formed
-  printf("----------------------- DBSCAN: %d vars--------------------------\n", (int)nvars);
-  
+  std::vector<size_t> m_labels( nvars, -1); // CS What is stored in m_labels?
+  std::vector<size_t> visited( nvars, 0 ); // to keep track of visiting state for each object
+  int cluster_id = 0; // initially there is no cluster formed  
   for (int pid = 0; pid < nvars; ++pid) { // CS we visit every non-visited object in this cluster
                                           // I do not see that there is a cluster, since you iterate on all objects.
                                           // CS Why pid and not i?
                                           // CS use j or k
     if ( !visited[pid] ) {
       visited[pid] = 1;
-      Neighbors ne = find_neighbors(pid); // we find all the reachable objects from the current point
+      Neighbors neighbors  = find_neighbors(pid); // we find all the reachable objects from the current point
                                           // heterogeneous style. finds all the reachable objects from the current point
                                           // Vocabulary is very confusing: do not mix points and objets
                                           // Keep to one unique term.
                                           // + neighbs instead of ne
                                           
-      if ( ne.size() >= min_elems ) { // if the found region is not a noisy one
+      if ( neighbors.size() >= min_elems ) { // if the found region is not a noisy one, we form a new cluster
                                       // CS region???
                                       // CS + neighbs instead of ne
         m_labels[pid] = cluster_id; // partition.cluster( pid, cluster_id ); // we form a new cluster
                                     // CS bad identifier -> ObjectIdToClusterId ???
-        for ( int i = 0; i < ne.size(); ++i) { // CS grows this cluster by trying to reach <CS other objects?>
+        for ( int i = 0; i < neighbors.size(); ++i) { // CS grows this cluster by trying to reach <CS other objects?>
                                                // from each of its members
-          int nPid = ne[i]; // like above, we visit CS unuseful
-          if ( !visited[nPid] ) {
+          int nPid = neighbors[i]; // 
+          if ( !visited[nPid] ) { 
             visited[nPid] = 1;
-            Neighbors ne1 = find_neighbors(nPid); // trying to find a new neighbor // CS new neighbours
+            Neighbors subNeighbors = find_neighbors(nPid); // trying to find a new neighborhood // CS new neighbours
                                                   // CS neighbs1 
-            if ( ne1.size() >= min_elems ) {
-              for (const auto & n1 : ne1) { // CS Again, I hate this syntax. Is is necessary? Is it an optimization?
-                ne.push_back(n1); // adds all the newly-found object to the current reachability region
-                                  // CS adds all the newly found objects to the current cluster
+            if ( subNeighbors.size() >= min_elems ) {
+              for (const auto & neighbor : subNeighbors) { // CS Again, I hate this syntax. Is is necessary? Is it an optimization?
+                neighbors.push_back(neighbor); // adds all the newly-found object to the current cluster
               }
             }
           }
@@ -142,9 +140,9 @@ Partition DBSCAN<DistanceMatrix>::run() {
 template<typename DistanceMatrix>
 typename DBSCAN<DistanceMatrix>::Neighbors DBSCAN<DistanceMatrix>::find_neighbors( const Index pid ) const {
   Neighbors ne;
-  size_t nvars = this->comp->size();
+  size_t nvars = this->compMatrix->size();
   for ( Index i = 0; i < nvars; ++i ) { // tries to add each point if the distance between it and the given object is within the threshold parameter 
-    if ( this->comp->compute( i, pid ) <= epsilon ) {
+    if ( this->compMatrix->compute( i, pid ) <= epsilon ) {
       ne.push_back(i);
     }
   }
@@ -157,7 +155,7 @@ typename DBSCAN<DistanceMatrix>::Neighbors DBSCAN<DistanceMatrix>::find_neighbor
  *
  */
 template<typename DistanceMatrix>
-Partition DBSCAN<DistanceMatrix>::to_partition( const std::vector<int>& labels ) {
+Partition DBSCAN<DistanceMatrix>::to_partition( const Labels& labels ) {
   Partition partition;
   std::set<int> unique_labs;
   std::vector<int> singletons;

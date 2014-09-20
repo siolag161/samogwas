@@ -5,8 +5,8 @@
  * @date: 09/07/2014
 
  ***************************************************************************************/
-#ifndef FLTM_SAMOGWAS_HPP
-#define FLTM_SAMOGWAS_HPP  
+#ifndef SAMOGWAS_FLTM_HPP
+#define SAMOGWAS_FLTM_HPP  
 
 #include <vector>
 #include "clustering/clustering.hpp"
@@ -31,7 +31,7 @@ struct FLTM {
   void setupVariables( FLTM_Data& input,
                        FLTM_Result& result,
                        Matrix2GraphIndex& mat2GraphIndex,
-                       Label2GraphIndex& label2GraphIndex,
+                       StrLabel2GraphIndex& label2GraphIndex,
                        const size_t& nbrVars,
                        const size_t& cardinality);
 
@@ -55,7 +55,7 @@ struct FLTM {
   vertex_t addLatentNode( Graph& graph,
                           const Variable& latentVar,
                           ResultEM& resultEM,
-                          Label2GraphIndex& label2GraphIndex );
+                          StrLabel2GraphIndex& label2GraphIndex );
 
   void updateNextRow( Matrix& nextRowMatrix, Matrix2GraphIndex& nextRoundMat2GraphIndex,
                       const Matrix2GraphIndex& mat2GraphIndex, const Matrix& matrix, const std::vector<int>& cluster );
@@ -71,4 +71,4 @@ struct FLTM {
 
 
 /****************************************************************************************/
-#endif // FLTM_FLTM_HPP
+#endif // end SAMOGWAS_FLTM_HPP

@@ -1,16 +1,17 @@
 /****************************************************************************************
- * File: CAST.hpp
- * Description: CAST is an algorith for clustering which is based on the usage of a
- * -----------  dissimilarity matrix. 
- * // CS This description could apply to other algorithms.
- * // At least, cite the publication and technical report.
- * @author: siolag161 (thanh.phan@outlook.com) // CS Remark about affiliations not taken into account, since
- *                                             // the first checking round in autumn 2013 
- * @date: 11/07/2014
+ * File: cast.hpp
+ * Description: CAST (Clustering Affinity Search Technique) is a clustering algorithm proposed in Ben Dor et al. 1999
+ * The idea of the algorithm is to represent the true underlying data as a probabilistic graph and a cluster in this graph is modeled as a clique in this structure. We introduce errors by randomly adding and removing edges in the graph betweeen pairs of nodes with a certain probability alpha. If the obtained cluster has a size of at least t*N for some constant t and N is the total number of items in the dataset then we may have found the cluster with a high confidence.
+ * The implemention is based on the heuristic version described in the original paper where only one parameter is used. The idea is while we still have items that remain to be clustered (grouped together in a set called unassignedCluster), we try to generate a new cluster (openCluster) one by one. An item is added or removed from this openCluster if its relative affinity is greater or lower than the parameter t, respectively.
+ *
+ * @ref: Ben Dor et al. 1999, Ben-Dor, Amir, Ron Shamir, and Zohar Yakhini. "Clustering gene expression patterns." Journal of computational biology 6.3-4 (1999): 281-297.
+ *
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
+ * @date: 11/07/2014                                                       
 
  ***************************************************************************************/
-#ifndef CLUSTERING_CAST_HPP // CS Homogeneize the names all throughout the project.
-#define CLUSTERING_CAST_HPP
+#ifndef SAMOGWAS_CAST_HPP // CS Homogeneize the names all throughout the project.
+#define SAMOGWAS_CAST_HPP
 
 #include "distance/similarity.hpp"
 
@@ -21,9 +22,10 @@ namespace samogwas
 {
 
 
-/** The CAST methods returns a repartition CS repartition or partition ??? of the dataset 
+/** The CAST methods returns a partition of the dataset, much like other type of AlgoClust. Under the hood, during computation make use of the private
+ * class CAST_Item to represent an item in the cluster. CAST_Item is not supposed to be used by outside class.
  * CS CS CLARIFY in the form of non-overlapping set sets ??? of <objects of type> CAST_Item ???.
- *  A CAST_Item is a structure which holds an index of the object ( <CS suggestion index relative to the> relatively in the original dataset ) and
+ *  A CAST_Item is a structure which holds an index of the object ( <CS suggestion index relative to the> relative to the original dataset ) and
  * the current object's affinity computed relatively to its current assigned cluster.
  *
  */
@@ -50,7 +52,7 @@ struct CAST: public AlgoClust<SimiMatrix>  {
    */
   virtual Partition run() {
     std::vector<CAST_Item> unAssignedCluster;
-    for ( int i = 0; i < this->comp->size(); ++i ) { // CS Nobody can guess that comp is a matrix. compMat should be used.
+    for ( int i = 0; i < this->compMatrix->size(); ++i ) { // CS Nobody can guess that comp is a matrix. compMat should be used.
       unAssignedCluster.push_back(CAST_Item(i, 0.0) );    
     }
     return run( unAssignedCluster );
@@ -85,7 +87,7 @@ struct CAST: public AlgoClust<SimiMatrix>  {
 //////////////////////////////////////////////////////////////////////////////
 // CS What about the separation rules? Where to insert /////////// or /*********/?
 
-struct AffinityCompute { // CS heterogeneous notation: resetAffinity versus AffinityCompute 
+struct AffinityCompute { // CS heterogeneous notation: resetAffinity versus AffinityCompute @pdt: not the same, one is a class, the other is a method
   template<typename Compare>
   const int operator()(const std::vector<CAST_Item>& clust, Compare comp) const;    
 };
@@ -98,14 +100,14 @@ struct AffinityCompute { // CS heterogeneous notation: resetAffinity versus Affi
 inline void resetAffinity( std::vector<CAST_Item>& cluster);
 // What is the link with the above inline void resetAffinity?
 //
-// CS I do not see that there is such a step in the original CAST algorithm.
+// CS I do not see that there is such a step in the original CAST algorithm. @pdt: indeed, everytime a new openCluster is considered, gotta reset all the affinity relative to this one.
 // Instead I see : When a new cluster Copen is started, the initial affinities of all genes are 0 since Copen is empty.
 // CS Is it this step you describe here?
 // http://faculty.washington.edu/kayee/cluster/algs.pdf
 // Is it resetAffinity for the clusterofUnassignedObjects?
 
 
-// CS is unassignedCluster the equivalent of COpen?
+// CS is unassignedCluster the equivalent of COpen? // pdt: not the same. COpen is the new open cluster to be formed, unassigned is a group of remaining objects
 // In CAST, objects are assigned to clusters.
 // It is incomprehensible that a cluster would be unassigned. Do you mean "under construction"?
 // Or is it clusterOfUnassignedObjects rather (as I guess)?
@@ -129,9 +131,11 @@ namespace samogwas
 {
 
 
-/** Implements the CAST algorithm following the original paper mentioned in the filehead
- *
- */
+/** Implements the heuristic CAST algorithm following the original paper mentioned in the filehead.
+ *  It requires a similarity matrix ( or any method that returns a similarity between a pair of item index)
+ *  as input. It also requires a parameter t as the affinity threshold which determines whether we removes
+ *  or add an item to the current candidate cluster. This parameter t also determines when a cluster is stabilizes.
+ */ 
 template<typename SimiMatrix>
 Partition CAST<SimiMatrix>::run( std::vector<CAST_Item>& unAssignedCluster ) {
   Partition result; // CS growingPartition ?
@@ -149,7 +153,7 @@ Partition CAST<SimiMatrix>::run( std::vector<CAST_Item>& unAssignedCluster ) {
         int maxAffIdx = maxCompute( unAssignedCluster, std::greater<double>() );
         if ( unAssignedCluster.at(maxAffIdx).affinity >= thresCAST * openCluster.size() ) {
           changesOccurred = true;
-          addGoodItem( unAssignedCluster, openCluster, *this->comp, maxAffIdx );
+          addGoodItem( unAssignedCluster, openCluster, *this->compMatrix, maxAffIdx );
         } else {
           break;
         }
@@ -159,7 +163,7 @@ Partition CAST<SimiMatrix>::run( std::vector<CAST_Item>& unAssignedCluster ) {
         int minAffIdx = minCompute( openCluster, std::less<double>() );
         if ( openCluster.at(minAffIdx).affinity < thresCAST * openCluster.size() ) {
           changesOccurred = true;
-          removeBadItem( unAssignedCluster, openCluster, *this->comp, minAffIdx );
+          removeBadItem( unAssignedCluster, openCluster, *this->compMatrix, minAffIdx );
         } else {
           break;
         }       
@@ -256,4 +260,4 @@ void moveItemBetweenClusters( std::vector<CAST_Item>& source,
 
 }
 
-#endif // CLUSTERING_CAST_HPP
+#endif // SAMOGWAS_CAST_HPP

@@ -5,8 +5,8 @@
  * @date: 11/07/2014
 
  ***************************************************************************************/
-#ifndef FLTM_EMCARDFUNC_HPP
-#define FLTM_EMCARDFUNC_HPP
+#ifndef SAMOGWAS_EMCARDFUNC_HPP
+#define SAMOGWAS_EMCARDFUNC_HPP
 
 namespace samogwas
 {
@@ -37,4 +37,4 @@ struct LinearCardinality: public CardFunc
 } // namespace samogwasends here. fltm
 
 /****************************************************************************************/
-#endif // FLTM_EMCARDFUNC_HPP
+#endif // SAMOGWAS_EMCARDFUNC_HPP
