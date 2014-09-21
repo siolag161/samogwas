@@ -2,7 +2,7 @@
  * File: DBSCAN.hpp // CS incorrect
  * Description: An implementation of DBSCAN algorithm for clustering of data.
  * // CS reference
- * @author: siolag161 (thanh.phan@outlook.com) // CS affiliations
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet // CS affiliations
  * @date: 12/07/2014
 
  ***************************************************************************************/
@@ -58,9 +58,8 @@ struct DBSCAN: public AlgoClust<DistanceMatrix> {
                                                      // the application? findNeighbors versus find_neighbors
 
   /// Converts current clustering to the partition type
-  static Partition to_partition( const Labels& labels ); // CS, in CAST, you use indexes, in DBSCAN, you use
-                                                                   // labels?
-                                                                   // to_partition versus toPartition?
+  static Partition toPartition( const Labels& labels ); // CS, in CAST, you use indexes, in DBSCAN, you use
+                                                                   // labels? //@pdt: not the same thing
     
  protected:
   int min_elems;
@@ -130,7 +129,7 @@ Partition DBSCAN<DistanceMatrix>::run() {
       }
     }
   }
-  return to_partition(m_labels); // CS to_partition is a function?
+  return toPartition(m_labels); // CS toPartition is a function?
 }
 
 /** A neighborhood of a given object is defined as all the points that are within a certain given distance.
@@ -155,7 +154,7 @@ typename DBSCAN<DistanceMatrix>::Neighbors DBSCAN<DistanceMatrix>::find_neighbor
  *
  */
 template<typename DistanceMatrix>
-Partition DBSCAN<DistanceMatrix>::to_partition( const Labels& labels ) {
+Partition DBSCAN<DistanceMatrix>::toPartition( const Labels& labels ) {
   Partition partition;
   std::set<int> unique_labs;
   std::vector<int> singletons;

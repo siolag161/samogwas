@@ -4,7 +4,7 @@
  * ------------ matrix structure ( a vector-of-vector like objects ).
  * ------------ We have methods dealing with cardinality and computing like Tranpose
  * ------------ a matrix are included.
- * @author: siolag161 (thanh.phan@outlook.com)
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 29/04/2014
 
  ***************************************************************************************/

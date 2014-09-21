@@ -1,7 +1,7 @@
 /****************************************************************************************
  * File: Distance.hpp // CS Happy to see this for the information_dissimilarity.hpp file
  * Description: Dissimilarity based on mutual information metric.
- * @author: siolag161 (thanh.phan@outlook.com)
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 12/06/2014
  * // CS specify that this dissimilarity is thresholded (< median -> 0, > median -> 1) (ex CAST_bin)
  * // specify for = median

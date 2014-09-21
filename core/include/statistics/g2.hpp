@@ -1,7 +1,7 @@
 /****************************************************************************************
  * File: test_g.hpp
  * Description: 
- * @author: siolag161 (thanh.phan@outlook.com)
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 22/06/2014
 
  ***************************************************************************************/

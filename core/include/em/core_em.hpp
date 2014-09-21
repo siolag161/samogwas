@@ -2,7 +2,7 @@
  * File: core_em.hpp
  * Description: This provides several common methods and constants used by classes in this
  * -----------  EM module.
- * @author: siolag161 (thanh.phan@outlook.com)
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 01/08/2014
 
  ***************************************************************************************/

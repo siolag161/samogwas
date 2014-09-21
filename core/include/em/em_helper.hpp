@@ -1,7 +1,7 @@
 /****************************************************************************************
  * File: em_helper.hpp
  * Description: Some helpers for Customized EM Algorihtms
- * @author: siolag161 (thanh.phan@outlook.com)
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 05/08/2014
 
  ***************************************************************************************/

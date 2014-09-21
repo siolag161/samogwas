@@ -2,7 +2,7 @@
  * File: information_similarity.hpp
  * Description: Information similarity provides the similarity based on mutual information.
  * -----------  It can be obtained via Information Dissimilarity as Simi(a,b) = 1.0 - Diss(a,b)
- * @author: siolag161 (thanh.phan@outlook.com)
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 30/07/2014
 
  ***************************************************************************************/

@@ -1,8 +1,7 @@
 /****************************************************************************************
  * File: cast.hpp
- * Description: CAST (Clustering Affinity Search Technique) is a clustering algorithm proposed in Ben Dor et al. 1999
- * The idea of the algorithm is to represent the true underlying data as a probabilistic graph and a cluster in this graph is modeled as a clique in this structure. We introduce errors by randomly adding and removing edges in the graph betweeen pairs of nodes with a certain probability alpha. If the obtained cluster has a size of at least t*N for some constant t and N is the total number of items in the dataset then we may have found the cluster with a high confidence.
- * The implemention is based on the heuristic version described in the original paper where only one parameter is used. The idea is while we still have items that remain to be clustered (grouped together in a set called unassignedCluster), we try to generate a new cluster (openCluster) one by one. An item is added or removed from this openCluster if its relative affinity is greater or lower than the parameter t, respectively.
+ * Description: CAST (Clustering Affinity Search Technique) is a clustering algorithm proposed in Ben Dor et al. 1999 * The idea of the algorithm is to represent the true underlying data as a probabilistic graph and a cluster in this graph is modeled as a clique in this structure. We introduce errors by randomly adding and removing edges in the graph betweeen pairs of nodes with a certain probability alpha. If the obtained cluster has a size of at least t*N for some constant t and N is the total number of items in the dataset then we may have found the cluster with a high confidence.
+ * The implemention is based on the heuristic version described in the original paper where only one parameter is used. The idea is while we still have items that remain to be clustered (grouped together in a set called unassignedCluster), we try to generate a new cluster (openCluster) one by one. An item is added or removed from this openCluster if its relative affinity is greater or lower than the parameter t*N, respectively.
  *
  * @ref: Ben Dor et al. 1999, Ben-Dor, Amir, Ron Shamir, and Zohar Yakhini. "Clustering gene expression patterns." Journal of computational biology 6.3-4 (1999): 281-297.
  *
@@ -17,48 +16,52 @@
 
 #include "clustering.hpp"
 #include "partition.hpp"
+#include "cast_helper.hpp"
 
 namespace samogwas
 {
 
 
-/** The CAST methods returns a partition of the dataset, much like other type of AlgoClust. Under the hood, during computation make use of the private
- * class CAST_Item to represent an item in the cluster. CAST_Item is not supposed to be used by outside class.
+/** The CAST methods returns a partition of the dataset, much like other type of AlgoClust. Under the hood, during computation make use of the private class CAST_Item to represent an item in the cluster. CAST_Item is not supposed to be used by outside class.
+ *  It provides a convenient way for holding, for each item, its current affinity relative to the current candidate cluster
+ *  and its index relative to the original dataset.
+ *
  * CS CS CLARIFY in the form of non-overlapping set sets ??? of <objects of type> CAST_Item ???.
- *  A CAST_Item is a structure which holds an index of the object ( <CS suggestion index relative to the> relative to the original dataset ) and
- * the current object's affinity computed relatively to its current assigned cluster.
  *
  */
 struct CAST_Item {  
-  int index;
+  int globalIndex; // hol
   double affinity;
-  CAST_Item(const int matIdx, // const int glbIdx, // CS Why this specification?
-            const double aff):
-      index(matIdx), // globalIndex(glbIdx)
-      affinity(aff) {}
+  CAST_Item( const int matIdx, const double aff): globalIndex(matIdx), affinity(aff) {}
 };
-////////////////////////////////////////////////////////////////////////////
+
+/** The main class (functor). It takes as input a similarity matrix and a 
+ *  threshold parameter thres (the same as t described above) in the constructor.
+ */
 template<typename SimiMatrix> // CS I am lost 
-                              // I do not know if your SimiMatrix is elsewhere your compMatrix.
+// I do not know if your SimiMatrix is elsewhere your compMatrix.
 struct CAST: public AlgoClust<SimiMatrix>  {
-  /**
+  typedef std::vector<CAST_Item> CAST_Cluster;
+  
+  /** Constructor takes a Similarity Matrix and a threshold criteron for removing and adding an item from the current cluster.
    *
    */
-  CAST ( SimiMatrix* sim, const double& thres): AlgoClust<SimiMatrix>(sim), thresCAST(thres) {}
-  // CS It is not the first time I demand that sim be renamed in the more informative name simMat.
+  CAST ( SimiMatrix* simMat, const double& thres): AlgoClust<SimiMatrix>(simMat), thresCAST(thres) {}
 
-  /**
+  /** Executes the algorithm given the current input.
    *
    */
   virtual Partition run() {
-    std::vector<CAST_Item> unAssignedCluster;
+    /// Initializes the cluster grouping all the unassigned items with null affinity
+    CAST_Cluster unAssignedCluster;
     for ( int i = 0; i < this->compMatrix->size(); ++i ) { // CS Nobody can guess that comp is a matrix. compMat should be used.
       unAssignedCluster.push_back(CAST_Item(i, 0.0) );    
     }
+    /// Delegates the job to the method taking the newly initialized unassigned cluster.
     return run( unAssignedCluster );
   }
 
-  /** Provide the name of the algorithm which its parameters
+  /** Provides the name of the algorithm which its parameters
    *
    */
   virtual char* name() const {
@@ -69,14 +72,36 @@ struct CAST: public AlgoClust<SimiMatrix>  {
   
  protected:
   /** Performs on an unAssignedCluster, setup by the run() method above
-   *
    */
-  inline Partition run( std::vector<CAST_Item>& unassignedCluster );
+  inline Partition run( CAST_Cluster& unassignedCluster );
+  
+  // CS I do not see that there is such a step in the original CAST algorithm. @pdt: indeed, everytime a new openCluster is considered, gotta reset all the affinity relative to this one.
+  // Instead I see : When a new cluster Copen is started, the initial affinities of all genes are 0 since Copen is empty.
+  // CS Is it this step you describe here?
+  // http://faculty.washington.edu/kayee/cluster/algs.pdf
+  // Is it resetAffinity for the clusterofUnassignedObjects?
+  
+  /** Resets the current affinity matrix */
+  void resetAffinity( CAST_Cluster& unAssignedCluster );
 
-  /** Resets the current affinity matrix
-   *
-   */
-  inline void resetAffinity( std::vector<CAST_Item>& unAssignedCluster );
+  
+  // CS is unassignedCluster the equivalent of COpen? // pdt: not the same. COpen is the new open cluster to be formed, unassigned is a group of remaining objects
+  // In CAST, objects are assigned to clusters.
+  // It is incomprehensible that a cluster would be unassigned. Do you mean "under construction"?
+  // Or is it clusterOfUnassignedObjects rather (as I guess)?
+  void addGoodItem( CAST_Cluster& unassignedCluster, CAST_Cluster& openCluster, 
+                    CompMatrix& simMatrix, const int itemIdx );
+
+  /** Removes bad item from openCluster and moves them back to the unassignedCluster  */
+  void removeBadItem( CAST_Cluster& unassignedCluster, CAST_Cluster& openCluster, 
+                      CompMatrix& simMatrix, const int itemIdx );
+  
+  /** Moves the item indexed by itemIdx from sourceCluster, puts into targetCluster and then updates the affinity. */
+  void updateClustersAffinity( CAST_Cluster& sourceCluster, CAST_Cluster& targetCluster, 
+                               CompMatrix& simMatrix, const int itemIdx );
+  
+  /** Moves item indexed by itemIdx from sourceCluster to targetCluster  */
+  void moveItemBetweenClusters( CAST_Cluster& source, CAST_Cluster& target, const int itemIdx );
 
  protected:
   // main parameter: CS unuseful 
@@ -87,46 +112,18 @@ struct CAST: public AlgoClust<SimiMatrix>  {
 //////////////////////////////////////////////////////////////////////////////
 // CS What about the separation rules? Where to insert /////////// or /*********/?
 
-struct AffinityCompute { // CS heterogeneous notation: resetAffinity versus AffinityCompute @pdt: not the same, one is a class, the other is a method
+/** Functor to find the index of the item of extremal affinity (mimimal or maximal).
+ *
+ */
+struct ExtremumIndexAffinity { // CS heterogeneous notation: resetAffinity versus ExtremumIndexAffinity @pdt: not the same, one is a class, the other is a method
   template<typename Compare>
   const int operator()(const std::vector<CAST_Item>& clust, Compare comp) const;    
 };
 
 // CS What about the separation rules? Where to insert /////////// or /*********/?
-
-/** Resets the current affinity of the cluster given as parameter
- *
- */
-inline void resetAffinity( std::vector<CAST_Item>& cluster);
-// What is the link with the above inline void resetAffinity?
-//
-// CS I do not see that there is such a step in the original CAST algorithm. @pdt: indeed, everytime a new openCluster is considered, gotta reset all the affinity relative to this one.
-// Instead I see : When a new cluster Copen is started, the initial affinities of all genes are 0 since Copen is empty.
-// CS Is it this step you describe here?
-// http://faculty.washington.edu/kayee/cluster/algs.pdf
-// Is it resetAffinity for the clusterofUnassignedObjects?
-
-
-// CS is unassignedCluster the equivalent of COpen? // pdt: not the same. COpen is the new open cluster to be formed, unassigned is a group of remaining objects
-// In CAST, objects are assigned to clusters.
-// It is incomprehensible that a cluster would be unassigned. Do you mean "under construction"?
-// Or is it clusterOfUnassignedObjects rather (as I guess)?
-inline void addGoodItem( std::vector<CAST_Item>& unassignedCluster, std::vector<CAST_Item>& openCluster, 
-                         CompMatrix& simMatrix, const int clusterIdx );
-
-inline void removeBadItem( std::vector<CAST_Item>& unassignedCluster, std::vector<CAST_Item>& openCluster, 
-                           CompMatrix& simMatrix, const int clusterIdx );
-
-inline void updateClustersAffinity( std::vector<CAST_Item>& sourceCluster, std::vector<CAST_Item>& targetCluster, 
-                                    CompMatrix& simMatrix,
-                                    const int clusterIndex );
-// CS heterogeneous notation: clusterIdx versus clusterIndex                                    
-
-inline void moveItemBetweenClusters( std::vector<CAST_Item>& source, std::vector<CAST_Item>& target, const int clusterIndex );
-
 }
 
-/****************************************************************************************/
+/******************************************  IMPLEMENTATION BELOW **********************************************/
 namespace samogwas
 {
 
@@ -135,21 +132,22 @@ namespace samogwas
  *  It requires a similarity matrix ( or any method that returns a similarity between a pair of item index)
  *  as input. It also requires a parameter t as the affinity threshold which determines whether we removes
  *  or add an item to the current candidate cluster. This parameter t also determines when a cluster is stabilizes.
+ *  It returns a partition of the dataset
  */ 
 template<typename SimiMatrix>
-Partition CAST<SimiMatrix>::run( std::vector<CAST_Item>& unAssignedCluster ) {
+Partition CAST<SimiMatrix>::run( CAST_Cluster& unAssignedCluster ) {
   Partition result; // CS growingPartition ?
   while ( unAssignedCluster.size() ) {  // as long as there is still remains an object to be classified
-    std::vector<CAST_Item> openCluster; // creates a new cluster
+    CAST_Cluster openCluster; // creates a new cluster
     resetAffinity( unAssignedCluster ); // reset the affinities of the objects remaining to be classified
     bool changesOccurred = true; 
     while (changesOccurred && unAssignedCluster.size()) { // begin organizing objets CS vague 
-                                                          // CS starts assigning objects to openCluster
+      // CS starts assigning objects to openCluster
       changesOccurred = false;
-      AffinityCompute maxCompute;
-      AffinityCompute minCompute;
-      while ( unAssignedCluster.size() ) { // tries to put the best-affinity objects in the open cluster
-                                           // CS successively tries to assign the objects with the best affinities to openCluster
+      ExtremumIndexAffinity maxCompute;
+      ExtremumIndexAffinity minCompute;
+      while ( unAssignedCluster.size() ) { // while there is still object to be assigned,
+        // successively tries to assign the objects with the best affinities to openCluster
         int maxAffIdx = maxCompute( unAssignedCluster, std::greater<double>() );
         if ( unAssignedCluster.at(maxAffIdx).affinity >= thresCAST * openCluster.size() ) {
           changesOccurred = true;
@@ -158,8 +156,8 @@ Partition CAST<SimiMatrix>::run( std::vector<CAST_Item>& unAssignedCluster ) {
           break;
         }
       }
-      while( unAssignedCluster.size() ) { // tries to remove the worst-affinity objects from the open cluster
-                                          // CS successively tries to remove the objects with the worst affinities from openCluster
+      while( unAssignedCluster.size() ) { // while there is still object to be assigned,
+        // successively tries to remove the objects with the worst affinities from openCluster
         int minAffIdx = minCompute( openCluster, std::less<double>() );
         if ( openCluster.at(minAffIdx).affinity < thresCAST * openCluster.size() ) {
           changesOccurred = true;
@@ -172,19 +170,74 @@ Partition CAST<SimiMatrix>::run( std::vector<CAST_Item>& unAssignedCluster ) {
     // puts the newly created openCluster into the current partition and continues
     int cluster_id =  result.nbrClusters(); // CS growingPartition ?
     for ( auto& item: openCluster ) { // CS INCOMPREHENSIBLE
-      result.cluster( item.index, cluster_id ); // CS The procedure's name is ambiguous.
+      result.cluster( item.globalIndex, cluster_id ); // CS The procedure's name is ambiguous.
     }
   }  
   return result;  
 }
 
+//////////////////////////////////////////////////////////////////////////////////////
 // sets all the affinity values to zeroes
 template<typename SimiMatrix>
-void CAST<SimiMatrix>::resetAffinity( std::vector<CAST_Item>& cluster ) { // CS resetAffinityValuesToZero
-  for ( std::vector<CAST_Item>::iterator it = cluster.begin(); it != cluster.end(); ++it ) {
+void CAST<SimiMatrix>::resetAffinity( CAST_Cluster& cluster ) { // CS resetAffinityValuesToZero
+  for ( CAST_Cluster::iterator it = cluster.begin(); it != cluster.end(); ++it ) {
     it->affinity = 0.0;
   } 
 }
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+/// Delegates the task to updateClusterAffinity which moves the item indexed by itemIdx from unassignedCluster to openCluster and update the affinity correspondingly 
+template<typename SimiMatrix>
+void CAST<SimiMatrix>::addGoodItem( CAST_Cluster& unAssignedCluster, CAST_Cluster& openCluster, 
+                                    CompMatrix& simiCompute, const int itemIdx ) {  
+  updateClustersAffinity( unAssignedCluster, openCluster, 
+                          simiCompute, itemIdx );  
+}
+
+/// Delegates the task to updateClusterAffinity which moves back the item indexed by itemIdx from openCluster to unassignedCluster and update the affinity correspondingly 
+template<typename SimiMatrix>
+void CAST<SimiMatrix>::removeBadItem( CAST_Cluster& unAssignedCluster, CAST_Cluster& openCluster, 
+                                      CompMatrix& simiCompute, const int itemIdx ) {
+  updateClustersAffinity( openCluster, unAssignedCluster, 
+                          simiCompute, itemIdx); 
+}
+
+// Updates the affinity after changes are made to reflect current assignment
+// CS updates the affinity values in sourceCluster and targetCluster after the move of indeXItem
+template<typename SimiMatrix>
+void CAST<SimiMatrix>::updateClustersAffinity( CAST_Cluster& sourceCluster, CAST_Cluster& targetCluster,
+                                               CompMatrix& simiCompute, 
+                                               const int itemIdx ) // CS bad denomination
+    // indexOfItemInSourceCluster
+{
+  const int itemGlobalIndex = sourceCluster.at(itemIdx).globalIndex;
+  moveItemBetweenClusters( sourceCluster, targetCluster, itemIdx ); 
+  for (int i = 0; i < sourceCluster.size(); i++) {
+    sourceCluster[i].affinity += simiCompute( sourceCluster[i].globalIndex, itemGlobalIndex ); // CS I am lost
+    // Is type CompMatrix for ComparisonMatrix
+    // or is it for simComputationFromMatrix?
+    // suggestion for type identifier: CompSimFromMatrix? // pdt: it's a functor, used like a function
+    // + itemIndex instead of item.globalIndex //pdt item.globalIndex is the index attribute from the item? 
+  }
+
+  for (int i = 0; i < targetCluster.size(); i++) {
+    targetCluster[i].affinity += simiCompute( targetCluster[i].globalIndex, itemGlobalIndex ); // CS itemIndex 
+  } 
+
+}
+
+/// Moves item from source cluster to target cluster
+template<typename SimiMatrix>
+    void CAST<SimiMatrix>::moveItemBetweenClusters( CAST_Cluster& source,
+                                                    CAST_Cluster& target,
+                                                    const int itemIdx ) { // indexOfItemInSourceCluster
+      target.push_back( source.at(itemIdx) );
+      //source.remove(itemIdx);
+      source.erase( source.begin() + itemIdx ); // CS I do not understand this argument
+      // CS C++ vector erase Removes the element at pos.
+      // CS I would have expected indexOfItemInSourceCluster
+    }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // CS What is the rule for using //////////// or /*****************/?
@@ -192,8 +245,8 @@ void CAST<SimiMatrix>::resetAffinity( std::vector<CAST_Item>& cluster ) { // CS 
  *
  */
 template<typename Compare>
-const int AffinityCompute::operator()( const std::vector<CAST_Item>& clust, Compare comp) const
-// CS obligatorily specify precondition
+const int ExtremumIndexAffinity::operator()( const std::vector<CAST_Item>& clust, Compare comp) const
+    // CS obligatorily specify precondition
 { // CS change in presentation - left bracket should be after const
   int result = 0; // CS bad identifier idx_optimum
   for (int idx = 1; idx < clust.size(); idx++) {
@@ -203,58 +256,6 @@ const int AffinityCompute::operator()( const std::vector<CAST_Item>& clust, Comp
   }
   
   return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-
-/// Adds a potentially good candidate item to openCluster
-void addGoodItem( std::vector<CAST_Item>& unAssignedCluster, std::vector<CAST_Item>& openCluster, 
-                  CompMatrix& simCompute, const int clusterIdx ) {  
-  updateClustersAffinity( unAssignedCluster, openCluster, 
-                          simCompute, clusterIdx );  
-}
-
-/// removes a bad item from the cluster CS from openCluster ?
-void removeBadItem( std::vector<CAST_Item>& unAssignedCluster, std::vector<CAST_Item>& openCluster, 
-                    CompMatrix& simCompute, const int clusterIdx ) {
-  updateClustersAffinity( openCluster, unAssignedCluster, 
-                          simCompute, clusterIdx); 
-}
-
-// updates the affinity after changes are made to reflect current assignment
-// CS updates the affinity values in sourceCluster and targetCluster after the move of indeXItem
-void updateClustersAffinity( std::vector<CAST_Item>& sourceCluster, std::vector<CAST_Item>& targetCluster,
-                             CompMatrix& simCompute, 
-                             const int clusterIndex ) // CS bad denomination
-                                                      // indexOfItemInSourceCluster
-{
-  const CAST_Item item = sourceCluster.at(clusterIndex);
-  // CS not optimized?
-  // CS const int itemIndex = sourceCluster.at(clusterIndex).index;
-  moveItemBetweenClusters( sourceCluster, targetCluster, clusterIndex ); 
-  for (int i = 0; i < sourceCluster.size(); i++) {
-    sourceCluster[i].affinity += simCompute( sourceCluster[i].index, item.index ); // CS I am lost
-                                                                                   // Is type CompMatrix for ComparisonMatrix
-                                                                                   // or is it for simComputationFromMatrix?
-                                                                                   // suggestion for type identifier: CompSimFromMatrix?
-                                                                                   // + itemIndex instead of item.index
-  }
-
-  for (int i = 0; i < targetCluster.size(); i++) {
-    targetCluster[i].affinity += simCompute( targetCluster[i].index, item.index ); // CS itemIndex 
-  } 
-
-}
-
-/// Moves item from source cluster to target cluster
-void moveItemBetweenClusters( std::vector<CAST_Item>& source,
-                              std::vector<CAST_Item>& target,
-                              const int clusterIndex ) { // indexOfItemInSourceCluster
-  target.push_back( source.at(clusterIndex) );
-  //source.remove(clusterIndex);
-  source.erase( source.begin() + clusterIndex ); // CS I do not understand this argument
-                                                 // CS C++ vector erase Removes the element at pos.
-                                                  // CS I would have expected indexOfItemInSourceCluster
 }
 
 

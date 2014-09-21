@@ -2,7 +2,7 @@
  * File: naive_bayes_em.hpp
  * Description: Specific class of EM Algorithm which computes under the Naive-Bayes
  * -----------  multinomial model
- * @author: siolag161 (thanh.phan@outlook.com)
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 31/07/2014
 
  ***************************************************************************************/

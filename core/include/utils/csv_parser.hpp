@@ -3,7 +3,7 @@
  * Description: This module is responsible for reading a CSV-like files and outputs the result into 
  * ------------ a Matrix-type object. Since it's templated, the input files can have mixed types
  * ------------ for example: Tom; 30.32; Male
- * @author: siolag161 (thanh.phan@outlook.com) @TODO: modify this part
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet @TODO: modify this part
  * @date: 25/03/2014
 
  ***************************************************************************************/

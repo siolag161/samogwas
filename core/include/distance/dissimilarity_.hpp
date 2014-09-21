@@ -1,7 +1,7 @@
 // /****************************************************************************************
 //  * File: Diss.hpp // CS This is not the name of the file. Is this file obsolete?
 //  * Description: 
-//  * @author: siolag161 (thanh.phan@outlook.com) // CS Affiliation
+//  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet // CS Affiliation
 //  * @date: 09/07/2014
 
 //  ***************************************************************************************/

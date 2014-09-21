@@ -3,7 +3,7 @@
  * Description: Grouping all the dissimilarity methods, including:
  * -----------  + Mutual Information based Dissimilarity
  * -----------  + Euclide Distance
- * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com) // CS affiliation
+ * @author: Duc-Thanh Phan Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet // CS affiliation
  * under the supervision of Christine Sinoquet
  * @date: 30/07/2014
 

@@ -1,7 +1,7 @@
 /****************************************************************************************
  * File: GraphIO.hpp
  * Description: 
- * @author: siolag161 (thanh.phan@outlook.com)
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 03/04/2014
 
  ***************************************************************************************/

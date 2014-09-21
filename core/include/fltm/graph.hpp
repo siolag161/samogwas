@@ -1,7 +1,7 @@
 /****************************************************************************************
  * File: Graph.hpp
  * Description: 
- * @author: siolag161 (thanh.phan@outlook.com)
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 13/07/2014
 
  ***************************************************************************************/

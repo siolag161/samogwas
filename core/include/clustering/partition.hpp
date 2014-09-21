@@ -2,7 +2,7 @@
  * File: partition.hpp // CS I need to see the difference between Clustering.hpp and partition.hpp
  * Description: A data structure representing a partition of the data set - i.e a division of the data set into
  * -----------  non-overlapping subsets.
- * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
+ * @author: Duc-Thanh Phan Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet, under the supervision of Christine Sinoquet
  * @date: 09/07/2014
 
  ***************************************************************************************/
@@ -18,17 +18,12 @@
 namespace samogwas
 {
 
-/** An Index depicts an Item index, relatively to its position in the dataset
+/** An Index depicts an Item index, relative to its position in the dataset
  */
 typedef int Index;
 
-/** An Label represents a Label index, relatively to its position in whole clustering.
+/** An Label represents a Label index, relative to its position in whole clustering.
  */
-typedef int Label;
-/** A label can be seen as a cluster index
- *
- */
-
 typedef int Label;
 
 /** A cluster is simply a collection of Label (int)

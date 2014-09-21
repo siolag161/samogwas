@@ -1,7 +1,7 @@
 /****************************************************************************************
  * File: comparable.hpp
  * Description: provides the common interface for CompareMatrix
- * @author: siolag161 (thanh.phan@outlook.com) /* affiliation 
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet /* affiliation 
  * @date: 30/07/2014
  ***************************************************************************************/
 #ifndef SAMOGWAS_COMPARABLE_HPP

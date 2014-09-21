@@ -1,7 +1,7 @@
 /****************************************************************************************
  * File: clustering.hpp
  * Description: Common interfaces for clustering algorithms
- * @author: CS siolag161 (thanh.phan@outlook.com)
+ * @author: CS Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 30/07/2014
 
  ***************************************************************************************/
