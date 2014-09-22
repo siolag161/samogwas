@@ -48,19 +48,19 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
    */
   virtual double compute( const size_t varA, const size_t varB );
   
-  /** Returns the number of variables // CS vague
-   *
+  /** Returns the number of total elements actually stored in the matrix (which is possibly sparse).
    */
   virtual size_t size() const { return dataMat.size(); }
 
-  /** Invalidates current caching values // Cs which means?
-   *
+  /** Invalidates current caching if any. Caching may be helpful when the computation of the matrix
+   *  is performed on the go (example: mutual information as similarity and entropies stored in the cache).
+   *  @TODO: invalid-> invalidate
    */
   virtual void invalidCache() {
     distCache.clear();
     entropyMap.clear();
-    entropyMap.resize(positions.size(), -MAX_DISTANCE);
-    distCache = std::map< size_t, double >();
+    entropyMap.resize(positions.size(), -MAX_DISTANCE); // reset 
+    distCache = std::map< size_t, double >(); // free the memory
   }
   
  public:
@@ -68,24 +68,27 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
   // reference to the actual data
   DataMatrix& dataMat;
 
-  // reference to the positions data // CS Which means?
+  // reference to the positions of the variables 
   std::vector<int>& positions;
 
-  // the maximum threshold for position // CS Is it the maximal distance (in bp???) below which two objects are allowed
-                                        // in the same cluster? Is it delta_dist?
-  unsigned maxPosition;
+ /** The dissimilarity between two variables is set to MAX_DISTANCE if these variables are 
+  *  located too far apart (above maxDist).
+  */
+  unsigned maxPosition; //@maxPosition -> maxDist
 
-  // threshold for 0/1 data casting
-  double m_thres; // CS Could this be _thres, more simply?
+  // threshold to compute the binary 0/1 dissimilarity values 
+  double m_thres; 
 
-  // for caching the entropy during computation // CS What do you mean by caching?
-  std::vector<double> entropyMap; // CS Why map?
+  // for caching the entropy during computation
+  std::vector<double> entropyMap; 
 
-  // for caching the distance <CS dissimilarity???> during computation ?????
-  std::map< size_t, double > distCache; // explain key and value
+  // for caching the dissimilarity values. 
+  // For a pair (a,b), the dissimilarity value is stored as the value of 
+  // the key 2*N*a+b where N is the total number of variables.
+  std::map< size_t, double > distCache; 
 
-  // the current median value // CS of what? 
-  double m_median; // CS Could this be _median, more simply?
+  // the current median value over all the variables currently considered
+  double m_median; 
 };
 
   
@@ -95,6 +98,7 @@ double mutualInformationDistance( std::vector<double>& entropyMap,
                                   const DM& dataMat,
                                   const size_t varA,
                                   const size_t varB );
+///////////////////////////////////////////////////////////:                                  
 template<class DM>
 MutInfoDissimilarity<DM>::MutInfoDissimilarity( DM& dm,
                                                 std::vector<int>& pos, // bad identifier -> positions
