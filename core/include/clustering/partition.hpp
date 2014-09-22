@@ -1,8 +1,8 @@
 /****************************************************************************************
- * File: partition.hpp // CS I need to see the difference between Clustering.hpp and partition.hpp
+ * File: partition.hpp 
  * Description: A data structure representing a partition of the data set - i.e a division of the data set into
  * -----------  non-overlapping subsets.
- * @author: Duc-Thanh Phan Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet, under the supervision of Christine Sinoquet
+ * @author: Duc-Thanh Phan Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 09/07/2014
 
  ***************************************************************************************/
@@ -10,35 +10,38 @@
 #define SAMOGWAS_PARTITION_HPP
 
 #include "distance/comparable.hpp"
+
 #include <set>
 #include <vector>
 #include <map>
 
 #include <iostream>
+
 namespace samogwas
 {
 
-/** An Index depicts an Item index, relative to its position in the dataset
+/** An Index depicts an Item index, relative to its position in the dataset.
  */
 typedef int Index;
 
-/** An Label represents a Label index, relative to its position in whole clustering.
+/** A Label represents a cluster index, relative to its position in the clustering.
  */
 typedef int Label;
 
 /** A cluster is simply a collection of Label (int)
  *
  */
-typedef std::vector<Label> Cluster;
+typedef std::vector<Index> Cluster;
 
 /** A clustering is simply a collection of Clusters
  *
  */
 typedef std::vector<Cluster> Clustering; 
 
+////////////////////////////////////////////////////////////////////
 struct Partition {
   
-  typedef std::map<Index,Label> Index2Label; // CS NOT VERY INFORMATIVE - should be named mapIntInt
+  typedef std::map<Index,Label> Index2Label; 
   
   size_t nbrClusters() const { return m_clusterSet.size(); }
   size_t nbrItems() const { return m_index2Label.size(); } // CS nbrItems should be nbrOfKeys
