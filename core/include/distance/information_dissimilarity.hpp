@@ -17,7 +17,7 @@
 #include <boost/accumulators/statistics/median.hpp> /** to compute median **/
 
 #include "comparable.hpp"
-#include "statistics/mutual_information.hpp"
+#include "statistics/mutual_information.hpp" // Entropy, JointEntropy
 
 namespace samogwas
 {
@@ -98,18 +98,23 @@ double mutualInformationDistance( std::vector<double>& entropyMap,
                                   const DM& dataMat,
                                   const size_t varA,
                                   const size_t varB );
-///////////////////////////////////////////////////////////:                                  
+                                  
+                                  
+/************************************************* IMPLEMENTATION BELOW ****************************************/  
+
 template<class DM>
 MutInfoDissimilarity<DM>::MutInfoDissimilarity( DM& dm,
                                                 std::vector<int>& pos, // bad identifier -> positions
                                                 unsigned maxPos, // bad identifier
                                                 double thres ):
     dataMat(dm), positions(pos),
-    maxPosition(maxPos), entropyMap(std::vector<double> (pos.size(), -MAX_DISTANCE)), // CS unclear
+    maxPosition(maxPos), entropyMap(std::vector<double> (pos.size(), -MAX_DISTANCE)), 
     m_thres(thres)
 {
   size_t nbrVars = positions.size();
-  if ( thres > 0 ) { // binary-->median, have to pre-compute all    
+  if ( thres > 0 ) { // case when dissimilarity values are binary (0/1)
+                     // The median over all the actual dissimilarity values is required;
+                     // therefore, all the actual dissimilarity values must be computed.
     boost::accumulators::accumulator_set< double,
                                           boost::accumulators::stats<boost::accumulators::tag::median(boost::accumulators::with_p_square_quantile) > > acc;
 #pragma omp parallel for
@@ -126,6 +131,7 @@ MutInfoDissimilarity<DM>::MutInfoDissimilarity( DM& dm,
   }
 }
 
+/////////////////////////////////////////////////////////////////////////////
 template<class DM>
 double MutInfoDissimilarity<DM>::compute( const size_t varA, const size_t varB ) {
   if ( varA == varB ) return MIN_DISTANCE;
@@ -147,16 +153,19 @@ double MutInfoDissimilarity<DM>::compute( const size_t varA, const size_t varB )
   // #pragma omp critical
   distCache[key] = rs;
     
-  if ( m_thres > 0 ) { // binary-->median, have to pre-compute all
+  if ( m_thres > 0 ) { // case when dissimilarity values are binary (0/1)
     result = ( rs > m_thres ) ? MAX_DISTANCE : MIN_DISTANCE;  
-  } else { // continue
+  } else { 
     result = rs;   
   }
 
   return result;
 }
 
-  
+////////////////////////////////////////////////////// /////////////////
+/** MI(A,B) = H(A)+H(B)-H(A,B)
+ */
+ 
 template<class DM>
 double mutualInformationDistance( std::vector<double>& entropyMap,
                                   std::map<size_t,double>& distCache,
@@ -164,24 +173,24 @@ double mutualInformationDistance( std::vector<double>& entropyMap,
                                   const size_t varA,
                                   const size_t varB )
 {  
-  double result = samogwas::MAX_DISTANCE;
+  double result = MAX_DISTANCE;
   size_t nVars = entropyMap.size();
   size_t key = 2*nVars*varA + varB;
-  Entropy<EMP> entropy; // empirical entropy (estimates the probability by frequency)
-  JointEntropy<EMP> mutEntropy; // empirial mutual entropy;
+  Entropy<EMP> entropy; // empirical entropy (estimation of the probability by frequency)
+  JointEntropy<EMP> mutEntropy; // empirical mutual entropy;
   double enA, enB;
 #pragma omp critical
   {  
-    if ( entropyMap.at(varA) < 0.0 ) {
-      entropyMap[varA] = entropy( dataMat.at(varA) ); // computes entropy of varA only if not already done
+    if ( entropyMap.at(varA) < 0.0 ) { // if not already computed
+      entropyMap[varA] = entropy( dataMat.at(varA) ); // computes entropy of varA 
     }
     enA = entropyMap[varA];
   }
 
 #pragma omp critical
   { 
-    if ( entropyMap.at(varB) < 0.0 ) { // computes entropy of varB only if not already done
-      entropyMap[varB] = entropy( dataMat.at(varB) ) ; // since this operation could be expensive
+    if ( entropyMap.at(varB) < 0.0 ) {  // if not already computed
+      entropyMap[varB] = entropy( dataMat.at(varB) ) ; // computes entropy of varB
     }
     enB = entropyMap[varB];
   }
