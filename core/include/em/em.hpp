@@ -2,7 +2,7 @@
  * File: EM.hpp
  * Description: 
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
- * @date: 11/07/2014
+ * @date: 11/07/2014 // Is this "interface" file absalutely necessary?
 
  ***************************************************************************************/
 #ifndef SAMOGWAS_EM_HPP
