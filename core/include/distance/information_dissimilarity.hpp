@@ -1,52 +1,49 @@
 /****************************************************************************************
- * File: Distance.hpp // CS Happy to see this for the information_dissimilarity.hpp file
- * Description: Dissimilarity based on mutual information metric.
+ * File: mutual_information_dissimilarity.hpp
+ * Description: Dissimilarity based on mutual information metric. 
+ *              If a positive threshold is specified, the dissimilarity values are discrete and belong to {0,1}.
+ *              Otherwise, the actual continous dissimilarity values are kept.
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 12/06/2014
- * // CS specify that this dissimilarity is thresholded (< median -> 0, > median -> 1) (ex CAST_bin)
- * // specify for = median
- * // Is there some code elsewhere for unthresholded dissimilarities? (ex CAST_real)
- *
-
  ***************************************************************************************/
-#ifndef CLUSTERING_DISTANCE_HPP // CS Yet another name!
-#define CLUSTERING_DISTANCE_HPP
+#ifndef SAMOGWAS_MUTUAL_INFORMATION_DISSIMILARITY_HPP 
+#define SAMOGWAS_MUTUAL_INFORMATION_DISSIMILARITY_HPP
 
 #include <stdlib.h> /* abs */
 #include <map>
 
 #include <boost/accumulators/accumulators.hpp> /** to compute median **/
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/median.hpp> /* to compute median */
+#include <boost/accumulators/statistics/stats.hpp>  /** to compute median **/
+#include <boost/accumulators/statistics/median.hpp> /** to compute median **/
 
 #include "comparable.hpp"
 #include "statistics/mutual_information.hpp"
 
 namespace samogwas
 {
+const static double MAX_DISTANCE = 1.0, MIN_DISTANCE = 0.0; //@todo: DISTANCE -> DISSIMILARITY
 
-const static double MAX_DISTANCE = 1.0, MIN_DISTANCE = 0.0;
-
-/** Metric values are scaled to the [0,1] range. 
- *  This method also takes into consideration the position ( physical distance in the genomics context )
- *  for computing. Normal usage, without this contraint, can be done by setting the constraints correspondingly,
- *  for example by setting the threshold as infinity. 
- * CS We can override this class to provide more flexibility also. // CS Is it done?
+/** Mutual information values are scaled to the [0,1] range, to obtain a metric.
+ *  This method also takes into consideration the positions of the variables along a line (example: genome order).
+ *  The dissimilarity between two variables is set to MAX_DISTANCE if these variables are 
+ *  located too far apart (above maxDist).
+ *  Usage without this maxDist contraint can be achieved by setting the value of maxDist to +infinity. 
  */
 template<class DataMatrix>
 struct MutInfoDissimilarity: public DissimilarityMatrix {
   
-  /** The construction which takes a reference to the actual dataset, the position.
-   *  The thres value determines whether this returns a 0/1 distance or the actual distance.
-   *  The thresholded 0/1 distance is obtainable if `thres` is set as a positive value: the dissimilarity value returned
-   *  is `1` if actual dissimilarity value is greater than this threshold; otherwise, the dissimilarity value returned
-   *  is 0. If `thres` is negative, then the dissimilarity value returned is the actual dissimilarity value.
-   *  distance.
+  /** The constructor takes a reference to the actual dataset, the positions, tha maxDist constraint and the threshold. 
+   *  The threshold determines whether to compute the binary 0/1 dissimilarity values or the actual 
+   *  continous dissimilarity values.
+   *  The thresholded 0/1 dissimilarity is specified if `thres` is set as a positive value. 
+   *  The dissimilarity value is `1` if the actual dissimilarity value is greater than this threshold; 
+   *  otherwise, the dissimilarity value is 0. 
+   *  If `thres` is negative, then the dissimilarity value is the actual dissimilarity value.
    */
-  MutInfoDissimilarity( DataMatrix& dm, std::vector<int>& pos, unsigned maxPos, double thres );
+  MutInfoDissimilarity( DataMatrix& dm, std::vector<int>& positions, unsigned maxDist, double thres );
 
   
-  /** Computes and returns the distance between two variables, indexed by varA and varB
+  /** Computes and returns the dissimilarity between two variables, indexed by varA and varB
    *  in the dataset.
    */
   virtual double compute( const size_t varA, const size_t varB );
@@ -198,7 +195,7 @@ double mutualInformationDistance( std::vector<double>& entropyMap,
 
 
 
-} // namespace clusteringends here. clustering
+} // namespace samogwas ends here
 
 /****************************************************************************************/
-#endif // CLUSTERING_DISTANCE_HPP
+#endif // SAMOGWAS_MUTUAL_INFORMATION_DISSIMILARITY_HPP 
