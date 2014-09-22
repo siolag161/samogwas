@@ -92,18 +92,19 @@ struct Rand_Density {
  *  a distribution to its <CS>estimtation
  */
  // CS formula lacking
+ // D_KL(P|Q) = sum_i P(i) log (P(i)/Q(i)) 
 template< typename PC, typename QC >
 double KL( const PC& P, const QC& Q ) {
   assert( P.size() == Q.size() );
-  double rs = 0.0;
+  double res = 0.0;
   for ( int i = 0; i < P.size(); ++i ) {
-    rs += Q[i] == 0 ? 0.0 : m_log(P[i]/Q[i])*P[i];
+    res += Q[i] == 0 ? 0.0 : P[i] * m_log(P[i]/Q[i]);
   }
-  return rs;
+  return res;
 }
 
 
-} // namespace samogwasends here. samogwas
+} // namespace samogwasends here. samogwas 
 
 /****************************************************************************************/
 #endif // SAMOGWAS_EM_HELPER_HPP
