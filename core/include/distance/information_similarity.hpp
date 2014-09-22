@@ -1,19 +1,21 @@
 /****************************************************************************************
- * File: information_similarity.hpp
- * Description: Information similarity provides the similarity based on mutual information.
- * -----------  It can be obtained via Information Dissimilarity as Simi(a,b) = 1.0 - Diss(a,b)
+ * File: mutual_information_similarity.hpp
+ * Description: Similarity based on mutual information metric. 
+ *              If a positive threshold is specified, the similarity values are discrete and belong to {0,1}.
+ *              Otherwise, the actual continous similarity values are kept.
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
- * @date: 30/07/2014
-
+ * @date: 12/06/2014
  ***************************************************************************************/
-#ifndef SAMOGWAS_INFORMATION_SIMILARITY_HPP
-#define SAMOGWAS_INFORMATION_SIMILARITY_HPP
+#ifndef SAMOGWAS_MUTUAL_INFORMATION_SIMILARITY_HPP
+#define SAMOGWAS_MUTUAL_INFORMATION_SIMILARITY_HPP
 
 #include "information_dissimilarity.hpp"
 #include "comparable.hpp"
+
 namespace samogwas
 {
 
+// @todo: change: pos-> positions, maxPos -> maxDist
 template<class DataMatrix>
 struct MutInfoSimilarity: public SimilarityMatrix {
   MutInfoSimilarity( std::vector< std::vector<int> >& dm, std::vector<int>& pos, unsigned maxPos, double thres ):
@@ -30,7 +32,7 @@ struct MutInfoSimilarity: public SimilarityMatrix {
   MutInfoDissimilarity<DataMatrix> m_miDiss;
 };
 
-} // namespace samogwasends here. samogwas
+} // namespace samogwas ends here. 
 
 /****************************************************************************************/
-#endif // SAMOGWAS_INFORMATION_SIMILARITY_HPP
+#endif // SAMOGWAS_MUTUAL_INFORMATION_SIMILARITY_HPP
