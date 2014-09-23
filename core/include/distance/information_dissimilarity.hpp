@@ -16,7 +16,7 @@
 #include <boost/accumulators/statistics/stats.hpp>  /** to compute median **/
 #include <boost/accumulators/statistics/median.hpp> /** to compute median **/
 
-#include "comparable.hpp" // @todo: CompMatrix (eventually change name)
+#include "comparable.hpp" // @todo: CompMatrix (eventually change name), DissimilarityMatrix
 #include "statistics/mutual_information.hpp" // Entropy, JointEntropy
 
 namespace samogwas
