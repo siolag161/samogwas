@@ -1,7 +1,10 @@
 /****************************************************************************************
  * File: partition.hpp 
- * Description: A data structure representing a partition of the data set - i.e a division of the data set into
+ * Description: A data structure (Partition) representing a partition of the data set - i.e a division of the data set into
  * -----------  non-overlapping subsets.
+ * -----------  This data structure is used to store the result produced by an instanciation of the 
+ * -----------  AlgoClustering class (algo_clustering.hpp).
+ * -----------  Globally, this file provides the toolbox for algo_clustering.hpp.
  * @author: Duc-Thanh Phan Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 09/07/2014
 
@@ -24,10 +27,6 @@ namespace samogwas
  */
 typedef int Index;
 
-/** A Label represents a cluster index, relative to its position in the clustering.
- */
-typedef int Label;
-
 /** A cluster is simply a collection of Label (int)
  *
  */
@@ -41,29 +40,36 @@ typedef std::vector<Cluster> Clustering;
 ////////////////////////////////////////////////////////////////////
 struct Partition {
   
+  /** A Label represents a cluster index, relative to its position in the clustering.
+   */
+  typedef int Label;
+  
+  /** An Index depicts an Item index, relative to its position in the dataset.
+   */
   typedef std::map<Index,Label> Index2Label; 
   
   size_t nbrClusters() const { return m_clusterSet.size(); }
-  size_t nbrItems() const { return m_index2Label.size(); } // CS nbrItems should be nbrOfKeys
+  size_t nbrItems() const { return m_index2Label.size(); } 
 
-  /// Converts itself to a clustering and returns // CS Converts WHAT into a clustering?
+  /// Converts itself to a clustering
   Clustering to_clustering() const {
     Clustering clustering( nbrClusters(), std::vector<int>() );
-    for ( const auto& i: m_index2Label ) { // CS INCOMPREHENSIBLE
-      clustering[ i.second ].push_back( i.first );
+    for ( const auto& indexLabelPair: m_index2Label ) {  
+    // for ( const std::pair<Index,Label>& indexLabelPair: m_index2Label ) {  
+      clustering[ indexLabelPair.second ].push_back( indexLabelPair.first );
     }  
     return clustering;
   } 
 
-  int cluster( int item ) const { return m_index2Label.at(item); } // CS BAD IDENTIFIER, item should be named index (I presume)
-  void cluster( int item, int cluster ) { // CS BAD IDENTIFIER clusterNumber
-    m_index2Label[item] = cluster; // CS should be m_index2Label[index] = clusterNumber ???
-    m_clusterSet.insert(cluster);
+  int cluster( int itemIdx ) const { return m_index2Label.at(itemIdx); } //@todo: getLabel +change Cluster -> Label
+  void cluster( int itemIdx, int clusterIdx ) {  //@doto: setLabel
+    m_index2Label[itemIdx] = clusterIdx; 
+    m_clusterSet.insert(clusterIdx);
   }
 
  private:
   std::set<int> m_clusterSet;
-  Index2Label m_index2Label; // CS     
+  Index2Label m_index2Label;
 };
 
 /** Convenient way to output the content of a clustering
@@ -81,7 +87,7 @@ inline std::ostream& operator<<( std::ostream& os, const Clustering& clt ) {
   return os;  
 }
 
-/// Convenient way to output content of a partition
+/// Convenient way to output the content of a partition
 inline std::ostream& operator<<( std::ostream& os, const Partition& p ) {
   return os << p.to_clustering();
 
@@ -89,7 +95,7 @@ inline std::ostream& operator<<( std::ostream& os, const Partition& p ) {
 
 /////////////////////////////////////////////////////////////////////////
 
-} // namespace samogwas ends here. S
+} // namespace samogwas ends here. 
 
 /****************************************************************************************/
 #endif // SAMOGWAS_PARTITION_HPP 
