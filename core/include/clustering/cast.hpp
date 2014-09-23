@@ -38,7 +38,7 @@ namespace samogwas
  * Under the hood, during the computation, the private class CAST_Item is used to represent an 
  * item in the cluster. CAST_Item is not supposed to be used by an outside class.
  * CAST_Item provides a convenient way for holding, for each item, its current affinity relative to 
- * the current candidate cluster, and its (global) index relative to the original dataset.
+ * the current candidate Opencluster, and its (global) index relative to the original dataset.
  */
 struct CAST_Item {  
   int globalIndex; 
@@ -53,17 +53,18 @@ template<typename SimiMatrix>
 struct CAST: public AlgoClust<SimiMatrix>  {
   typedef std::vector<CAST_Item> CAST_Cluster;
   
-  /** Constructor takes a Similarity matrix and a threshold criteron for removing and adding an item from the current cluster.
+  /** Constructor takes a similarity matrix and a threshold criterion for removing and adding an item from the current 
+   * candidate Opencluster.
    *
    */
   CAST ( SimiMatrix* simMat, const double& thres): AlgoClust<SimiMatrix>(simMat), thresCAST(thres) {}
 
-  /** Executes the algorithm given the current input.
+  /** Executes the algorithm given the current input (SimiMatrix).
    *
    */
   virtual Partition run() {
-    /// Initializes the cluster grouping all the unassigned items with null affinity
-    CAST_Cluster unAssignedCluster;
+    /// Initializes the cluster unAssignedCluster, grouping all the unassigned items.
+    CAST_Cluster unAssignedCluster; 
     for ( int i = 0; i < this->compMatrix->size(); ++i ) { // CS Nobody can guess that comp is a matrix. compMat should be used.
       unAssignedCluster.push_back(CAST_Item(i, 0.0) );    
     }
