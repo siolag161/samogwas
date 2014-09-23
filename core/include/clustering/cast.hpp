@@ -1,9 +1,22 @@
 /****************************************************************************************
  * File: cast.hpp
- * Description: CAST (Clustering Affinity Search Technique) is a clustering algorithm proposed in Ben Dor et al. 1999 * The idea of the algorithm is to represent the true underlying data as a probabilistic graph and a cluster in this graph is modeled as a clique in this structure. We introduce errors by randomly adding and removing edges in the graph betweeen pairs of nodes with a certain probability alpha. If the obtained cluster has a size of at least t*N for some constant t and N is the total number of items in the dataset then we may have found the cluster with a high confidence.
- * The implemention is based on the heuristic version described in the original paper where only one parameter is used. The idea is while we still have items that remain to be clustered (grouped together in a set called unassignedCluster), we try to generate a new cluster (openCluster) one by one. An item is added or removed from this openCluster if its relative affinity is greater or lower than the parameter t*N, respectively.
+ * Description: CAST (Clustering Affinity Search Technique) is a clustering algorithm proposed in Ben Dor et al. 1999 
+ * The idea of the algorithm is to represent the true underlying data as a probabilistic graph. A cluster 
+ * is modeled as a clique of this graph. 
+ * 
+ *The implemention below is a heuristic version described in the original paper. The idea is while we still have 
+ * items that remain to be clustered (grouped together in a set called unassignedCluster), we successively try 
+ * to generate a new cluster (openCluster). 
+ * 
+ * The affinity measure of an object is defined as the average of the similarity measures between objects in 
+ * a given cluster and another object outside this cluster. To grow a cluster, the CAST algorithm successively 
+ * adds the object with greatest affinity to this cluster as long as this maximum affinity satisfies a threshold 
+ * constraint (t). When the maximum affinity drops below the threshold, CAST removes the object with the minimum affinity 
+ * with respect to the cluster. Additions and removals are operated until the new cluster (openCluster) stabilizes. 
+ * Finally, the cluster is closed. 
  *
- * @ref: Ben Dor et al. 1999, Ben-Dor, Amir, Ron Shamir, and Zohar Yakhini. "Clustering gene expression patterns." Journal of computational biology 6.3-4 (1999): 281-297.
+ * @ref: Ben Dor et al. 1999, Ben-Dor, Amir, Ron Shamir, and Zohar Yakhini (1999) Clustering gene expression patterns.
+ * Journal of computational biology 6.3-4 : 281-297.
  *
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 11/07/2014                                                       
@@ -14,23 +27,21 @@
 
 #include "distance/similarity.hpp"
 
-#include "clustering.hpp"
-#include "partition.hpp"
-#include "cast_helper.hpp"
+#include "clustering.hpp" // AlgoClust
+#include "partition.hpp"  // Partition, Clustering
 
 namespace samogwas
 {
 
 
-/** The CAST methods returns a partition of the dataset, much like other type of AlgoClust. Under the hood, during computation make use of the private class CAST_Item to represent an item in the cluster. CAST_Item is not supposed to be used by outside class.
- *  It provides a convenient way for holding, for each item, its current affinity relative to the current candidate cluster
- *  and its index relative to the original dataset.
- *
- * CS CS CLARIFY in the form of non-overlapping set sets ??? of <objects of type> CAST_Item ???.
- *
+/** The CAST methods returns a partition of the dataset, much like other types of AlgoClust.
+ * Under the hood, during the computation, the private class CAST_Item is used to represent an 
+ * item in the cluster. CAST_Item is not supposed to be used by an outside class.
+ * CAST_Item provides a convenient way for holding, for each item, its current affinity relative to 
+ * the current candidate cluster, and its (global) index relative to the original dataset.
  */
 struct CAST_Item {  
-  int globalIndex; // hol
+  int globalIndex; 
   double affinity;
   CAST_Item( const int matIdx, const double aff): globalIndex(matIdx), affinity(aff) {}
 };
@@ -38,12 +49,11 @@ struct CAST_Item {
 /** The main class (functor). It takes as input a similarity matrix and a 
  *  threshold parameter thres (the same as t described above) in the constructor.
  */
-template<typename SimiMatrix> // CS I am lost 
-// I do not know if your SimiMatrix is elsewhere your compMatrix.
+template<typename SimiMatrix>
 struct CAST: public AlgoClust<SimiMatrix>  {
   typedef std::vector<CAST_Item> CAST_Cluster;
   
-  /** Constructor takes a Similarity Matrix and a threshold criteron for removing and adding an item from the current cluster.
+  /** Constructor takes a Similarity matrix and a threshold criteron for removing and adding an item from the current cluster.
    *
    */
   CAST ( SimiMatrix* simMat, const double& thres): AlgoClust<SimiMatrix>(simMat), thresCAST(thres) {}
