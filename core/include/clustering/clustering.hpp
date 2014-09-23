@@ -1,5 +1,5 @@
 /****************************************************************************************
- * File: clustering.hpp
+ * File: clustering.hpp-------------------@todo: change the name to algo_clustering.hpp
  * Description: Common interfaces for clustering algorithms
  * @author: CS Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 30/07/2014
