@@ -9,8 +9,8 @@
 #ifndef SAMOGWAS_MUTUAL_INFORMATION_SIMILARITY_HPP
 #define SAMOGWAS_MUTUAL_INFORMATION_SIMILARITY_HPP
 
-#include "information_dissimilarity.hpp"
-#include "comparable.hpp"
+#include "information_dissimilarity.hpp" // MutInfoDissimilarity
+#include "comparable.hpp" // SimilarityMatrix
 
 namespace samogwas
 {
