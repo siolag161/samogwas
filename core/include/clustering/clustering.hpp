@@ -5,36 +5,32 @@
  * @date: 30/07/2014
 
  ***************************************************************************************/
-#ifndef SAMOGWAS_CLUSTERING_HPP // CS Directive name assigment is not consistent throughout the project - 
-                                // see partition.hpp where the directive FLTM_CLUSTERING_HPP is used 
-                                // (it should be SAMOGWAS_PARTITION)
-#define SAMOGWAS_CLUSTERING_HPP
+#ifndef SAMOGWAS_ALGO_CLUSTERING_HPP 
+#define SAMOGWAS_ALGO_CLUSTERING_HPP
 
 #include "partition.hpp"
+
 namespace samogwas
 {
 
 /** Any clustering algorithm is derived from this base class.
- *  This provides common methods like invalidate caching and the name of the derived method CS INCOMPREHENSIBLE
  */
-class AlgoClustering { // CS Is this level mandatory? Many redundancies with class AlgoClust.
+class AlgoClusteringInterface { 
  public:
   virtual Partition operator()() { return run(); }
   virtual Partition run() = 0;
   virtual char* name() const = 0;
-  virtual void invalidCache() = 0;
-
- // static Partition to_partition( const std::vector<int>& labels );
-
+  virtual void invalidCache() = 0; //@todo: invalidateCache
 };
 
 
-/** The AlgoClust @Todo: Name changing is a specific case of AlgoClustering where the algorihm
- *  categorizes objects using a similarity/distance matrix.
- * CS
+/** The AlgoClust is a specific case of AlgoClusteringInterface where the algorihm
+ *  categorizes objects using a similarity/dissimilarity matrix.
+ *  The template parameter CompareMatrix has to be derived from 
+ *  the samogwas::CompMatrix structure (comparable.hpp). @todo: change comparable.hpp and CompMatrix
  */
 template<typename CompareMatrix> // CS CompareMatrix should be ComparisonMatrix
-class AlgoClust: public AlgoClustering {
+class AlgoClust: public AlgoClusteringInterface {
  public:
   virtual Partition run() = 0;
   virtual char* name() const = 0;
@@ -44,7 +40,7 @@ class AlgoClust: public AlgoClustering {
   virtual ~AlgoClust() { delete compMatrix; }
   
  protected:
-  // Matrix of similarities or distances
+  // Matrix of similarities or dissimilarities
   CompareMatrix* compMatrix; 
 };
 
@@ -52,4 +48,4 @@ class AlgoClust: public AlgoClustering {
 } // namespace samogwas ends here.
 
 /****************************************************************************************/
-#endif // SAMOGWAS_CLUSTERING_HPP
+#endif // SAMOGWAS_ALGO_CLUSTERING_HPP
