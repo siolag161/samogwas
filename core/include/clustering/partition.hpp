@@ -2,8 +2,8 @@
  * File: partition.hpp 
  * Description: A data structure (Partition) representing a partition of the data set - i.e a division of the data set into
  * -----------  non-overlapping subsets.
- * -----------  This data structure is used to store the result produced by an instanciation of the 
- * -----------  AlgoClustering class (algo_clustering.hpp).
+ * -----------  This data structure is used to store the result produced by an instanciation of 
+ * -----------  AlgoClusteringInterface (algo_clustering.hpp).
  * -----------  Globally, this file provides the toolbox for algo_clustering.hpp.
  * @author: Duc-Thanh Phan Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 09/07/2014
