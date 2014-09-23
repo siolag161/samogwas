@@ -65,14 +65,15 @@ struct CAST: public AlgoClust<SimiMatrix>  {
   virtual Partition run() {
     /// Initializes the cluster unAssignedCluster, grouping all the unassigned items.
     CAST_Cluster unAssignedCluster; 
-    for ( int i = 0; i < this->compMatrix->size(); ++i ) { // CS Nobody can guess that comp is a matrix. compMat should be used.
+    for ( int i = 0; i < this->compMatrix->size(); ++i ) { // compMatrix has type SimiMatrix (for instance 
+                                                           // MutInfoSimilarityMatrix)
       unAssignedCluster.push_back(CAST_Item(i, 0.0) );    
     }
-    /// Delegates the job to the method taking the newly initialized unassigned cluster.
+    /// Delegates the job to the method taking the newly initialized unassignedCluster as parameter.
     return run( unAssignedCluster );
   }
 
-  /** Provides the name of the algorithm which its parameters
+  /** Provides the name of the algorithm along with its parameters
    *
    */
   virtual char* name() const {
@@ -86,24 +87,16 @@ struct CAST: public AlgoClust<SimiMatrix>  {
    */
   inline Partition run( CAST_Cluster& unassignedCluster );
   
-  // CS I do not see that there is such a step in the original CAST algorithm. @pdt: indeed, everytime a new openCluster is considered, gotta reset all the affinity relative to this one.
-  // Instead I see : When a new cluster Copen is started, the initial affinities of all genes are 0 since Copen is empty.
-  // CS Is it this step you describe here?
-  // http://faculty.washington.edu/kayee/cluster/algs.pdf
-  // Is it resetAffinity for the clusterofUnassignedObjects?
   
-  /** Resets the current affinity matrix */
-  void resetAffinity( CAST_Cluster& unAssignedCluster );
+  /** Resets the affinities of the items in unAssignedCluster */
+  void resetAffinities( CAST_Cluster& unAssignedCluster );
 
   
-  // CS is unassignedCluster the equivalent of COpen? // pdt: not the same. COpen is the new open cluster to be formed, unassigned is a group of remaining objects
-  // In CAST, objects are assigned to clusters.
-  // It is incomprehensible that a cluster would be unassigned. Do you mean "under construction"?
-  // Or is it clusterOfUnassignedObjects rather (as I guess)?
+  // Adds good item to OpenCluster and removes it from unassignedCluster 
   void addGoodItem( CAST_Cluster& unassignedCluster, CAST_Cluster& openCluster, 
                     CompMatrix& simMatrix, const int itemIdx );
 
-  /** Removes bad item from openCluster and moves them back to the unassignedCluster  */
+  /** Removes bad item from openCluster and moves it back to unassignedCluster  */
   void removeBadItem( CAST_Cluster& unassignedCluster, CAST_Cluster& openCluster, 
                       CompMatrix& simMatrix, const int itemIdx );
   
@@ -115,23 +108,19 @@ struct CAST: public AlgoClust<SimiMatrix>  {
   void moveItemBetweenClusters( CAST_Cluster& source, CAST_Cluster& target, const int itemIdx );
 
  protected:
-  // main parameter: CS unuseful 
-  // CS the threshold involved in the computation of the CAST criterion for assigning an object to a cluster
+  // main parameter of CAST
   double thresCAST;     
 };
 
 //////////////////////////////////////////////////////////////////////////////
-// CS What about the separation rules? Where to insert /////////// or /*********/?
 
 /** Functor to find the index of the item of extremal affinity (mimimal or maximal).
  *
  */
-struct ExtremumIndexAffinity { // CS heterogeneous notation: resetAffinity versus ExtremumIndexAffinity @pdt: not the same, one is a class, the other is a method
-  template<typename Compare>
-  const int operator()(const std::vector<CAST_Item>& clust, Compare comp) const;    
+struct ExtremumIndexAffinity { 
+  const int operator()(const std::vector<CAST_Item>& cluster, Compare comparat) const;    
 };
 
-// CS What about the separation rules? Where to insert /////////// or /*********/?
 }
 
 /******************************************  IMPLEMENTATION BELOW **********************************************/
@@ -150,7 +139,7 @@ Partition CAST<SimiMatrix>::run( CAST_Cluster& unAssignedCluster ) {
   Partition result; // CS growingPartition ?
   while ( unAssignedCluster.size() ) {  // as long as there is still remains an object to be classified
     CAST_Cluster openCluster; // creates a new cluster
-    resetAffinity( unAssignedCluster ); // reset the affinities of the objects remaining to be classified
+    resetAffinities( unAssignedCluster ); // reset the affinities of the objects remaining to be classified
     bool changesOccurred = true; 
     while (changesOccurred && unAssignedCluster.size()) { // begin organizing objets CS vague 
       // CS starts assigning objects to openCluster
@@ -190,7 +179,7 @@ Partition CAST<SimiMatrix>::run( CAST_Cluster& unAssignedCluster ) {
 //////////////////////////////////////////////////////////////////////////////////////
 // sets all the affinity values to zeroes
 template<typename SimiMatrix>
-void CAST<SimiMatrix>::resetAffinity( CAST_Cluster& cluster ) { // CS resetAffinityValuesToZero
+void CAST<SimiMatrix>::resetAffinities( CAST_Cluster& cluster ) { // CS resetAffinitiesValuesToZero
   for ( CAST_Cluster::iterator it = cluster.begin(); it != cluster.end(); ++it ) {
     it->affinity = 0.0;
   } 
