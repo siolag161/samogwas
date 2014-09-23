@@ -252,6 +252,6 @@ const int ExtremumIndexAffinity::operator()( const std::vector<CAST_Item>& clust
 }
 
 
-}
+} // namespace samogwas ends here.
 
 #endif // SAMOGWAS_CAST_HPP
