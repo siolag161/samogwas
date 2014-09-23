@@ -15,8 +15,8 @@
  * with respect to the cluster. Additions and removals are operated until the new cluster (openCluster) stabilizes. 
  * Finally, the cluster is closed. 
  *
- * @ref: Ben Dor et al. 1999, Ben-Dor, Amir, Ron Shamir, and Zohar Yakhini (1999) Clustering gene expression patterns.
- * Journal of computational biology 6.3-4 : 281-297.
+ * @ref: Ben Dor et al. (1999) Ben-Dor, A., Ron S., and Zohar Y. Clustering gene expression patterns.
+ * Journal of computational biology, 6(3-4), 281-297.
  *
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 11/07/2014                                                       
