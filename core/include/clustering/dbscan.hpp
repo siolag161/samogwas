@@ -85,7 +85,7 @@ struct DBSCAN: public AlgoClust<DissMatrix> {
 
 } // namespace samogwas ends here.
 
-/**************************m**************************************************************/
+/************************** IMPLEMENTATION BELOW **************************************************************/
 namespace samogwas
 {
 
@@ -133,19 +133,18 @@ Partition DBSCAN<DissMatrix>::run() {
       }
     }
   }
-  return toPartition(m_labels); // CS toPartition is a function?
+  return toPartition(m_labels); 
 }
 
-/** A neighborhood of a given point is defined as all the points that are within a certain given distance.
- * CS The neighborhood of a given point is defined as all the points that are within a given distance.
- *
+/////////////////////////////////////////
+/** A neighborhood of a given point is defined as all the points that are within a certain given radius (epsilon).
  */
 template<typename DissMatrix>
 typename DBSCAN<DissMatrix>::Neighbors DBSCAN<DissMatrix>::find_neighbors( const Index pid ) const {
   Neighbors ne;
-  size_t nvars = this->compMatrix->size();
-  for ( Index i = 0; i < nvars; ++i ) { // tries to add each point if the distance between it and the given point is within the threshold parameter 
-    if ( this->compMatrix->compute( i, pid ) <= epsilon ) {
+  size_t nvars = this->compMatrix->size(); // @todo: remove direct access to compMatrix
+  for ( Index i = 0; i < nvars; ++i ) { 
+    if ( this->compMatrix->compute( i, pid ) <= epsilon ) { // @todo: remove direct access to compMatrix
       ne.push_back(i);
     }
   }
@@ -154,27 +153,25 @@ typename DBSCAN<DissMatrix>::Neighbors DBSCAN<DissMatrix>::find_neighbors( const
 }
 
 /////////////////////////////////////////
-/**
- *
- */
 template<typename DissMatrix>
 Partition DBSCAN<DissMatrix>::toPartition( const Labels& labels ) {
   Partition partition;
-  std::set<int> unique_labs;
+  std::set<Label> labs;
   std::vector<int> singletons;
   for ( size_t i = 0; i < labels.size(); ++i ) {
-    if ( labels.at(i) !=  for instance, may be instanciated as MutInfoSimilarityMatrix ) {
+    if ( labels.at(i) !=  UNASSIGNED_LABEL ) {
       partition.cluster( i,labels.at(i) ); // CS identifier could be more informative.
-      unique_labs.insert( labels.at(i) );
+                                           // The label is the cluster identifier.
+      labs.insert( labels.at(i) );
     } else {
       singletons.push_back(i);
     }
   }
 
   for ( auto& i: singletons ) {
-    size_t cur_cluster = unique_labs.size();
-    partition.cluster(i, cur_cluster);
-    unique_labs.insert(cur_cluster); // CS semantics?
+    size_t curCluster = labs.size();
+    partition.cluster(i, curCluster);
+    labs.insert(curCluster);
   }
   
   return partition;
