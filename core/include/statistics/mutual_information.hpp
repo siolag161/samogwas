@@ -1,12 +1,14 @@
 /****************************************************************************************
- * File: MutInfotheo.hpp
- * Description: 
- * @author: Phan Duc Thanh (duc-thanh.phan@univ-nantes.fr) - Under supervision of Christine Sinoquet (christine.sinoquet@univ-nantes.fr)
+ * File: mutual_information.hpp
+ * Description: This module provides methods to compute the mutual information of two variables.
+ * MI(X,Y) = H(X) + H(Y) - H(X,Y)
+ * 
+ * @author: @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 29/12/2013
 
  ***************************************************************************************/
-#ifndef INFOTHEO_MUTINFO_HPP
-#define INFOTHEO_MUTINFO_HPP
+#ifndef SAMOGWAS_MUTUAL_INFORMATION_HPP
+#define SAMOGWAS_MUTUAL_INFORMATION_HPP
 
 #include <math.h> //log
 #include <map>
@@ -21,8 +23,7 @@
 namespace samogwas
 {
 
-
-template<int EstimateMethodT>
+template<int EstimateMethodType>
 struct MutualInformation
 {
 
@@ -30,21 +31,21 @@ struct MutualInformation
 
   /**
    * Takes two iterators as input and computes the mutual information
-   * according to the method selected for estimating the entropy
-   * @param maxValXY maximum value over all the possible values of random variables X and Y
+   * according to the method selected for estimating the entropy.
    */
   template<typename XIterator, typename YIterator>
   double operator()(XIterator xBegin, XIterator xEnd, YIterator yBegin) {
-    return compute(xBegin, xEnd, yBegin, utility::Int2Type<EstimateMethodT>());
+    return compute(xBegin, xEnd, yBegin, utility::Int2Type<EstimateMethodType>());
     
   }
 
-  template<typename VecT>
-  double operator()(const VecT& xVec, const VecT& yVec) {    
-    return compute(xVec.begin(), xVec.end(), yVec.begin(), utility::Int2Type<EstimateMethodT>());
+  template<typename VecType>
+  double operator()(const VecType& xVec, const VecType& yVec) {    
+    return compute(xVec.begin(), xVec.end(), yVec.begin(), utility::Int2Type<EstimateMethodType>());
   }
 
-
+  /** MatrixT passed as parameter is a row-major Matrix in which each Row denotes a variable.
+  */
   template<template<class> class MatrixT, class T>
   boost::shared_ptr<MatrixT<double> > operator()(const MatrixT<T>& mat);
   
@@ -52,33 +53,37 @@ struct MutualInformation
   template<typename XIterator, typename YIterator>
   double compute(XIterator xBegin, XIterator xEnd, YIterator yBegin, utility::Int2Type<EMP>);
   
+  /** MatrixT passed as parameter is a row-major Matrix in which each Row denotes a variable.
+  */
   template<template<class> class MatrixT, class T>
   boost::shared_ptr<MatrixT<double> > compute(const MatrixT<T>& mat, utility::Int2Type<EMP>);
+  
+  //template<typename XIterator, typename YIterator>
+  //double compute(XIterator xBegin, XIterator xEnd, YIterator yBegin, utility::Int2Type<DIRICHLET>);
+  
+  //template<template<class> class MatrixT, class T>
+  //boost::shared_ptr<MatrixT<double> > compute(const MatrixT<T>& mat, utility::Int2Type<SCALED_MI>);
 
 };
 
-} // namespace clustering ends here.
+} // namespace samogwas ends here.
 
-/****************************** IMLEMENTATION BELOW THIS POINT **************************/
+/****************************** IMPLEMENTATION BELOW THIS POINT **************************/
 namespace samogwas
 {
 
-
-template<int EstimateMethodT> 
+template<int EstimateMethodType> 
 template<template<class> class MatrixT, class T>
 boost::shared_ptr<MatrixT<double> > MutualInformation<EstimateMethodT>::operator()(const MatrixT<T>& mat)
 {
-  return compute(mat, utility::Int2Type<EstimateMethodT>());
+  return compute(mat, utility::Int2Type<EstimateMethodType>());
 }
 
-
-////////////////////////////////////// Implementation of COMPUTE functions /////////////////////////////////////////////
-
-
-template<int EstimateMethodT> 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+template<int EstimateMethodType> 
 template<typename XIterator, typename YIterator>
-double MutualInformation<EstimateMethodT>::compute( XIterator xBegin, XIterator xEnd,
-                                                    YIterator yBegin, utility::Int2Type<EMP> )
+double MutualInformation<EstimateMethodType>::compute( XIterator xBegin, XIterator xEnd,
+                                                       YIterator yBegin, utility::Int2Type<EMP> )
 { 
 
   std::map<unsigned, unsigned> xCountMap;
@@ -108,10 +113,8 @@ double MutualInformation<EstimateMethodT>::compute( XIterator xBegin, XIterator 
   return log(vecLen) + 1/vecLen*(jointLogSum - xLogSum - yLogSum);
 }
 
-/** MatrixT passed as parameter is a row-major Matrix in which each Row denotes a Variable.
- *  Implemented using the formula MI(X,Y) = E(X) + E(Y) - E(X,Y)
- */
-template<int EstimateMethodT> 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+template<int EstimateMethodType> 
 template<template<class> class MatrixT, class T>
 boost::shared_ptr<MatrixT<double> >
      MutualInformation<EstimateMethodT>::compute(const MatrixT<T>& mat,
@@ -122,13 +125,14 @@ boost::shared_ptr<MatrixT<double> >
 
   Entropy<EMP> entropy;
   JointEntropy<EMP> mutualEntropy;
+  
   for (unsigned i = 0; i < mat.nbrRows(); ++i) {    
-    if (entropyMap.find(i) == entropyMap.end()) // if entropy of i-th variable is not yet computed
-      entropyMap[i] = entropy(mat[i]); // computes and puts in the map
-
-    (*result)[i][i] = entropy(mat[i]); // MI(X,X) = E(X)
+    entropyMap[i] = entropy(mat[i]); //@todo
+  }
+  
+  for (unsigned i = 0; i < mat.nbrRows(); ++i) {  
+    (*result)[i][i] = entropyMap[i]; // MI(X,X) = E(X)
     for (unsigned j = i+1; j < mat.nbrRows(); ++j) {
-        entropyMap[j] = entropy(mat[j]); // entropy of j-th variable is not yet computed         
        double ijEntropy = mutualEntropy(mat[i], mat[j]);
        double mutInfo = entropyMap[i] + entropyMap[j] - ijEntropy;
        (*result)[i][j] = mutInfo; 
@@ -141,4 +145,4 @@ boost::shared_ptr<MatrixT<double> >
 } // namespace infotheo ends here. 
 
 /****************************************************************************************/
-#endif // INFOTHEO_MUTINFO_HPP
+#endif // MUTUAL_INFORMATION_HPP
