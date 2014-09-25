@@ -34,7 +34,7 @@ namespace samogwas
 {
 
 
-/** The CAST methods returns a partition of the dataset, much like other types of AlgoClust.
+/** The CAST method returns a partition of the dataset, much like other types of AlgoClust.
  * Under the hood, during the computation, the private class CAST_Item is used to represent an 
  * item in the cluster. CAST_Item is not supposed to be used by an outside class.
  * CAST_Item provides a convenient way for holding, for each item, its current affinity relative to 
