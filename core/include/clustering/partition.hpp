@@ -27,7 +27,7 @@ namespace samogwas
  */
 typedef int Index;
 
-/** A cluster is simply a collection of Label (int)
+/** A cluster is simply a collection of indexes.
  *
  */
 typedef std::vector<Index> Cluster;
@@ -48,7 +48,7 @@ struct Partition {
    */
   typedef std::map<Index,Label> Index2Label; 
   
-  size_t nbrClusters() const { return m_clusterSet.size(); }
+  size_t nbrClusters() const { return m_labelSet.size(); }
   size_t nbrItems() const { return m_index2Label.size(); } 
 
   /// Converts itself to a clustering
@@ -64,11 +64,11 @@ struct Partition {
   int cluster( int itemIdx ) const { return m_index2Label.at(itemIdx); } //@todo: getLabel +change Cluster -> Label
   void cluster( int itemIdx, int clusterIdx ) {  //@doto: setLabel
     m_index2Label[itemIdx] = clusterIdx; 
-    m_clusterSet.insert(clusterIdx);
+    m_labelSet.insert(clusterIdx);
   }
 
  private:
-  std::set<int> m_clusterSet;
+  std::set<int> m_labelSet; // 
   Index2Label m_index2Label;
 };
 
