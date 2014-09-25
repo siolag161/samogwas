@@ -29,7 +29,7 @@ struct CompMatrix {
    */
   virtual double compute( const size_t varA, const size_t varB ) = 0;
 
-  /** Returns the total number of variables @todo; change the name to nbrOfVariables
+  /** Returns the total number of variables @todo; change the name to nbrOfVariables.
    */
   virtual size_t size() const = 0;
 
