@@ -68,7 +68,7 @@ struct Partition {
   }
 
  private:
-  std::set<int> m_labelSet; // 
+  std::set<int> m_labelSet; // A label is a cluster identifier. 
   Index2Label m_index2Label;
 };
 
