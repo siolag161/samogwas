@@ -20,7 +20,7 @@
 #include <map>
 #include <stdlib.h> // abs
 #include <algorithm>  // std::min
-#include <numeric> // std::accumulate
+#include <numeric> // std::accumulate //
 
 #include "utils/type_utils.hpp" // utility::Int2Type
 
@@ -32,36 +32,37 @@ enum EstimationMethod {EMP = 0, DIRICHLET, SCALED_MI}; //EMP = empirical
 /** Computes entropy in base 2 (@todo: log2).
  *
  */
-template<int EstimationMethodT>
+template<int EstimationMethodType>
 struct Entropy
 {
   Entropy() {}
 
   template<typename XIterator>
   double operator()(XIterator xBegin, XIterator xEnd) {
-    return compute(xBegin, xEnd, utility::Int2Type<EstimationMethodT>());
+    return compute(xBegin, xEnd, utility::Int2Type<EstimationMethodType>());
   }
 
-  template<typename VecT>
-  double operator()(const VecT& xVec) {
-    return compute(xVec.begin(), xVec.end(), utility::Int2Type<EstimationMethodT>());
+  template<typename VecType>
+  double operator()(const VecType& xVec) {
+    return compute(xVec.begin(), xVec.end(), utility::Int2Type<EstimationMethodType>());
   }
 
  protected:  
   template<typename XIterator>
   double compute(XIterator xBegin, XIterator xEnd, utility::Int2Type<EMP>);
   
-  template<typename XIterator>
-  double compute(XIterator xBegin, XIterator xEnd, utility::Int2Type<DIRICHLET>);
+  // template<typename XIterator>
+  // double compute(XIterator xBegin, XIterator xEnd, utility::Int2Type<DIRICHLET>);
   
-
+  // template<typename XIterator>
+  // double compute(XIterator xBegin, XIterator xEnd, utility::Int2Type<SCALED_MI>);
 };
 
 
 /**
- * Formula for computing joint entropy of X and Y: -sum( p_xy( log_2(p_xy) ) )
+ * Formula for computing joint entropy of X and Y: -sum_ij p(i,j) log_2(p(i,j))  
  */
-template<int EstimationMethodT>
+template<int EstimationMethodType>
 struct JointEntropy
 {
   JointEntropy() {}
@@ -69,15 +70,22 @@ struct JointEntropy
   // We suppose that X and Y have the same size.
   template<typename XIterator, typename YIterator>
   double operator()(XIterator xBegin, XIterator xEnd, YIterator yBegin)
-    { return compute(xBegin, xEnd, yBegin, utility::Int2Type<EstimationMethodT>()); }
+    { return compute(xBegin, xEnd, yBegin, utility::Int2Type<EstimationMethodType>()); }
 
-  template<typename VecXT, typename VecYT>
-  double operator()(const VecXT& xVec, const VecYT& yVec)
-    { return (*this)(xVec.begin(), xVec.end(), yVec.begin()); }
+  template<typename VecXType, typename VecYType>
+  double operator()(const VecXType& xVec, const VecYType& yVec)
+    { return compute(xVec.begin(), xVec.end(), yVec.begin()); }
 
  protected:  
   template<typename XIterator, typename YIterator>
   double compute(XIterator xBegin, XIterator xEnd, YIterator yBegin, utility::Int2Type<EMP>);
+  
+  // template<typename XIterator>
+  // double compute(XIterator xBegin, XIterator xEnd, YIterator yBegin, utility::Int2Type<DIRICHLET>);
+  
+  
+  // template<typename XIterator>
+  // double compute(XIterator xBegin, XIterator xEnd, YIterator yBegin, utility::Int2Type<SCALED_MI>);
 };
 
 
@@ -93,10 +101,16 @@ double sumLogCount(double &total, const std::pair<T, unsigned>& data);
 namespace samogwas
 {
 
-
-template<int EstimationMethodT>
+/** 
+ * The entropy is computed using the following derivation:
+ * H(X) = -sum_i p(i) log_2(p(i))
+ *      = -sum_i n_i/N log_2(n_i) + sum_i n_i/N log_2(N)
+ *      = -1/N sum_i n_i log_2(n_i) + log_2(N),
+ * with p_i = n_i/N.
+ */
+template<int EstimationMethodType>
 template<typename XIterator>
-double Entropy<EstimationMethodT>::compute(XIterator xBegin, XIterator xEnd, utility::Int2Type<EMP>)
+double Entropy<EstimationMethodType>::compute(XIterator xBegin, XIterator xEnd, utility::Int2Type<EMP>)
 {
   std::map<unsigned, unsigned> xCountMap; 
   double vecLen = 0.0;
@@ -107,17 +121,16 @@ double Entropy<EstimationMethodT>::compute(XIterator xBegin, XIterator xEnd, uti
     vecLen++;
   }
     
-  double xLogSum = accumulate( xCountMap.begin(), xCountMap.end(), 0.0, sumLogCount<unsigned> );
-  double enp = log(vecLen) - 1/vecLen*xLogSum;
+  double xLogSum = std::accumulate( xCountMap.begin(), xCountMap.end(), 0.0, sumLogCount<unsigned> );
+  double entrop = log(vecLen) - 1/vecLen*xLogSum
 
-  return enp;
+  return entrop;
 }
 /////////////////////////////////////////////////////////////////////////////
-
-template<int EstimationMethodT>
+template<int EstimationMethodType>
 template<typename XIterator, typename YIterator>
-double JointEntropy<EstimationMethodT>::compute( XIterator xBegin, XIterator xEnd,
-                                                 YIterator yBegin, utility::Int2Type<EMP>)
+double JointEntropy<EstimationMethodType>::compute( XIterator xBegin, XIterator xEnd,
+                                                    YIterator yBegin, utility::Int2Type<EMP>)
 {
 
   typedef std::pair<unsigned, unsigned> IntPair;
@@ -125,36 +138,27 @@ double JointEntropy<EstimationMethodT>::compute( XIterator xBegin, XIterator xEn
   
   double vecLen = 0.0;
   for (; xBegin != xEnd; ++xBegin)  {
-
     const IntPair jointKey = std::make_pair(*xBegin, *yBegin); 
     updateCountMap(jointCountMap, jointKey);
     vecLen++; yBegin++;      
   }
     
-  double jointLogSum = accumulate(jointCountMap.begin(), jointCountMap.end(),
+  double jointLogSum = std::accumulate(jointCountMap.begin(), jointCountMap.end(),
                                   0.0, sumLogCount<IntPair>);
    
   return log(vecLen) - 1/vecLen*(jointLogSum);
 }
 
-
 /////////////////////////////////////////////////////////////////////////////
-
-
-/** @todo: change to find and 
- *
- */
 template<typename T>
 void updateCountMap(std::map<T, unsigned>& countMap, const T& val)
 {
-  if(!countMap.insert(std::make_pair(val, 1)).second) // if already in the map
-  {
-    ++(countMap)[val]; // inscrease the counter by 1 (otherwise put it into the map, set the counter to 1)
-  }
+  //if(!countMap.insert(std::make_pair(val, 1).second) // if already in the map
+  if (countMap.find(val) == countMap.end()) countMap[val] =// increase the counter by 1 
 }
 
 /** @param counter is the type of the pointee of the countMap iterator. This pointee is a
- * pair(element, number of occurences of element)
+ * pair(element, number of occurrences of element)
  */
 template<typename T>
 double sumLogCount(double &total, const std::pair<T, unsigned>& counter)
