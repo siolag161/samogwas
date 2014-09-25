@@ -46,7 +46,8 @@ struct CAST_Item {
   CAST_Item( const int matIdx, const double aff): globalIndex(matIdx), affinity(aff) {}
 };
 
-/** The main class (functor). It takes as input a similarity matrix and a 
+/** CAST is a functor that implements AlgoClust interface for data clustering.
+ *  It takes as input a similarity matrix and a 
  *  threshold parameter thres (the same as t described above) in the constructor.
  */
 template<typename SimiMatrix>
