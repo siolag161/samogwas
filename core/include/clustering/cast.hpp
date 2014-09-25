@@ -50,7 +50,7 @@ struct CAST_Item {
  *  It takes as input a similarity matrix and a 
  *  threshold parameter thres (the same as t described above) in the constructor.
  */
-template<typename SimiMatrix>
+template<typename SimiMatrix> //  for instance, may be instanciated as MutInfoSimilarityMatrix
 struct CAST: public AlgoClust<SimiMatrix>  {
   typedef std::vector<CAST_Item> CAST_Cluster;
   
@@ -136,7 +136,7 @@ namespace samogwas
  *  or add an item to the current candidate Opencluster. This parameter t also determines when a cluster is stabilized.
  *  This method returns a partition of the dataset.
  */ 
-template<typename SimiMatrix> // for instance, instanciated as MutInfoSimilarityMatrix
+template<typename SimiMatrix> 
 Partition CAST<SimiMatrix>::run( CAST_Cluster& unAssignedCluster ) {
   Partition result; 
   while ( unAssignedCluster.size() ) {  // as long as there still remains an object to be classified (i.e. unassigned)
