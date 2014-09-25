@@ -68,6 +68,7 @@ struct CAST: public AlgoClust<SimiMatrix>  {
     CAST_Cluster unAssignedCluster; 
     for ( int i = 0; i < this->SimilarityMatrix->size(); ++i ) { // SimilarityMatrix has type SimiMatrix (for instance 
                                                            // MutInfoSimilarityMatrix)
+                                                           // @todo: remove direct access, and change the name
       unAssignedCluster.push_back(CAST_Item(i, 0.0) );    
     }
     /// Delegates the job to the method taking the newly initialized unassignedCluster as parameter.
