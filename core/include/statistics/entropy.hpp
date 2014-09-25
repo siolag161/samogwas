@@ -1,11 +1,15 @@
 /****************************************************************************************
- * File: Entropy.hpp
- * Description: 
- * @author: Phan Duc Thanh (duc-thanh.phan@univ-nantes.fr) - Under supervision of Christine Sinoquet (christine.sinoquet@univ-nantes.fr)
+ * File: entropy.hpp
+ * Description: This module provides methods to compute the entropy of a given variable, and the joint
+ * -------------entropy of two variables.
+ * H(X) = - sum_i p(X = i) log (p(X = i)) 
+ * H(X,Y) = - sum_i,j p(X = i, Y = j) log(p(X = i, Y = j))
+ * 
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 30/12/2013
  ***************************************************************************************/
-#ifndef INFOTHEO_ENTROP_HPP
-#define INFOTHEO_ENTROP_HPP
+#ifndef SAMOGWAS_ENTROPY_HPP
+#define SAMOGWAS_ENTROPY_HPP
 
 /** A set of methods for computing estimated entropies for random variables.
  * Method type is decided at compile-time via the template parameter.
@@ -18,15 +22,14 @@
 #include <algorithm>  // std::min
 #include <numeric> // std::accumulate
 
-#include "utils/type_utils.hpp" // internal_tools::Int2Type
+#include "utils/type_utils.hpp" // utility::Int2Type
 
 namespace samogwas
 {
 
-
 enum EstimationMethod {EMP = 0, DIRICHLET, SCALED_MI}; //EMP = empirical
 
-/** Computes entropy in base 2 (@todo: log2)
+/** Computes entropy in base 2 (@todo: log2).
  *
  */
 template<int EstimationMethodT>
@@ -84,7 +87,7 @@ void updateCountMap(std::map<T, unsigned>& countMap, const T& val);
 template<typename T>
 double sumLogCount(double &total, const std::pair<T, unsigned>& data);
 
-} // namespace clustering ends here. infotheo
+} // namespace samogwas ends here. 
 
 /****************************** IMLEMENTATION BELOW THIS POINT **************************/
 namespace samogwas
@@ -161,7 +164,7 @@ double sumLogCount(double &total, const std::pair<T, unsigned>& counter)
 }
 
 
-} // namespace infotheoends here. infotheo
+} // namespace samogwas ends here. 
 
 /****************************************************************************************/
-#endif // INFOTHEO_ENTROP_HPP
+#endif // SAMOGWAS_ENTROPY_HPP
