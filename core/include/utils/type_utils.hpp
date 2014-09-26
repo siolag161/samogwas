@@ -1,13 +1,14 @@
 /*********************************************************************
- * File: EnumUtils.hpp
- * Description:  This module contains several helper methods related to enum manipulation
- * ------------  and casting between different types (hence its name)
+ * File: type_utils.hpp
+ * Description:  This module contains several helper methods related to type manipulation
+ * ------------  and casting between different types (hence its name).
+ * 
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet 
  * @date: 18/10/2013
- * @author: dtphan89 (thanh.phan@outlook.com)
  *********************************************************************/
 
-#ifndef UTILS_TYPE_HPP
-#define UTILS_TYPE_HPP
+#ifndef UTILS_TYPE_UTILS_HPP
+#define UTILS_TYPE_UTILS_HPP
 
 #include <sstream> // stringstream
 #include <string> // basic_string
@@ -16,10 +17,10 @@ namespace utility {
 
 /******************************************* DECLARATION *****************************************/
 /**
- * construct enum from index
+ * Constructs enum from index.
  */
-template<typename EnumType>
-EnumType EnumOfIndex(const int& i); 
+// template<typename EnumType>
+// EnumType EnumOfIndex(const int& i); 
 
 /**
  * Integer to Type trick (from Modern C++ Design)
@@ -33,19 +34,19 @@ struct Int2Type
       
 ///////////////////////// generic from string and to string ///////////////////////////////
 /**
- * generic functor to convert the string (normal, wide string)... to T
+ * Generic functor to convert the string (normal, wide string)... to ConvertType
  */
 template<typename CharType, typename ConvertType> 
 struct fromString: public std::unary_function<CharType, ConvertType>
 {
   ConvertType operator()(const std::basic_string<CharType>& str);
  private:
-  std::stringstream ifs;
+  std::stringstream ss;
 };
 
 
 /**
- * handles from string to string 
+ * Handles the conversion from string to string. 
  */
 template<typename CharType> 
 struct fromString<CharType, std::string >
@@ -56,19 +57,20 @@ struct fromString<CharType, std::string >
 
 
 /**
- * generic functor to convert toString (normal, wide string)... to T
+ * Generic functor to convert ConvertType to string (normal, wide string).
  */
 template<typename CharType, typename ConvertType> 
 struct toString: public std::unary_function<ConvertType, std::basic_string<CharType> >
 {
   std::basic_string<CharType> operator()(const ConvertType&);
+  
  private:
-  std::stringstream ifs;
+  std::stringstream ss;
 };
 
 
 /**
- * handles from string to string 
+ * Handles the conversion from string to string. 
  */
 template<typename CharType> 
 struct toString<CharType, std::string >
@@ -90,28 +92,31 @@ EnumType EnumOfIndex(const int& i)
 }
 
 ////////////////////// FROM STRING AND TO STRING //////////////////////
+
+///////////////////////////////////////////////////////////////////////////
 /**
- * generic functor to convert the string (normal, wide string)... to T
  */
 template<typename CharT, typename ConvertT> 
 ConvertT fromString<CharT, ConvertT>::operator()(const std::basic_string<CharT>& str)
 {
   ConvertT result(0);
 
-  if (!(ifs<<str))
+  if (!(ss<<str))
   {
     //throw std::runtime_error("cannot convert")
-    ifs.clear();
+    ss.clear();
   }
-  if (!(ifs>>result)) 
+  if (!(ss>>result)) 
   {
     //throw std::runtime_error("cannot convert")
-    ifs.clear();
+    ss.clear();
   }
-  ifs.clear();
+  ss.clear();
   return result;
 }
 
+/** Specific case for fromString (string to string).
+ */
 template<typename CharT> 
 std::string fromString<CharT, std::string >::operator()
     (const std::string& str)
@@ -124,19 +129,22 @@ template<typename CharT, typename ConvertT>
 std::basic_string<CharT> toString<CharT, ConvertT>::operator()(const ConvertT& t) {
   std::basic_string<CharT> result;
 
-  if (!(ifs<<t)) {
+  if (!(ss<<t)) {
     //throw std::runtime_error("cannot convert")
-    ifs.clear();
+    ss.clear();
   }
-  if (!(ifs>>result)) 
+  if (!(ss>>result)) 
   {
     //throw std::runtime_error("cannot convert")
-    ifs.clear();
+    ss.clear();
   }
-  ifs.clear();
+  ss.clear();
   return result;
 }
 
+
+/** Specific case for toString (string to string).
+ */
 template<typename CharT> 
 std::string toString<CharT, std::string >::operator()
     (const std::string& str)
@@ -146,4 +154,4 @@ std::string toString<CharT, std::string >::operator()
 
 }
 
-#endif // UTILS_TYPE_HPP
+#endif // UTILS_TYPE_UTILS_HPP
