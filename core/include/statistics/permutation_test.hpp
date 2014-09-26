@@ -1,30 +1,34 @@
 /****************************************************************************************
- * File: permutationProcedure.hpp
- * Description: 
+ * File: permutation_test.hpp
+ * Description: This module provides a generic procedure dedicated to the correction for multiple tests.
+ * ************ The distribution of the statistic under the null hypothesis is obtained by permutations.
+ * 
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 25/06/2014
 
  ***************************************************************************************/
-#ifndef STATS_PERMUTATIONPROCEDURE_HPP
-#define STATS_PERMUTATIONPROCEDURE_HPP
+#ifndef STATS_PERMUTATION_TEST_HPP
+#define STATS_PERMUTATION_TEST_HPP
 
-#include <boost/random.hpp> // boost::mt19937
-//#include <vector>
+#include <boost/random.hpp> // boost::mt19937, boost::uniform_int
+#include <random> // std::random_shuffle
+
 #include <cmath>
-#include <chrono>
-#include <algorithm>
-#include <random>
-#include <omp.h>
+#include <chrono> // std::chrono::system_clock
+#include <algorithm> // std::min, std::max
+#include <omp.h> // openMP pragmas
 
-#include "Graph.hpp"
+// #include "VecTypeype.hpp"
 namespace stats
 {
 
 struct CollectionPermutate {
+  
   CollectionPermutate( unsigned long seed = 1 ) {
     rng.seed(seed);
   }
 
+  // returns the current time in nanoseconds.
   static unsigned long currentTime() {
     unsigned long time =
         std::chrono::system_clock::now().time_since_epoch() / 
@@ -32,48 +36,68 @@ struct CollectionPermutate {
     return time;
   }
   
+  /** Internal functor which returns a random unsigned integer in a given interval [0,upperLim[. 
+   *  It utilizes the uniform distribution for generating the random number.
+   */
   struct Rand: std::unary_function<unsigned, unsigned> {
-    boost::mt19937 &_state;
-    unsigned operator()(unsigned i) {
-      boost::uniform_int<> rng(0, i - 1);
-      return rng(_state);
+    
+    Rand(boost::mt19937 &s) : state(s) {} 
+
+    /////////////////////////////////////////
+    // returns a random unsigned integer in a given interval [0,upperLim[.
+    unsigned operator()(unsigned upperLim) {
+      boost::uniform_int<> rng(0, upperLim - 1);
+      return rng(state);
     }
-    Rand(boost::mt19937 &state) : _state(state) {}    
+    
+    boost::mt19937 &state;
+
   };
 
-  template<typename VecT>
-  void operator()(VecT& vec, boost::mt19937 &state) {    
+  ///////////////////////////////////////////////////////////////
+  // Permutation with the default random number generator
+  template<typename p_valueype>
+  void operator()(VecType& vec) {    
+    std::random_shuffle(vec.begin(), vec.end()));
+  }
+  
+  // Permutation with a specific state 
+  template<typename VecType>
+  void operator()(VecType& vec, boost::mt19937 &state) {    
     Rand rand(state);
-    std::random_shuffle(vec.begin(), vec.end());
+    std::random_shuffle(vec.begin(), vec.end()), rand);
   }
 
-  template<typename VecT>
-  void operator()(VecT& vec) {
-    Rand rand(CollectionPermutate::rng);
+  // Permutation with the current state
+  template<typename VecType>
+  void operator()(VecType& vec) {
+    Rand rand(CollectionPermutate::rng); // current state
     std::random_shuffle(vec.begin(), vec.end(), rand );
   }
  private:
-  boost::mt19937 rng;    
+  boost::mt19937 rng; // random number generator of type Mersenne Twister 19937
 };
 
+//////////////////////////////////////////////////////////////////////////////////
+// Returns the p-value of observing a value less than or equal to v. 
+// This value is sampled from the true theorical distribution D and dist is an empirical sample of D.
 template<typename T>
-double correct_pval_distribution( const T p, const std::vector<T>& dist ) {
+double p_value( const T v, const std::vector<T>& dist ) {
   double count = 0.0;
   for (auto& val: dist ) {
-    if ( val < p) ++count;
+    if ( val < v) ++count;
   }
   return count / dist.size();
 }
 
-/** todo: change to list (with name and such)
- *
- //  */
-template< class Matrix, class Vector >
+//////////////////////////////////////////////////////////////////////////////////
+/**  *todo: remove graph from the function */
+template< class Matrix, class vector >
 void performTesting( std::vector< std::vector< std::vector<double> > >& dists,
                      std::vector<std::vector<double> >& result,
                      std::vector<StatTest*> statTests,
                      const Matrix& genoMat,
-                     const Vector& phenotype,
+                     const vector& phenotype,
                      const fltm::Graph& graph,
                      const int permu )
 {
@@ -82,7 +106,7 @@ void performTesting( std::vector< std::vector< std::vector<double> > >& dists,
   int levels = fltm::graph_height( graph );
   
   result.resize( 2*ntests,  std::vector<double>(nvars, 0.0) );
-  Vector pheno = phenotype;
+  vector pheno = phenotype;
 
   
   for ( size_t test = 0; test < ntests; ++ test ) {
@@ -121,7 +145,7 @@ void performTesting( std::vector< std::vector< std::vector<double> > >& dists,
     for ( size_t snp = 0; snp < nvars; ++snp ) {
       int level = graph[snp].level;
       for ( size_t test = 0; test < ntests; ++ test ) {
-         result[2*test+1][snp] = correct_pval_distribution( result[2*test][snp], dists[test][level] );
+         result[2*test+1][snp] = p_value( result[2*test][snp], dists[test][level] );
        }   
      }
   }
@@ -132,20 +156,20 @@ void performTesting( std::vector< std::vector< std::vector<double> > >& dists,
 /** todo: change to list (with name and such)
  *
  //  */
-template< class Matrix, class Vector >
+template< class Matrix, class VecType >
 void performTesting( std::vector<double>& dist,
                      std::vector<double>& result,
                      StatTest* statTest,
                      const std::vector<int> candidates,
                      const Matrix& genoMat,
-                     const Vector& phenotype,
+                     const VecType& phenotype,
                      const fltm::Graph& graph,
                      const int permu )
 {
   int NP = 2;
   size_t nvars = candidates.size();
   result.resize( 2*nvars, 0.0 );
-  Vector pheno = phenotype;
+  vector pheno = phenotype;
   for ( size_t snp = 0; snp < nvars; ++snp ) {
     int candidate = candidates.at(snp);
     result[2*snp] = statTest->execute( genoMat.at(candidate), pheno,
@@ -172,7 +196,7 @@ void performTesting( std::vector<double>& dist,
 
     for ( int snp = 0; snp < nvars; ++snp ) {
       int candidate = candidates.at(snp);
-      result[2*snp+1] = correct_pval_distribution( result[2*snp], dist );       
+      result[2*snp+1] = p_value( result[2*snp], dist );       
     }
   }
 }
