@@ -1,4 +1,10 @@
-
+/****************************************************************************************
+ * File: helper.hpp
+ * Description: This module provides auxiliary methods necessary for fisher.hpp.
+ * 
+ * @author: Adapted by Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
+ * @date: 30/12/2013
+ ***************************************************************************************/
 
 //////////////////////////////////////////////////////////////////
 //                                                              //
