@@ -202,8 +202,8 @@ void performTesting( std::vector<double>& dist,
 }
 
 
-} // namespace stats ends here. stats
+} // namespace stats ends here. 
 
 
 /****************************************************************************************/
-#endif // STATS_PERMUTATIONPROCEDURE_HPP
+#endif //STATS_PERMUTATION_TEST_HPP
