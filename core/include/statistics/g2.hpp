@@ -1,5 +1,5 @@
 /****************************************************************************************
- * File: test_g.hpp
+ * File: g2.hpp
  * Description: G2 is a statistic used in an alternative to the chi-squared goodness-of-fit test.
  * ------------ The two test statistics usually have similar values and both have approximate
  *------------- chi-squared distributions when the model under test is a correct description
@@ -10,8 +10,8 @@
  * @date: 22/06/2014
 
  ***************************************************************************************/
-#ifndef STATS_TEST_G_HPP
-#define STATS_TEST_G_HPP
+#ifndef STATS_G2_HPP
+#define STATS_G2_HPP
 
 #include <cmath>
 #include <boost/math/distributions/chi_squared.hpp>
@@ -124,5 +124,5 @@ struct TestG2 {
 } // namespace stats ends here. 
 
 /****************************************************************************************/
-#endif // STATS_TEST_G_HPP
+#endif // STATS_G2_HPP
 
