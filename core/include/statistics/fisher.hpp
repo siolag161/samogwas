@@ -131,7 +131,7 @@ inline void fexact( int *nrow,
 struct TestFisher { 
 	
   template<class ContigencyTabT>
-  double gtest( const ContigencyTabT& contigencyTab ) const {
+  double fisherTest( const ContigencyTabT& contigencyTab ) const {
     int nrow = contigencyTab.size();
     if ( nrow == 0 ) 
       return -9;
