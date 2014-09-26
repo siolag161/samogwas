@@ -1,5 +1,5 @@
 /****************************************************************************************
- * File: entropy.hpp
+ * File: fisher.hpp
  * Description: This module performs Fisher's exact test for testing the null hypothesis of
  * independence of rows and columns in a contingency table with fixed marginals. 
  * In the case of a 2x2 contigency table, the p-value returned is computed implementing the genuine Fisher's
