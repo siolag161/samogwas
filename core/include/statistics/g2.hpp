@@ -1,6 +1,11 @@
 /****************************************************************************************
  * File: test_g.hpp
- * Description: 
+ * Description: G2 is a statistic used in an alternative to the chi-squared goodness-of-fit test.
+ * ------------ The two test statistics usually have similar values and both have approximate
+ *------------- chi-squared distributions when the model under test is a correct description
+ *------------- of the data. 
+ * @ref: http://en.wikipedia.org/wiki/G-test
+ *
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 22/06/2014
 
@@ -15,36 +20,17 @@
 namespace stats
 {
 
-/** A statistic used in an alternative to the chi-squared goodness-of-fit test.
- *  The two test statistics usually have similar values and both have approximate
- *  chi-squared distributions when the model under test is a correct description
- *  of the data. The G2 test is usually preferred when comparing hierarchical models.
- *  If the observed cell frequencies are denoted by O1, O2,..., Ok and the
- *  corresponding expected cell frequencies by E1, E2,..., Ek, respectively,
- *  G2 is given by:  G2 = 2*sum( O_j*ln(O_j/E_j) )                  
- *  where ln is the natural logarithm. The test results from the work of Neyman and
- *  Egon Pearson, who first used the term 'likelihood ratio' in a 1931 paper.
- *
- *
- *  Returns:
- *  -------
- *  chisquare statistic: double
- *      The chisquare test statistic
- *  p: double
- *      The p-value of the test.
- *
- *  References:
- *  -----------
- *  http://en.wikipedia.org/wiki/G-test
- *
- */
 struct TestG2 {
-
+ /** This function returns the statistic given by the formula: G2 = 2*sum( O_j*ln(O_j/E_j) )                  
+ *   where the observed cell frequencies are denoted by O1, O2,..., Ok and the
+ *   corresponding expected cell frequencies by E1, E2,..., Ek, respectively, and
+ *   ln is the natural logarithm (Napierian). 
+ */
   /** @param obs Observed frequencies (or counts) in each category
    *  @param exp Expected frequencies (or counts) in each category
    */
-  template<class VecT>
-  double statistic( const VecT& obs, const VecT& exp )  {
+  template<class VectorType>
+  double statistic( const VectorType& obs, const VectorType& exp )  {
     double statistic = 0.0;
     for (unsigned sz = 0; sz < obs.size(); ++sz) {
       if ( obs[sz]*exp[sz] != 0.0 ) {
@@ -54,24 +40,26 @@ struct TestG2 {
     return statistic;
   }
 
+  /////////////////////////////////////////////////////////////////////////
   /** @param obs Observed frequencies (or counts) in each category
    *  @param exp Expected frequencies (or counts) in each category
    */
-  template<class VecT>
-  double gtest( const VecT& obs, const VecT& exp ) {
+  template<class VectorType>
+  double gtest( const VectorType& obs, const VectorType& exp ) {
     double stat = statistic(obs, exp);
     const unsigned degreeFreedom = obs.size();
-    return gtest(stat, degreeFreedom);
+    return p_value(stat, degreeFreedom);
   }
 
-  /**
-   *
+  /////////////////////////////////////////////////////////////////////////
+  /** This function returns the p-value of observing a value of a random variable
+   *  which follows the chi-squared distribution.
    */
-  double gtest( const double statistic, const unsigned int degreeFreedom )  {
+  double p_value( const double statistic, const unsigned int degreeFreedom )  {
     boost::math::chi_squared dist(degreeFreedom);
     double p_value = 1.0;
     try {
-      p_value = 1- boost::math::cdf(dist, statistic);
+      p_value = 1 - boost::math::cdf(dist, statistic);
     }
     catch ( std::exception& e) {
       p_value = 1.0;
@@ -79,20 +67,25 @@ struct TestG2 {
     return p_value;
   }
 
-
-  /** @param
-   *  @param 
-   * requires that data.size() == which.size()
+ ////////////////////////////////////////////////////////////////////////////////
+  /** This function returns the statistic g2 = 2*sum( O_j*ln(O_j/E_j) )                  
+ *   where the observed cell frequencies are denoted by O1, O2,..., Ok and the
+ *   corresponding expected cell frequencies by E1, E2,..., Ek, respectively, and
+ *   ln is the natural logarithm (Napierian). 
+   *  @param contigencyTab 
+   *  @param useYates boolean to indicate whether the Yates correction is used.
+   *         The effect of Yates' correction is to prevent overestimation of statistical
+   *         significance for small data (at least one cell of the table has an expected count smaller than 5).
    */
-  template<class ContigencyTabT>
-  double gtest( const ContigencyTabT& contigencyTab, bool useYates = false ) {
-    assert(contigencyTab.size() > 0);
+  template<class ContingencyTabT>
+  double gtest( const ContingencyTabT& contingencyTab, bool useYates = false ) {
+    assert(contingencyTab.size() > 0);
     const unsigned nbrRows = contigencyTab.size();
     const unsigned nbrColumns = contigencyTab[0].size();
 
     ContigencyTabT tab = contigencyTab;
-    if ( useYates ) {
-      assert( nbrRows == 2 ); assert( nbrColumns == 2);
+    if ( useYates ) { // Yates' correction is only valid when we have a 2x2 contingency table.
+      assert( nbrRows == 2 ); assert( nbrColumns == 2); 
       if ( tab[0][0]*tab[1][1] > tab[0][1]*tab[1][0] ) {
         tab[0][0] -= 0.5; tab[1][1] -= 0.5;
         tab[0][1] += 0.5; tab[1][0] += 0.5;
@@ -102,7 +95,7 @@ struct TestG2 {
       }
     }
     double tableSum = 0.0;
-    std::vector<double> rowSums(nbrRows, 0.0), columnSums(nbrColumns, 0.0);
+    std::VectorTypeor<double> rowSums(nbrRows, 0.0), columnSums(nbrColumns, 0.0);
 
     for (unsigned row = 0; row < nbrRows; ++row) {
       for (unsigned col = 0; col < nbrColumns; ++col) {
@@ -124,7 +117,7 @@ struct TestG2 {
       }
     }    
     const unsigned degreeFreedom = (nbrRows-1)*(nbrColumns-1);
-    return gtest(statistic, degreeFreedom);
+    return p_value(statistic, degreeFreedom);
   }  
 };
 
