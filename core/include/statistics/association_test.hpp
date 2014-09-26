@@ -1,7 +1,7 @@
 /****************************************************************************************
  * File: association_test.hpp
- * Description: This modules contains the following statistical of genotype association 
- * @author: Phan Duc Thanh (duc-thanh.phan@univ-nantes.fr) - Under supervision of Christine Sinoquet (christine.sinoquet@univ-nantes.fr)
+ * Description: This module contains the different tests for genotype-phenotype associations/ 
+ * @author: Adapted by Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 25/06/2014
 
  ***************************************************************************************/
@@ -21,7 +21,7 @@ struct StatTest {
 
  public:
   
-  /**
+  /** 
    *
    */
   StatTest() { }
@@ -31,7 +31,7 @@ struct StatTest {
    */
   ~StatTest() {}
 
-  /** Takes 2 vectors as input and performs a contingency table test. 
+  /** Takes 2 vectors as input and performs an independance test. 
    *  Returns the p-value
    */
   virtual double execute( const GenoVec& geno,
@@ -53,8 +53,8 @@ struct StatTest {
   std::string name;
 };
 
-
-/** Performs a chi-squared contingency table test for count data
+///////////////////////////////////////////////////////////////////////////////////////
+/** Performs a chi-squared test.
  *
  */
 struct ChiSq: public StatTest  {
@@ -71,8 +71,8 @@ struct ChiSq: public StatTest  {
   stats::StatisticTest<stats::CHISQ> chisq;
 };
 
-
-/** Performs a chi-squared contingency table test for count data, with Yates-correction
+///////////////////////////////////////////////////////////////////////////////////////
+/** Performs a chi-squared with Yates' correction.
  *
  */
 struct ChiSqCor: public StatTest  {
@@ -89,8 +89,8 @@ struct ChiSqCor: public StatTest  {
   stats::StatisticTest<stats::CHISQ_YATES> chisq;
 };
 
-/** Performs a Fisher exact test for count data
- *  The underlying implementation borrows code from the R project
+///////////////////////////////////////////////////////////////////////////////////////
+/** Performs a Fisher exact test.
  */
 struct Fisher: public StatTest  {
   Fisher() { name = "Fisher"; }
@@ -98,24 +98,30 @@ struct Fisher: public StatTest  {
   virtual double execute( const GenoVec& geno,
                           const PhenoVec& pheno,
                           const unsigned cardGenotype,
-                          const unsigned cardPhenotype ) const { return fisher(geno, pheno, cardGenotype, cardPhenotype); }
+                          const unsigned cardPhenotype ) const {
+    return fisher(geno, pheno, cardGenotype, cardPhenotype);
+  }
  
   stats::StatisticTest<stats::FISHER> fisher;
 };
 
-/** Performs a G-test for count data
+///////////////////////////////////////////////////////////////////////////////////////
+/** Performs a G-test.
  */
 struct G: public StatTest  {
   G() { name = "G2"; }
   virtual double execute( const GenoVec& geno,
                           const PhenoVec& pheno,
                           const unsigned cardGenotype,
-                          const unsigned cardPhenotype ) const { return g2(geno, pheno, cardGenotype, cardPhenotype); }
+                          const unsigned cardPhenotype ) const { 
+    return g2(geno, pheno, cardGenotype, cardPhenotype);
+  }
   
   stats::StatisticTest<stats::G2> g2;
 };
 
-/** Performs a G-test for count data, with Yates correction
+///////////////////////////////////////////////////////////////////////////////////////
+/** Performs a G-test with Yate' correction.
  */
 struct G2Cor: public StatTest  {
   
@@ -130,7 +136,7 @@ struct G2Cor: public StatTest  {
   stats::StatisticTest<stats::G2_YATES> g2;
 };
 
-} // namespace stats ends here. stats
+} // namespace stats ends here.
 
 
 /****************************************************************************************/
