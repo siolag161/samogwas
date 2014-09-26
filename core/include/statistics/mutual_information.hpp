@@ -8,7 +8,7 @@
 
  ***************************************************************************************/
 #ifndef SAMOGWAS_MUTUAL_INFORMATION_HPP
-#define SAMOGWAS_MUTUAL_INFORMATION_HPP
+#define SAMOGWAS_MUTUAL_INFORMATION_HPP //@todo: change the namespace
 
 #include <math.h> //log
 #include <map>
