@@ -47,7 +47,5 @@ std::vector< std::vector<T> > Transpose( const std::vector< std::vector<T> >& ma
 
 } // namespace utility ends here.
 
-
-
 /****************************************************************************************/
 #endif // UTILS_MATRIX_HPP
