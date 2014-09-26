@@ -1,6 +1,7 @@
 /****************************************************************************************
  * File: option_printer.hpp
- * Description: This module allows pretty printing of the application's arguments.
+ * Description: This module allows pretty printing of the application's arguments. 
+ * This module requires the custom_option_desc.hpp to work properly.
  * 
  * @author: Adapted by Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 30/12/2013
@@ -19,7 +20,7 @@
 #ifndef RAD_PRETTYOPTIONPRINTER_HPP
 #define RAD_PRETTYOPTIONPRINTER_HPP
 
-#include "custom_option_desc.hpp"
+#include "custom_option_desc.hpp" // CustomOptionDescription
 #include <vector>
 #include <string>
 namespace rad
