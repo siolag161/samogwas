@@ -1,9 +1,8 @@
 /****************************************************************************************
  * File: matrix_utils.hpp
- * Description: This modules regroups several commonly used mathods for working with
- * ------------ matrix structure ( a vector-of-vector like objects ).
- * ------------ We have methods dealing with cardinality and computing like Tranpose
- * ------------ a matrix are included.
+ * Description: This modules regroups several commonly used methods for working with a
+ * ------------ matrix structure (a vector of vector-like objects).
+ * 
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 29/04/2014
 
@@ -12,18 +11,19 @@
 #define UTILS_MATRIX_HPP
 
 #include <vector>
-namespace utility // common namespace in this sub-repo
+
+namespace utility 
 {
 
-/** Return number of rows of a matrix-like data structure. We suppose the input matrix 
- *  has a row-major skeleton ( hence the need for the size() method).
+/** Returns the number of rows of a matrix-like data structure. We suppose the input matrix 
+ *  has a row-major skeleton (hence the need for the size() method).
  */
 template<typename MatrixT>
 unsigned nrows(const MatrixT& mat) {
   return mat.size();
 }
 
-/** Return number of column of a matrix-like data structure. Same hypothesis as above.
+/** Returns the number of columns of a matrix-like data structure. Same assumption as above.
  */
 template<typename MatrixT>
 unsigned ncols(const MatrixT& mat) {
@@ -45,7 +45,7 @@ std::vector< std::vector<T> > Transpose( const std::vector< std::vector<T> >& ma
   return result;
 }
 
-} // namespace Utilityends here. Utility
+} // namespace utility ends here.
 
 
 
