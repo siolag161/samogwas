@@ -127,7 +127,7 @@ boost::shared_ptr<MatrixT<double> >
   JointEntropy<EMP> mutualEntropy;
   
   for (unsigned i = 0; i < mat.nbrRows(); ++i) {    
-    entropyMap[i] = entropy(mat[i]); //@todo
+    entropyMap[i] = entropy(mat[i]); 
   }
   
   for (unsigned i = 0; i < mat.nbrRows(); ++i) {  
@@ -142,7 +142,7 @@ boost::shared_ptr<MatrixT<double> >
   return result;
 }
 
-} // namespace infotheo ends here. 
+} // namespace samogwas ends here. 
 
 /****************************************************************************************/
 #endif // MUTUAL_INFORMATION_HPP
