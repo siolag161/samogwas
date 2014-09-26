@@ -1,7 +1,7 @@
 /****************************************************************************************
  * File: chisq.hpp
  * Description: Templated chi-squared contingency table tests 
- * @author: Phan Duc Thanh (duc-thanh.phan@univ-nantes.fr) - Under supervision of Christine Sinoquet (christine.sinoquet@univ-nantes.fr)
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 24/06/2014
 
  ***************************************************************************************/
@@ -9,16 +9,23 @@
 #define STATS_CHISQ_HPP
 
 #include <cmath>
+
 namespace stats
 {
 
 struct TestChiSquared {
 
-  /** @param obs Observed frequencies (or counts) in each category
-   *  @param exp Expected frequencies (or counts) in each category
+  /** This function returns the statistic  chi2 = sum_{i=1}^{n} (O_i - E_i)^2 / E_i, 
+   *  where n is the number of cells in the contingency table. O_i is the ith observed value in vector obs, and 
+   *  E_i is the ith expected value in exp vector.
+   *  @param obs Observed frequencies (or counts) in each category
+   *  @param exp fExpected frequencies (or counts) in each category
+   *  @param useYates boolean to indicate whether the Yates correction is used.
+   *         The effect of Yates' correction is to prevent overestimation of statistical
+   *         significance for small data (at least one cell of the table has an expected count smaller than 5).
    */
-  template<class VecT>
-  double statistic( const VecT& obs, const VecT& exp, bool useYates = false  ) const {
+  template<class VecType>
+  double statistic( const VecType& obs, const VecType& exp, bool useYates = false  ) const {
     double statistic = 0.0;
     for (unsigned sz = 0; sz < obs.size(); ++sz) {
       if ( obs[sz]*exp[sz] != 0.0 ) {
@@ -33,24 +40,28 @@ struct TestChiSquared {
     return statistic;
   }
 
-  /** @param obs Observed frequencies (or counts) in each category
+  ////////////////////////////////////////////////////////////////////////////////////////
+  /** This function returns the p-value by computing the statistic which, under the null hypothesis, follows
+   *  the chi-squared distribution.
+   *  @param obs Observed frequencies (or counts) in each category
    *  @param exp Expected frequencies (or counts) in each category
    */
-  template<class VecT>
-  double chisqTest( const VecT& obs, const VecT& exp, bool useYates = false ) const {
+  template<class VecType>
+  double chisqTest( const VecType& obs, const VecType& exp, bool useYates = false ) const {
     double stat = statistic(obs, exp, useYates);
     const unsigned degreeFreedom = obs.size();
-    return chisqTest(stat, degreeFreedom);
+    return p_value(stat, degreeFreedom);
   }
-
-  /**
-   *
+  
+  ////////////////////////////////////////////////////////////////////////////////////////
+  /** This function returns the p-value of observing a value of a random variable
+   *  which follows the chi-squared distribution.
    */
-  double chisqTest( const double statistic, const unsigned int degreeFreedom ) const {
+  double p_value( const double statistic, const unsigned int degreeFreedom ) const {
     boost::math::chi_squared dist(degreeFreedom);
     double p_value = 1.0;
     try {
-      p_value = 1- boost::math::cdf(dist, statistic);
+      p_value = 1-boost::math::cdf(dist, statistic);
     }
     catch ( std::exception& e) {
       p_value = 1.0;
@@ -58,10 +69,14 @@ struct TestChiSquared {
     return p_value;
   }
 
-
-  /** @param
-   *  @param 
-   * requires that data.size() == which.size()
+  ////////////////////////////////////////////////////////////////////////////////////////
+  /** This function returns the statistic  chi2 = sum_{i=1}^{n} (O_i - E_i)^2 / E_i, 
+   *  where n is the number of cells in the contingency table. O_i is the observed value and 
+   *  E_i is the expected value.
+   *  @param contigencyTab 
+   *  @param useYates boolean to indicate whether the Yates correction is used.
+   *         The effect of Yates' correction is to prevent overestimation of statistical
+   *         significance for small data (at least one cell of the table has an expected count smaller than 5).
    */
   template<class ContigencyTabT>
   double chisqTest( const ContigencyTabT& contigencyTab, bool useYates = false ) const {
@@ -88,7 +103,6 @@ struct TestChiSquared {
         double observed = tab[row][col];
         double expected = rowSums[row]*columnSums[col] / tableSum;
         if ( expected != 0.0 ) { 
-          // statistic += 2 * observed * std::log( observed / expected );
           double t = 0.0;
           if (useYates)
             t = std::abs(observed - expected) - 0.5;          
@@ -101,7 +115,7 @@ struct TestChiSquared {
 
     
     const unsigned degreeFreedom = (nbrRows-1)*(nbrColumns-1);
-    return chisqTest( statistic, degreeFreedom );
+    return p_value( statistic, degreeFreedom );
   }  
 };
 
