@@ -1,8 +1,9 @@
 /****************************************************************************************
  * File: csv_parser.hpp
- * Description: This module is responsible for reading a CSV-like files and outputs the result into 
- * ------------ a Matrix-type object. Since it's templated, the input files can have mixed types
- * ------------ for example: Tom; 30.32; Male
+ * Description: This module is responsible for reading a CSV-like file and outputing the result into 
+ * ------------ a Matrix-type object. Since the method is templated, a row in the input file can contain mixed types:
+ * ------------ for example: Tom; 30.32; Male. All the rows have the same structure.
+ * 
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet @TODO: modify this part
  * @date: 25/03/2014
 
@@ -10,25 +11,29 @@
 #ifndef UTILS_CSV_PARSER_HPP
 #define UTILS_CSV_PARSER_HPP
 
-#include <iterator>
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include <iterator> // std::input_iterator_tag 
+#include <fstream> // std::getline
+#include <sstream> // std::lineStream
+#include <iostream> // std::istream
 #include <vector>
 #include <string>
 
-namespace utility // the common namesapce for utils files
+namespace utility // the common namesapce for utils files @todo: utility -> utils
 {
 
+/** If in the input file some fields have different types, T = std::string must be used.
+ *  Otherwise, T is specified as the common type of all the fields. 
+ */
 template<class T>
 class CSVRow
 {
  public:
-  inline T const& operator[](std::size_t index) const {
+  // retrieves the stored data at the index position of the row.
+  T const& operator[](std::size_t index) const {
     return m_data[index];
   }
 
-  inline T const at(std::size_t index) const
+  T const at(std::size_t index) const
   {
     return m_data[index];
   }
@@ -38,6 +43,8 @@ class CSVRow
     return m_data.size();
   }
 
+  /** calls this function to read the next row (if any) and update the current stored data with this row. 
+   */
   inline void readNextRow(std::istream& str)
   {
     std::string line;
@@ -50,30 +57,33 @@ class CSVRow
     while (lineStream >> cell)
     {
       m_data.push_back(cell);
-      if ( lineStream.peek() == ',')
+      if ( lineStream.peek() == ',') // skips the separator character // @todo: ',' -> parameter
         lineStream.ignore();
     }
-    
   }
+  
  private:
   std::vector<T> m_data;
 };
 
 template< typename T>
-inline std::istream& operator>>(std::istream& str, CSVRow<T>& data)
+std::istream& operator>>(std::istream& str, CSVRow<T>& data)
 {
   data.readNextRow(str);
   return str;
 }
 
-/** The iterator itself. It implements all the common interator-interface methods
- *  in order to be used as is.
+
+/** The iterator itself. It implements all the common iterator interface methods
+ *  std::ifstream infile("in.txt");"// it.txt contains 2 lines: 1,2 and 3,4
+ *  CSVIterator<std::string> it(infile);
+ *  *(++it) returns 3,4 and now points to 3,4 while *(it++) returns 1,2 and also points to 3,4<
  */
 template<typename T>
 class CSVIterator
 {    
  public:
-  /** nameing convention for iterator-like common structures ( value_type, pointer, etc.)
+  /** Structures used by iterator interface
    *
    */
   typedef std::input_iterator_tag iterator_category;
@@ -82,15 +92,19 @@ class CSVIterator
   typedef CSVRow<T>* pointer;
   typedef CSVRow<T>& reference;
 
-  CSVIterator(std::istream& str): m_str(str.good()?&str:NULL) { ++(*this); }
+  utility::CSVIterator<T> matrixLine(matrixFile);
+  
+  for( ; matrixLine != utility::CSVIterator<T>(); ++matrixLine ) {
+  utility::CSVIterator<T> matrixLine(matrixFile);
+  
+  for( ; matrixLine != utility::CSVIterator<T>(); ++matrixLine ) {
+  CSVIterator(std::istream& str): m_str(str.good() ? &str : NULL) { ++(*this); }
   CSVIterator(): m_str(NULL) {}
 
-  // Pre Increment
+  // Pre Increment 
   CSVIterator& operator++() { if (m_str) { (*m_str) >> m_row;m_str = m_str->good()?m_str:NULL;}return *this;}
 
-  // Post increment
-
-  
+  // Post increment (copy)
   CSVIterator operator++(int) { CSVIterator tmp(*this);++(*this);return tmp;}
 
   // Dereferences
@@ -108,26 +122,25 @@ class CSVIterator
   CSVRow<T> m_row; // current row
 };
 
-} // namespace graphends here. graph
+} // namespace utility ends here.
 
 /****************************** IMLEMENTATION BELOW THIS POINT **************************/
 namespace utility
 {
 
-/** CSV-Row is a interate-like ( meaning we can use it in an interation manner )
- *  which reads a row in a files and stores in a std::vector of strings
+/** This template specialization is meant to override the default template implementation above (for readNextRow)
+ *  when the template parameter T is std::string.
  */
 template<>
 class CSVRow<std::string>
 {
  public:
-  // retrieves the stored data at the index position of the row
-  inline std::string const& operator[](std::size_t index) const
+  std::string const& operator[](std::size_t index) const
   {
     return m_data[index];
   }
 
-  inline std::string const at(std::size_t index) const
+  std::string const at(std::size_t index) const
   {
     return m_data[index];
   }
@@ -137,9 +150,7 @@ class CSVRow<std::string>
     return m_data.size();
   }
 
-  /** calls this function to clear the current row data and proceeds to read the next
-   *  row. 
-   */
+
   inline void readNextRow(std::istream& str)
   {
     std::string line;
