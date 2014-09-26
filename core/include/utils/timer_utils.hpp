@@ -1,12 +1,13 @@
-/*********************************************************************
- * File: EnumUtils.hpp
- * Description: temporary groups helper method related to enum manipulation
- * @date: 18/10/2013
- * @author: Song Ho Ahn (song.ahn@gmail.com)
- *********************************************************************/
+/****************************************************************************************
+ * File: timer_utils.hpp
+ * Description: This module provides a tool for getting elapsed time.
+ * 
+ * @author: Adapted by Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
+ * @date: 30/12/2013
+ ***************************************************************************************/
 
-#ifndef LATENT_TREE_MODEL_TIMER__HPP
-#define LATENT_TREE_MODEL_TIMER__HPP
+#ifndef UTILS_TIMER_UTILS_HPP
+#define UTILS_TIMER_UTILS_HPP
 
 
 #ifdef WIN32   // Windows system specific
@@ -38,40 +39,37 @@ class Timer
     startTimeInMicroSec = 0;
     endTimeInMicroSec = 0;
   }
-  // default constructor
   ~Timer() {}                                   // default destructor
   
-   void start();                             // start timer
-   void stop();                              // stop the timer
-   double getElapsedTime();                    // get elapsed time in second
-   double getElapsedTimeInSec();               // get elapsed time in second (same as getElapsedTime)
-   double getElapsedTimeInMilliSec();          // get elapsed time in milli-second
-   double getElapsedTimeInMicroSec();          // get elapsed time in micro-second
+   void start();                             // starts the timer.
+   void stop();                              // stops the timer.
+   double getElapsedTime();                    // gets elapsed time in seconds.
+   double getElapsedTimeInSec();               // gets elapsed time in seconds (same as getElapsedTime).
+   double getElapsedTimeInMilliSec();          // gets elapsed time in milli-seconds.
+   double getElapsedTimeInMicroSec();          // gets elapsed time in micro-seconds.
    void restart();
 
   std::string display();
   
  protected:
  private:
-  double startTimeInMicroSec;                 // starting time in micro-second
-  double endTimeInMicroSec;                   // ending time in micro-second
+  double startTimeInMicroSec;                 // starting time in micro-seconds
+  double endTimeInMicroSec;                   // ending time in micro-seconds
   int    stopped;                             // stop flag 
 #ifdef WIN32
   LARGE_INTEGER frequency;                    // ticks per second
-  LARGE_INTEGER startCount;                   //
-  LARGE_INTEGER endCount; 
-
-  //
+  LARGE_INTEGER startCount;                   
+  LARGE_INTEGER endCount;
 #else
-  timeval startCount;                         //
-  timeval endCount;                           //
+  timeval startCount;                         
+  timeval endCount;                           
 #endif
 };
 
 
 inline std::string timeDisplay( double seconds ) {
   std::ostringstream result;
-  long secs = seconds / (long)1;
+  long secs = seconds / 1L; // 1L: a long with value 1
   int hours = (secs / 3600);
   int minutes = (secs / 60) % 60;
   int s = secs % 60;
@@ -90,7 +88,7 @@ inline std::string timeDisplay( double seconds ) {
 }
 
 
-} //namespace internal_tools
+} //namespace utils ends here.
 
 
-#endif // LATENT_TREE_MODEL_ENUMUTILS_HPP
+#endif // UTILS_TIMER_UTILS_HPP
