@@ -8,7 +8,7 @@
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 30/12/2013
  ***************************************************************************************/
-#ifndef SAMOGWAS_ENTROPY_HPP
+#ifndef SAMOGWAS_ENTROPY_HPP // change namespace
 #define SAMOGWAS_ENTROPY_HPP
 
 /** A set of methods for computing estimated entropies for random variables.
@@ -24,7 +24,7 @@
 
 #include "utils/type_utils.hpp" // utility::Int2Type
 
-namespace samogwas
+namespace samogwas // change namespace
 {
 
 enum EstimationMethod {EMP = 0, DIRICHLET, SCALED_MI}; //EMP = empirical
