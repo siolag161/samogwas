@@ -2,7 +2,7 @@
  * File: timer_utils.hpp
  * Description: This module provides a tool for getting elapsed time.
  * 
- * @author: Adapted by Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 30/12/2013
  ***************************************************************************************/
 
