@@ -8,9 +8,9 @@
 
  ***************************************************************************************/
 #ifndef STATS_TEST_STATISTICS_HPP
-#define STATS_TEST_VecTypeypeHPP
+#define STATS_TEST_STATISTICS_HPP
 
-#include <VecTypeypeor>
+#include <vector>
 #include "g2.hpp"
 #include "fisher.hpp"
 #include "chisq.hpp"
@@ -118,8 +118,8 @@ double StatisticTest<Test>::p_value( ContingencyTableType& mat, Int2Type<FISHER>
 }
 
 
-} // namespace statsends here. stats
+} // namespace stats ends here. 
 
 /****************************************************************************************/
-#endif // STATS_STATISTICS_HPP
+#endif // STATS_TEST_STATISTICS_HPP
 
