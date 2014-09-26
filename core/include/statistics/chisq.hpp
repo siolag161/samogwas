@@ -78,10 +78,10 @@ struct TestChiSquared {
    *         The effect of Yates' correction is to prevent overestimation of statistical
    *         significance for small data (at least one cell of the table has an expected count smaller than 5).
    */
-  template<class ContigencyTabT>
-  double chisqTest( const ContigencyTabT& contigencyTab, bool useYates = false ) const {
+  template<class ContingencyTabT>
+  double chisqTest( const ContingencyTabT& contingencyTab, bool useYates = false ) const {
     assert(contigencyTab.size() > 0);
-    const unsigned nbrRows = contigencyTab.size();
+    const unsigned nbrRows = contingencyTab.size();
     const unsigned nbrColumns = contigencyTab[0].size();
 
     ContigencyTabT tab = contigencyTab;    
