@@ -1,3 +1,18 @@
+/****************************************************************************************
+ * File: entropy.hpp
+ * Description: This module performs Fisher's exact test for testing the null hypothesis of
+ * independence of rows and columns in a contingency table with fixed marginals. 
+ * In the case of a 2x2 contigency table, the p-value returned is computed implementing the genuine Fisher's
+ * exact test (hypergeometric distribution of the numbers in the cells of the table). Otherwise, the p-value 
+ * returned is computed using an approximate method
+ * (http://stat.ethz.ch/R-manual/R-devel/library/stats/html/fisher.test.html).
+ * 
+ * @author: Adapted by Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
+ * @date: 30/12/2013
+ ***************************************************************************************/
+#ifndef SAMOGWAS_FISHER_HPP
+#define SAMOGWAS_FISHER_HPP
+
 //////////////////////////////////////////////////////////////////
 //                                                              //
 //           PLINK (c) 2005-2006 Shaun Purcell                  //
@@ -31,9 +46,6 @@
  *
  * Memory Allocation (garbage collected) --- INCLUDING S compatibility ---
  */
-
-#ifndef __FISHER_H__
-#define __FISHER_H__
 
 //#include "plink.h"
 
@@ -117,6 +129,7 @@ inline void fexact( int *nrow,
                     int *workspace);
 
 struct TestFisher { 
+	
   template<class ContigencyTabT>
   double gtest( const ContigencyTabT& contigencyTab ) const {
     int nrow = contigencyTab.size();
@@ -2331,6 +2344,7 @@ L30:
 
 } // namespace statsends here. stats
 
-#endif
+#endif // SAMOGWAS_ENTROPY_HPP
+
 
 
