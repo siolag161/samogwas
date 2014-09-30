@@ -16,7 +16,7 @@ namespace samogwas
 
 struct MultiEM: public EMFunc {
   typedef std::vector< std::vector<int> > Matrix;
-  
+
  public:
   MultiEM( int nbrRts, int imMode ): nbrRestarts(nbrRts), imputMode(imMode) {}
   ~MultiEM() {}
@@ -25,11 +25,11 @@ struct MultiEM: public EMFunc {
                     const Variable& latentVar,
                     const Variables& variables,
                     const Matrix& dataTable,
-                    const std::vector< std::vector<bool> > & defTable,
-                    const double threshold );
+                    const double threshold,
+                    const std::vector< std::vector<bool> > & defTable);
 
 
-  virtual void impute( ResultEM& result,                 
+  virtual void impute( ResultEM& result,
                        const plSymbol& latentVar,
                        const Matrix& dataTable,
                        EMLearner& bestModel,
@@ -37,9 +37,9 @@ struct MultiEM: public EMFunc {
 
   int nbrRestarts;
   int imputMode; // methods for imputing missing values  (ARGMAX or DRAW)
-  
+
 };
-  
+
 } // namespace samogwasends here. samogwas
 
 

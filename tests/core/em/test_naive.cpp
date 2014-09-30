@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( Test_EM_Init_Values ) {
   Variables X = X1 ^ X2 ^ X3;
   std::vector< std::vector<bool> > defTable;
 
-  EMFunc* multiEM = new MultiEM(10, 3);
+  EMInterface * multiEM = new MultiEM(10, 3);
 
 
 }

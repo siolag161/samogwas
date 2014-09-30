@@ -9,7 +9,7 @@
 namespace samogwas
 {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EMFunc::operator()( ResultEM& result,
+void EMInterface::operator()( ResultEM& result,
                          const Variable& latentVar,
                          const Variables& variables,
                          const Matrix& dataTable,                   
@@ -17,17 +17,17 @@ void EMFunc::operator()( ResultEM& result,
   run( result, latentVar, variables, dataTable, threshold );
 }
 
-void EMFunc::run( ResultEM& result,
+void EMInterface::run( ResultEM& result,
                          const Variable& latentVar,
                          const Variables& variables,
                          const Matrix& dataTable,                   
                          const double threshold ) {
   std::vector< std::vector<bool> > defTable = createDefinitionTable( dataTable ); 
-  run( result, latentVar, variables, dataTable, defTable, threshold );
+  run( result, latentVar, variables, dataTable, threshold, defTable );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-EMFunc::LearnObjectPtrs EMFunc::createLearnObjects( const Variable& latentVar,
+EMInterface::LearnObjectPtrs EMInterface::createLearnObjects( const Variable& latentVar,
                                                     const Variables& variables )
 {
   LearnObjectPtrs learnObjects;
@@ -43,7 +43,7 @@ EMFunc::LearnObjectPtrs EMFunc::createLearnObjects( const Variable& latentVar,
 }
 
 ////////////////////////////////////////////////////////////////////
-plComputableObjectList EMFunc::createComputableObjects( const Variable& latentVar,
+plComputableObjectList EMInterface::createComputableObjects( const Variable& latentVar,
                                                         const Variables& variables )
 {
   plComputableObjectList dataCndTable; 
@@ -64,7 +64,7 @@ plComputableObjectList EMFunc::createComputableObjects( const Variable& latentVa
 }
 ////////////////////////////////////////////////////////////////////
 
-double EMFunc::logLikelihood( EMLearner& learner, plMatrixDataDescriptor<int>& dataDesc )
+double EMInterface::logLikelihood( EMLearner& learner, plMatrixDataDescriptor<int>& dataDesc )
 {
   double result = 0.0;
   try {
@@ -76,7 +76,7 @@ double EMFunc::logLikelihood( EMLearner& learner, plMatrixDataDescriptor<int>& d
 }
 
 /////////////////////////////////////////////////////////////////////
-EMFunc::EMLearner EMFunc::getBestModel( CandidateModels& learners,
+EMInterface::EMLearner EMInterface::getBestModel( CandidateModels& learners,
                         plMatrixDataDescriptor<int>& dataDesc )
 {
   EMLearner bestModel = learners[0];  
@@ -88,7 +88,7 @@ EMFunc::EMLearner EMFunc::getBestModel( CandidateModels& learners,
   return bestModel;
 }
 
-std::vector< std::vector<bool> > EMFunc::createDefinitionTable( const Matrix& dataMat ) {
+std::vector< std::vector<bool> > EMInterface::createDefinitionTable( const Matrix& dataMat ) {
     
   const Size nbrInds = utility::nrows(dataMat);
   const Size nbrVars = utility::ncols(dataMat);

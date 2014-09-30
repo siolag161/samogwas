@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( Test_Def ) {
   initOptions(opt);
 
   LinearCardinality emLC(0.2, 1, 5);
-  EMFunc* multiEM = new MultiEM(CARD, 3);
+  EMInterface * multiEM = new MultiEM(CARD, 3);
 
   AlgoClustering* dbscan = new DBSCAN<MutInfoDiss>( diss, 2, 0.2);
   FLTM fltm( dbscan, emLC, multiEM ); 

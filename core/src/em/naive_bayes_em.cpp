@@ -16,8 +16,8 @@ void MultiEM::run( ResultEM& result,
                    const Variable& latentVar,
                    const Variables& variables,
                    const Matrix& dataTable,
-                   const std::vector< std::vector<bool> > & defTable,
-                   const double threshold ) {
+                   const double threshold,
+                   const std::vector< std::vector<bool> > & defTable ) {
 
   LearnObjectPtrs learnObjs = createLearnObjects(latentVar, variables);
   plMatrixDataDescriptor<int> dataDesc(latentVar ^ variables, &dataTable, &defTable);

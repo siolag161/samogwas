@@ -44,8 +44,8 @@ void NV_EM::run( ResultEM& result,
                  const Variable& latentVar,
                  const Variables& variables,
                  const NV_EM::Matrix& data,
-                 const std::vector< std::vector<bool> > & defTable,
-                 const double threshold ) {
+                 const double threshold,
+                 const std::vector< std::vector<bool> > & defTable ) {
   
   int N = utility::nrows(data), K = latentVar.cardinality();
   init_values( N, K, variables );
