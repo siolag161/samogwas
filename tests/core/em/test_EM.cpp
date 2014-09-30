@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
   Partition result = cast();
   for ( int i = 0; i < nrows; ++i ) {
     int expected_cluster = i / 3;
-    BOOST_CHECK_EQUAL( result.cluster(i), expected_cluster );
+    BOOST_CHECK_EQUAL(result.getLabel(i), expected_cluster );
   }
   
   std::vector<int> local2Global;
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
     prepareEM( emMat, vars, data, graph, clt, local2Global );
     Variable latentVar = createLatentVar( boost::num_vertices(graph), 3 );
     samogwas::ResultEM resultEM;
-    samogwas::MultiEM multiEM(3,1);    
+    samogwas::NaiveBayesEM multiEM(3,1);
     multiEM( resultEM, latentVar, vars, emMat, 0.000001 );
   }
 }

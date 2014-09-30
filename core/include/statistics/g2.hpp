@@ -80,10 +80,10 @@ struct TestG2 {
   template<class ContingencyTabT>
   double gtest( const ContingencyTabT& contingencyTab, bool useYates = false ) {
     assert(contingencyTab.size() > 0);
-    const unsigned nbrRows = contigencyTab.size();
-    const unsigned nbrColumns = contigencyTab[0].size();
+    const unsigned nbrRows = contingencyTab.size();
+    const unsigned nbrColumns = contingencyTab[0].size();
 
-    ContigencyTabT tab = contigencyTab;
+      ContingencyTabT tab = contingencyTab;
     if ( useYates ) { // Yates' correction is only valid when we have a 2x2 contingency table.
       assert( nbrRows == 2 ); assert( nbrColumns == 2); 
       if ( tab[0][0]*tab[1][1] > tab[0][1]*tab[1][0] ) {
@@ -95,7 +95,7 @@ struct TestG2 {
       }
     }
     double tableSum = 0.0;
-    std::VectorTypeor<double> rowSums(nbrRows, 0.0), columnSums(nbrColumns, 0.0);
+    std::vector<double> rowSums(nbrRows, 0.0), columnSums(nbrColumns, 0.0);
 
     for (unsigned row = 0; row < nbrRows; ++row) {
       for (unsigned col = 0; col < nbrColumns; ++col) {

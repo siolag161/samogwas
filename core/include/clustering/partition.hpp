@@ -61,8 +61,8 @@ struct Partition {
     return clustering;
   } 
 
-  int cluster( int itemIdx ) const { return m_index2Label.at(itemIdx); } //@todo: getLabel +change Cluster -> Label
-  void cluster( int itemIdx, int clusterIdx ) {  //@doto: setLabel
+  int getLabel(int itemIdx) const { return m_index2Label.at(itemIdx); } //@todo: getLabel +change Cluster -> Label
+  void setLabel(int itemIdx, int clusterIdx) {  //@doto: setLabel
     m_index2Label[itemIdx] = clusterIdx; 
     m_labelSet.insert(clusterIdx);
   }

@@ -2,7 +2,7 @@
  * File: mutual_information_similarity.hpp
  * Description: Similarity based on mutual information metric. 
  *              If a positive threshold is specified, the similarity values are discrete and belong to {0,1}.
- *              Otherwise, the actual continous similarity values are kept.
+ *              Otherwise, the actual continuous similarity values are kept.
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 12/06/2014
  ***************************************************************************************/
@@ -25,8 +25,8 @@ struct MutInfoSimilarity: public SimilarityMatrix {
     return 1.0 - m_miDiss(varA,varB);
   }
 
-  virtual size_t size() const { return m_miDiss.size(); }
-  virtual void invalidCache() { m_miDiss.invalidCache(); }
+  virtual size_t nbrVariables() const { return m_miDiss.nbrVariables(); }
+  virtual void invalidate() { m_miDiss.invalidate(); }
   
  private:
   MutInfoDissimilarity<DataMatrix> m_miDiss;

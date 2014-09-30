@@ -46,9 +46,11 @@ namespace samogwas
 template<typename DissMatrix>  // for instance, may be instanciated as MutInfoDissimilarityMatrix
 struct DBSCAN: public AlgoClust<DissMatrix> {
   const static int UNASSIGNED_LABEL = -1;
-  typedef int Index;  
-  typedef std::vector<Index> Neighbors; // An important concept of DBSCAN involves Neighbors, a set of nearby points.
-  typedef std::vector<Index> Labels; // A Label maps a point Index to its cluster Index. 
+  typedef int Index;
+  typedef std::vector<Index> Neighbors; // An important concept of DBSCAN involves Neighbors, a set of nearby points.typedef int Index;
+    
+  typedef int Label;
+  typedef std::vector<Index> LabelSet; // A Label maps a point Index to its cluster Index.
                                      // A  for instance, may be instanciated as MutInfoSimilarityMatrix label indicates that the point is not yet assigned to any cluster.
   /** The constructor takes three parameters: 
    * a distance matrix that holds the dissimilarities between pairs of points, 
@@ -76,7 +78,7 @@ struct DBSCAN: public AlgoClust<DissMatrix> {
   Neighbors find_neighbors( const Index pid ) const; 
 
   /// Converts current clustering to the partition type
-  static Partition toPartition( const Labels& labels ); 
+  static Partition toPartition( const LabelSet& LabelSet ); 
     
  protected:
   int minPts;
@@ -102,17 +104,19 @@ namespace samogwas
  */
 template<typename DissMatrix> 
 Partition DBSCAN<DissMatrix>::run() {
-  size_t nvars = this->compMatrix->size(); // total number of variables
-  Labels m_labels( nvars,  UNASSIGNED_LABEL); 
+
+  size_t nvars = this->compMatrix->nbrVariables(); // total number of variables
+  LabelSet m_LabelSet( nvars,  UNASSIGNED_LABEL); 
   std::vector<size_t> visited( nvars, 0 ); // to keep track of visiting state for each point
-  int cluster_id = 0; // Tnitially there is no cluster formed.  
+  int cluster_id = 0; // Initially there is no cluster formed.
   for (int pid = 0; pid < nvars; ++pid) { // We visit every non-visited point. 
                                          
     if ( !visited[pid] ) {
       visited[pid] = 1;
       Neighbors neighbors  = find_neighbors(pid); 
       if ( neighbors.size() >= minPts ) { // If the neighborhood is dense,
-        m_labels[pid] = cluster_id; // we form a new cluster.
+        m_LabelSet[pid] = cluster_id; // we form a new cluster.
+        printf("clust(%d): %d\n", pid, cluster_id);
         for ( int i = 0; i < neighbors.size(); ++i) { // We grow this cluster by trying to reach other points
                                                      // from each of its members.
           int nPid = neighbors[i]; // 
@@ -125,15 +129,17 @@ Partition DBSCAN<DissMatrix>::run() {
               }
             }
           }
-          if ( m_labels[nPid] ==  UNASSIGNED_LABEL ) { // to avoid overriding a possible previous cluster assignment
-            m_labels[nPid] = cluster_id; 
+          if ( m_LabelSet[nPid] ==  UNASSIGNED_LABEL ) { // to avoid overriding a possible previous cluster assignment
+                    printf("clust(%d): %d\n", nPid, cluster_id);
+
+            m_LabelSet[nPid] = cluster_id; 
           }
         }
         ++cluster_id; // increments the current cluster id
       }
     }
   }
-  return toPartition(m_labels); 
+  return toPartition(m_LabelSet); 
 }
 
 /////////////////////////////////////////
@@ -142,11 +148,15 @@ Partition DBSCAN<DissMatrix>::run() {
 template<typename DissMatrix>
 typename DBSCAN<DissMatrix>::Neighbors DBSCAN<DissMatrix>::find_neighbors( const Index pid ) const {
   Neighbors ne;
-  size_t nvars = this->compMatrix->size(); // @todo: remove direct access to compMatrix
-  for ( Index i = 0; i < nvars; ++i ) { 
+  size_t nvars = this->compMatrix->nbrVariables(); // @todo: remove direct access to compMatrix
+  for ( Index i = 0; i < nvars; ++i ) {
+    printf("diff(%d,%d) = %f vs %f\n", pid, i, this->compMatrix->compute( i, pid ), epsilon);
+
     if ( this->compMatrix->compute( i, pid ) <= epsilon ) { // @todo: remove direct access to compMatrix
+      
       ne.push_back(i);
     }
+
   }
 
   return ne;
@@ -154,15 +164,15 @@ typename DBSCAN<DissMatrix>::Neighbors DBSCAN<DissMatrix>::find_neighbors( const
 
 /////////////////////////////////////////
 template<typename DissMatrix>
-Partition DBSCAN<DissMatrix>::toPartition( const Labels& labels ) {
+Partition DBSCAN<DissMatrix>::toPartition( const LabelSet& LabelSet ) {
   Partition partition;
   std::set<Label> labs;
   std::vector<int> singletons;
-  for ( size_t i = 0; i < labels.size(); ++i ) {
-    if ( labels.at(i) !=  UNASSIGNED_LABEL ) {
-      partition.cluster( i,labels.at(i) ); // CS identifier could be more informative.
+  for ( size_t i = 0; i < LabelSet.size(); ++i ) {
+    if ( LabelSet.at(i) != UNASSIGNED_LABEL ) {
+      partition.setLabel( i, LabelSet.at(i) ); // CS identifier could be more informative.
                                            // The label is the cluster identifier.
-      labs.insert( labels.at(i) );
+      labs.insert( LabelSet.at(i) );
     } else {
       singletons.push_back(i);
     }
@@ -170,7 +180,7 @@ Partition DBSCAN<DissMatrix>::toPartition( const Labels& labels ) {
 
   for ( auto& i: singletons ) {
     size_t curCluster = labs.size();
-    partition.cluster(i, curCluster);
+    partition.setLabel(i, curCluster);
     labs.insert(curCluster);
   }
   

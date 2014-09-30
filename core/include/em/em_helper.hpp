@@ -64,7 +64,7 @@ double m_log( const T t) {
  */
 struct Int_Rand {
   unsigned operator()(unsigned i) {
-    std::uniform_int_distribution<> dist(0, i-1); <CS I do not understand the uniform_int_distribution<CS> >
+    std::uniform_int_distribution<> dist(0, i-1); // <CS I do not understand the uniform_int_distribution<CS> >
     return dist(gen); // CS explain
   }
 

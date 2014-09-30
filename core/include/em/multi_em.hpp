@@ -1,4 +1,6 @@
-/****************************************************************************************
+/**                     NOT REVIEWED
+*
+* ****************************************************************************
  * File: multi_em.hpp
  * Description: 
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
@@ -14,7 +16,7 @@ namespace samogwas
 {
 
 
-struct NV_EM: public EMFunc {
+struct NV_EM: public EMInterface {
   typedef std::vector< std::vector<int> > Matrix;  
   
 
@@ -27,8 +29,8 @@ struct NV_EM: public EMFunc {
                     const Variable& latentVar,
                     const Variables& variables,
                     const Matrix& dataTable,
-                    const std::vector< std::vector<bool> > & defTable,
-                    const double threshold );
+                    const double threshold,
+                    const std::vector< std::vector<bool> > & defTable );
 
   virtual void impute( ResultEM& result,                 
                        const plSymbol& latentVar,

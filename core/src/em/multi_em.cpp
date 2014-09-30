@@ -1,3 +1,13 @@
+/**                     NOT REVIEWED
+*
+* ****************************************************************************
+* File: multi_em.cpp
+* Description:
+* @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
+* @date: 03/08/2014
+
+***************************************************************************************/
+
 #define NOT_MISSING 1
 #define MISSING 0
 #define DEFAULT_VALUE = -1
@@ -44,8 +54,8 @@ void NV_EM::run( ResultEM& result,
                  const Variable& latentVar,
                  const Variables& variables,
                  const NV_EM::Matrix& data,
-                 const std::vector< std::vector<bool> > & defTable,
-                 const double threshold ) {
+                 const double threshold,
+                 const std::vector< std::vector<bool> > & defTable ) {
   
   int N = utility::nrows(data), K = latentVar.cardinality();
   init_values( N, K, variables );

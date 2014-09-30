@@ -20,7 +20,7 @@ class AlgoClusteringInterface {
   virtual Partition operator()() { return run(); }
   virtual Partition run() = 0;
   virtual char* name() const = 0;
-  virtual void invalidCache() = 0; //@todo: invalidateCache
+  virtual void invalidate() = 0; //@todo: invalidateCache
 };
 
 
@@ -34,7 +34,7 @@ class AlgoClust: public AlgoClusteringInterface {
  public:
   virtual Partition run() = 0;
   virtual char* name() const = 0;
-  virtual void invalidCache() { compMatrix->invalidCache(); }
+  virtual void invalidate() { compMatrix->invalidate(); }
 
   AlgoClust( CompareMatrix* c): compMatrix(c) {}
   virtual ~AlgoClust() { delete compMatrix; }

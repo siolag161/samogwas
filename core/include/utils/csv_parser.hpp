@@ -92,12 +92,12 @@ class CSVIterator
   typedef CSVRow<T>* pointer;
   typedef CSVRow<T>& reference;
 
-  utility::CSVIterator<T> matrixLine(matrixFile);
-  
-  for( ; matrixLine != utility::CSVIterator<T>(); ++matrixLine ) {
-  utility::CSVIterator<T> matrixLine(matrixFile);
-  
-  for( ; matrixLine != utility::CSVIterator<T>(); ++matrixLine ) {
+    /*  utility::CSVIterator<T> matrixLine(matrixFile);
+
+      for( ; matrixLine != utility::CSVIterator<T>(); ++matrixLine ) {
+      utility::CSVIterator<T> matrixLine(matrixFile);
+
+      for( ; matrixLine != utility::CSVIterator<T>(); ++matrixLine ) {*/
   CSVIterator(std::istream& str): m_str(str.good() ? &str : NULL) { ++(*this); }
   CSVIterator(): m_str(NULL) {}
 

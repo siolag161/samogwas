@@ -53,10 +53,10 @@
 //     Node& n = graph[i];
 //     if ( n.level == 1 ) {
 //       auto col = n.jointDistribution.get_computable_object_list();    
-//       int nbrChildren = col.size() - 1;
+//       int nbrChildren = col.nbrVariables() - 1;
 //       if (nbrChildren > 0) {    
 //         unsigned totalPos = 0;
-//         for (unsigned child = 1; child < col.size(); ++ child) {
+//         for (unsigned child = 1; child < col.nbrVariables(); ++ child) {
 //           LabelType label = col[child].get_variables()[0].name();
 //           IndexType index = lpMap[label];
 //           totalPos += graph[index].position;
@@ -72,10 +72,10 @@
 //     Node& n = graph[i];
 //     if ( n.level == 2 ) {
 //       auto col = n.jointDistribution.get_computable_object_list();    
-//       int nbrChildren = col.size() - 1;
+//       int nbrChildren = col.nbrVariables() - 1;
 //       if (nbrChildren > 0) {    
 //         unsigned totalPos = 0;
-//         for (unsigned child = 1; child < col.size(); ++ child) {
+//         for (unsigned child = 1; child < col.nbrVariables(); ++ child) {
 //           LabelType label = col[child].get_variables()[0].name();
 //           IndexType index = lpMap[label];
 //           totalPos += graph[index].position;
@@ -91,12 +91,12 @@
 //     Node& n = graph[i];
 //     if ( !n.isLeaf ) {
 //       auto col = n.jointDistribution.get_computable_object_list();    
-//       int nbrChildren = col.size() - 1;
+//       int nbrChildren = col.nbrVariables() - 1;
 //       int maxChildrenLevel = 0;
 
 //       if (nbrChildren > 0) {    
 //         unsigned totalPos = 0;
-//         for (unsigned child = 1; child < col.size(); ++ child) {
+//         for (unsigned child = 1; child < col.nbrVariables(); ++ child) {
 //           LabelType label = col[child].get_variables()[0].name();
 //           IndexType index = lpMap[label];
 //           totalPos += graph[index].position;
@@ -142,10 +142,10 @@
 //     Node& n = graph[i];
 //     if ( n.level == 1 ) {
 //       auto col = n.jointDistribution.get_computable_object_list();    
-//       int nbrChildren = col.size() - 1;
+//       int nbrChildren = col.nbrVariables() - 1;
 //       if (nbrChildren > 0) {    
 //         unsigned totalPos = 0;
-//         for (unsigned child = 1; child < col.size(); ++ child) {
+//         for (unsigned child = 1; child < col.nbrVariables(); ++ child) {
 //           LabelType label = col[child].get_variables()[0].name();
 //           IndexType index = lpMap[label];
 //           totalPos += graph[index].position;
@@ -161,10 +161,10 @@
 //     Node& n = graph[i];
 //     if ( n.level == 2 ) {
 //       auto col = n.jointDistribution.get_computable_object_list();    
-//       int nbrChildren = col.size() - 1;
+//       int nbrChildren = col.nbrVariables() - 1;
 //       if (nbrChildren > 0) {    
 //         unsigned totalPos = 0;
-//         for (unsigned child = 1; child < col.size(); ++ child) {
+//         for (unsigned child = 1; child < col.nbrVariables(); ++ child) {
 //           LabelType label = col[child].get_variables()[0].name();
 //           IndexType index = lpMap[label];
 //           totalPos += graph[index].position;
@@ -180,12 +180,12 @@
 //     Node& n = graph[i];
 //     if ( !n.isLeaf ) {
 //       auto col = n.jointDistribution.get_computable_object_list();    
-//       int nbrChildren = col.size() - 1;
+//       int nbrChildren = col.nbrVariables() - 1;
 //       int maxChildrenLevel = 0;
 
 //       if (nbrChildren > 0) {    
 //         unsigned totalPos = 0;
-//         for (unsigned child = 1; child < col.size(); ++ child) {
+//         for (unsigned child = 1; child < col.nbrVariables(); ++ child) {
 //           LabelType label = col[child].get_variables()[0].name();
 //           IndexType index = lpMap[label];
 //           totalPos += graph[index].position;
@@ -231,10 +231,10 @@
 //     Node& n = graph[i];
 //     if ( n.level == 1 ) {
 //       auto col = n.jointDistribution.get_computable_object_list();    
-//       int nbrChildren = col.size() - 1;
+//       int nbrChildren = col.nbrVariables() - 1;
 //       if (nbrChildren > 0) {    
 //         unsigned totalPos = 0;
-//         for (unsigned child = 1; child < col.size(); ++ child) {
+//         for (unsigned child = 1; child < col.nbrVariables(); ++ child) {
 //           LabelType label = col[child].get_variables()[0].name();
 //           IndexType index = lpMap[label];
 //           totalPos += graph[index].position;
@@ -250,10 +250,10 @@
 //     Node& n = graph[i];
 //     if ( n.level == 2 ) {
 //       auto col = n.jointDistribution.get_computable_object_list();    
-//       int nbrChildren = col.size() - 1;
+//       int nbrChildren = col.nbrVariables() - 1;
 //       if (nbrChildren > 0) {    
 //         unsigned totalPos = 0;
-//         for (unsigned child = 1; child < col.size(); ++ child) {
+//         for (unsigned child = 1; child < col.nbrVariables(); ++ child) {
 //           LabelType label = col[child].get_variables()[0].name();
 //           IndexType index = lpMap[label];
 //           totalPos += graph[index].position;
@@ -269,12 +269,12 @@
 //     Node& n = graph[i];
 //     if ( !n.isLeaf ) {
 //       auto col = n.jointDistribution.get_computable_object_list();    
-//       int nbrChildren = col.size() - 1;
+//       int nbrChildren = col.nbrVariables() - 1;
 //       int maxChildrenLevel = 0;
 
 //       if (nbrChildren > 0) {    
 //         unsigned totalPos = 0;
-//         for (unsigned child = 1; child < col.size(); ++ child) {
+//         for (unsigned child = 1; child < col.nbrVariables(); ++ child) {
 //           LabelType label = col[child].get_variables()[0].name();
 //           IndexType index = lpMap[label];
 //           totalPos += graph[index].position;

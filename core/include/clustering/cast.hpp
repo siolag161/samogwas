@@ -66,7 +66,7 @@ struct CAST: public AlgoClust<SimiMatrix>  {
   virtual Partition run() {
     /// Initializes the cluster unAssignedCluster, grouping all the unassigned items.
     CAST_Cluster unAssignedCluster; 
-    for ( int i = 0; i < this->SimilarityMatrix->size(); ++i ) { // SimilarityMatrix has type SimiMatrix (for instance 
+    for ( int i = 0; i < this->compMatrix->nbrVariables(); ++i ) { // SimilarityMatrix has type SimiMatrix (for instance
                                                            // MutInfoSimilarityMatrix)
                                                            // @todo: remove direct access, and change the name
       unAssignedCluster.push_back(CAST_Item(i, 0.0) );    
@@ -119,7 +119,8 @@ struct CAST: public AlgoClust<SimiMatrix>  {
 /** Functor to find the index of the item of extremal affinity (mimimal or maximal).
  *
  */
-struct ExtremumIndexAffinity { 
+struct ExtremumIndexAffinity {
+  template<typename Compare>
   const int operator()(const std::vector<CAST_Item>& cluster, Compare comparat) const;    
 };
 
@@ -153,7 +154,7 @@ Partition CAST<SimiMatrix>::run( CAST_Cluster& unAssignedCluster ) {
         int maxAffIdx = maxCompute( unAssignedCluster, std::greater<double>() );
         if ( unAssignedCluster.at(maxAffIdx).affinity >= thresCAST * openCluster.size() ) {
           changesOccurred = true;
-          addGoodItem( unAssignedCluster, openCluster, *this->SimilarityMatrix, maxAffIdx );
+          addGoodItem( unAssignedCluster, openCluster, *this->compMatrix, maxAffIdx );
         } else {
           break;
         }
@@ -163,7 +164,7 @@ Partition CAST<SimiMatrix>::run( CAST_Cluster& unAssignedCluster ) {
         int minAffIdx = minCompute( openCluster, std::less<double>() );
         if ( openCluster.at(minAffIdx).affinity < thresCAST * openCluster.size() ) {
           changesOccurred = true;
-          removeBadItem( unAssignedCluster, openCluster, *this->SimilarityMatrix, minAffIdx );
+          removeBadItem( unAssignedCluster, openCluster, *this->compMatrix, minAffIdx );
         } else {
           break;
         }       
@@ -172,7 +173,7 @@ Partition CAST<SimiMatrix>::run( CAST_Cluster& unAssignedCluster ) {
     // puts the newly created openCluster into the current partition and continues
     int cluster_id =  result.nbrClusters(); 
     for ( auto& item: openCluster ) {
-      result.cluster( item.globalIndex, cluster_id ); 
+      result.setLabel( item.globalIndex, cluster_id );
     }
   }  
   return result;  
@@ -229,12 +230,12 @@ void CAST<SimiMatrix>::updateClustersAffinity( CAST_Cluster& sourceCluster, CAST
 //////////////////////////////////////////////////////////////////////////////////////
 // Moves item from source cluster to target cluster.
 template<typename SimiMatrix>
-    void CAST<SimiMatrix>::moveItemBetweenClusters( CAST_Cluster& source,
-                                                    CAST_Cluster& target,
-                                                    const int itemIdx ) {
-      target.push_back( source.at(itemIdx) );
-      source.erase( source.begin() + itemIdx );
-    }
+void CAST<SimiMatrix>::moveItemBetweenClusters( CAST_Cluster& source,
+                                                CAST_Cluster& target,
+        const int itemIdx ) {
+ target.push_back( source.at(itemIdx) );
+ source.erase( source.begin() + itemIdx );
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////
 /** Searches for the object in given cluster which has the optimal (best/worst) affinity.
@@ -244,8 +245,8 @@ template<typename Compare>
 const int ExtremumIndexAffinity::operator()( const std::vector<CAST_Item>& cluster, Compare comparat) const
 { 
   int result = 0; 
-  for (int idx = 1; idx < clust.size(); idx++) {
-    if ( comp(cluster.at(idx).affinity, cluster.at(result).affinity) ) { 
+  for (int idx = 1; idx < cluster.size(); idx++) {
+    if ( comparat(cluster.at(idx).affinity, cluster.at(result).affinity) ) {
       result = idx;    
     }
   }

@@ -14,6 +14,8 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp> // to obtain the program's name
 #include "fltm/core_fltm.hpp"
+#include "utils/option_printer.hpp"
+
 // #include "OptionPrinter.hpp" //for printing
 // #include "FLTM.hpp"
 namespace po = boost::program_options;   
@@ -48,6 +50,7 @@ struct Options {
   int fltm_nbrRestarts; 
   int fltm_imputeMode; 
   FLTM_Options fltm_opts;
+
   
 };
 
@@ -90,7 +93,7 @@ inline Options getProgramOptions(int argc, char** argv) {
         ("f_nbr_restarts,r", po::value<int>(&result.fltm_nbrRestarts)->required(), "FLTM nbr restarts")
         ("f_nbr_steps,s", po::value<int>(&result.fltm_opts.nbrSteps)->required(), "FLTM nbr steps") 
 
-        ("f_thres_info,i", po::value<double>(&result.fltm_opts.infoThres)->required(), "FLTM thres info") 
+        ("f_thres_info,i", po::value<double>(&result.fltm_opts.latentVarQualityThres)->required(), "FLTM thres info")
         ("f_thres_em,e", po::value<double>(&result.fltm_opts.emThres)->required(), "FLTM thres EM")
         
         ;
@@ -120,7 +123,7 @@ inline Options getProgramOptions(int argc, char** argv) {
     std::cout << "Unhandled Exception reached the top of main: "
               << e.what() << ", application will now exit" << std::endl;
 
-    rad::OptionPrinter::printStandardAppDesc(appName, std::cout, optDesc, NULL);
+    samogwas::OptionPrinter::printStandardAppDesc(appName, std::cout, optDesc, NULL);
     exit(-1);
   }
 

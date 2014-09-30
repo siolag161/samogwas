@@ -22,30 +22,34 @@ namespace samogwas
 {
  
 struct FLTM {
-  FLTM( AlgoClustering* clustA, CardFunc& cardF, EMFunc* emF): clustAlgo(clustA), cardFunc(cardF), emFunc(emF) { }  
+  FLTM( AlgoClusteringInterface* clustA,
+          CardFunc& cardF,
+          EMInterface* emF): clustAlgo(clustA), cardFunc(cardF), emFunc(emF) { }
 
   void operator()( FLTM_Result& result, FLTM_Data& data, FLTM_Options& opt );
   ~FLTM() { delete clustAlgo; delete emFunc; }
 
  protected:
-  void setupVariables( FLTM_Data& input,
-                       FLTM_Result& result,
-                       Matrix2GraphIndex& mat2GraphIndex,
-                       StrLabel2GraphIndex& label2GraphIndex,
-                       const size_t& nbrVars,
-                       const size_t& cardinality);
+  void initializeClustering(  FLTM_Data &input,
+                              FLTM_Result &result,
+                              Matrix2GraphIndex &mat2GraphIndex,
+                              StrLabel2GraphIndex &label2GraphIndex,
+                              const size_t &nbrVars,
+                              const size_t &cardinality);
 
-  std::vector<Position> getLocalPositions( const Graph& graph, Matrix2GraphIndex& mat2GraphIndex  );
+  std::vector<Position> extractPositionsForMatrixVariables( const Graph& graph, Matrix2GraphIndex& mat2GraphIndex );
 
   bool containsOnlySingletons( int& singleton,
                                const Clustering& clustering );
+
   Variable createLatentVar( const int lab, const int cardinality );
+
   ///////////////////////////////////////
-  void prepareEM( Matrix& emMat,
-                  Variables& vars,
-                  const FLTM_Data& input,
-                  const std::vector<int>& cluster,
-                  const std::vector<int> local2Global );
+  void initializeEM( Matrix &emMat,
+          Variables &vars,
+          const FLTM_Data &input,
+          const std::vector<int> &cluster,
+          const std::vector<int> local2Global);
 
   bool goodLatentVariable( std::vector<int>& latentCol,
                            Matrix& transposedMat,
@@ -57,16 +61,17 @@ struct FLTM {
                           ResultEM& resultEM,
                           StrLabel2GraphIndex& label2GraphIndex );
 
-  void updateNextRow( Matrix& nextRowMatrix, Matrix2GraphIndex& nextRoundMat2GraphIndex,
-                      const Matrix2GraphIndex& mat2GraphIndex, const Matrix& matrix, const std::vector<int>& cluster );
+  void initializeNextStep( Matrix &nextRowMatrix, Matrix2GraphIndex &nextRoundMat2GraphIndex,
+                           const Matrix2GraphIndex &mat2GraphIndex,
+                             const Matrix &matrix, const std::vector<int> &cluster);
 
  protected:
-  AlgoClustering* clustAlgo;
-  CardFunc& cardFunc;
-  EMFunc* emFunc;
+    AlgoClusteringInterface* clustAlgo;
+    CardFunc& cardFunc;
+    EMInterface* emFunc;
 };
 
-} // namespace fltmends here. fltm
+} // namespace samogaws ends here.
 
 
 

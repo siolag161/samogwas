@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( Test_EM_Init_Values ) {
   std::vector< std::vector<bool> > defTable;
 
   // em.run( result, Y, X, geno, defTable, 0.0000000000001);
-  // unsigned N = em.theta.size(), K = em.pYX.size(), P = em.pYX[0].size();
+  // unsigned N = em.theta.size(), K = em.pYX.size(), P = em.pYX[0].nbrVariables();
 
   // BOOST_CHECK_EQUAL( N, rows );  BOOST_CHECK_EQUAL( K, 2 );  BOOST_CHECK_EQUAL( P, 3 );
 
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( Test_KL_Exp_Est ) {
   Variables X = X1 ^ X2 ^ X3;
   std::vector< std::vector<bool> > defTable;
 
-  em.run( result, Y, X, geno, defTable, 0.0000000001);
+  em.run( result, Y, X, geno, 0.0000000001, defTable);
 
 
   std::cout << "KL Y1:\n";

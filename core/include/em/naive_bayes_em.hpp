@@ -1,7 +1,8 @@
 /****************************************************************************************
  * File: naive_bayes_em.hpp
- * Description: Specific class of EM Algorithm which computes under the Naive-Bayes
- * -----------  multinomial model
+ * Description: Specific instance of the EM algorithm dedicated to the parameter learning of
+ * -----------the Naive Bayes multinomial model.
+ *
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 31/07/2014
 
@@ -14,22 +15,22 @@ namespace samogwas
 {
 
 
-struct MultiEM: public EMFunc {
+struct NaiveBayesEM: public EMInterface {
   typedef std::vector< std::vector<int> > Matrix;
-  
+
  public:
-  MultiEM( int nbrRts, int imMode ): nbrRestarts(nbrRts), imputMode(imMode) {}
-  ~MultiEM() {}
+  NaiveBayesEM( int nRestarts, int imMode ): nbrRestarts(nRestarts), imputMode(imMode) {}
+  ~NaiveBayesEM() {}
 
   virtual void run( ResultEM& result,
                     const Variable& latentVar,
                     const Variables& variables,
                     const Matrix& dataTable,
-                    const std::vector< std::vector<bool> > & defTable,
-                    const double threshold );
+                    const double threshold,
+                    const std::vector< std::vector<bool> > & defTable);
 
 
-  virtual void impute( ResultEM& result,                 
+  virtual void impute( ResultEM& result,
                        const plSymbol& latentVar,
                        const Matrix& dataTable,
                        EMLearner& bestModel,
@@ -37,10 +38,10 @@ struct MultiEM: public EMFunc {
 
   int nbrRestarts;
   int imputMode; // methods for imputing missing values  (ARGMAX or DRAW)
-  
+
 };
-  
-} // namespace samogwasends here. samogwas
+
+} // namespace samogwas ends here. 
 
 
 /****************************************************************************************/

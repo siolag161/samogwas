@@ -1,14 +1,15 @@
 /****************************************************************************************
  * File: EM.hpp
- * Description: 
+ * Description: The object of this module is to provide a global access to all different EM algorithms
+ * ------------  implementing the interface defined in core_em.hpp.
+ *
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
- * @date: 11/07/2014 // Is this "interface" file absalutely necessary?
+ * @date: 11/07/2014
 
  ***************************************************************************************/
 #ifndef SAMOGWAS_EM_HPP
-#define SAMOGWAS_EM_HPP  
+#define SAMOGWAS_EM_HPP
 
-#include "core_em.hpp"
 #include "naive_bayes_em.hpp"
 
 /****************************************************************************************/

@@ -29,15 +29,15 @@
 //   // int codage = 3, permu = 15000;
 //   // Matrix geno;
 //   // loadDataTable(geno, "./data.csv");
-//   // BOOST_CHECK_EQUAL( geno.size(), 32);
-//   // BOOST_CHECK_EQUAL( geno[0].size(), 1018 );
+//   // BOOST_CHECK_EQUAL( geno.nbrVariables(), 32);
+//   // BOOST_CHECK_EQUAL( geno[0].nbrVariables(), 1018 );
 
 //   // Pheno pheno;
 //   // std::vector< std::string > labels;
 //   // std::vector<unsigned> ids;
 //   // std::vector< int > positions;
 //   // loadPhenotype( pheno, labels, ids, positions, "./pheno.csv" );
-//   // BOOST_CHECK_EQUAL( pheno.size(), 1018);
+//   // BOOST_CHECK_EQUAL( pheno.nbrVariables(), 1018);
 
 //   // std::vector<StatTest*> statTests { new G(), new ChiSq(), new Fisher() };
 //   // std::vector<std::vector<double> > result;
@@ -66,9 +66,9 @@
 //   // for ( auto& test: statTests ) { os << "," << test->name << " (b4),   " << test->name; }
 //   // os << std::endl;
   
-//   // for ( size_t snp; snp < geno.size(); ++ snp ) {
+//   // for ( size_t snp; snp < geno.nbrVariables(); ++ snp ) {
 //   //   os << snp;
-//   //   for ( size_t test = 0; test < statTests.size(); ++ test ) {
+//   //   for ( size_t test = 0; test < statTests.nbrVariables(); ++ test ) {
 //   //     os << ",   " << std::setprecision (55) << result[test][snp] << ",   " <<result[test+1][snp];
 //   //   }
 //   //   os << std::endl;

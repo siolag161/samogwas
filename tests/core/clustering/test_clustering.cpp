@@ -23,11 +23,11 @@
 // struct Diss: public Distance {
 //   Diss( const std::vector< std::vector<double> >& d ): data(d)
 //   {
-//     for ( size_t a = 0; a < d.size(); ++a ) {
-//       for ( size_t b = a+1; b < d.size(); ++b ) {
-//         size_t key = 2*d.size()*a+b;
+//     for ( size_t a = 0; a < d.nbrVariables(); ++a ) {
+//       for ( size_t b = a+1; b < d.nbrVariables(); ++b ) {
+//         size_t key = 2*d.nbrVariables()*a+b;
 //         double result = 0.0;
-//         for ( size_t i = 0; i < data.at(0).size(); ++ i ) {
+//         for ( size_t i = 0; i < data.at(0).nbrVariables(); ++ i ) {
 //           result += (data[a][i] - data[b][i] ) * ( data[a][i] - data[b][i] );
 //         }    
 //         valCache[key] = std::sqrt(result);
@@ -38,15 +38,15 @@
 //   virtual double compute( size_t a, size_t b ) {
 //     if ( a > b) return (*this)(b,a);
 //     if ( a == b ) return 1;    
-//     size_t key = 2*data.size()*a+b;
+//     size_t key = 2*data.nbrVariables()*a+b;
 //     return valCache.at(key);
 //   }
 
 //   const std::vector< std::vector<double> >& data;
 //   std::map< size_t, double > valCache;
 
-//   virtual size_t size() const { return data.size(); }
-//   virtual void invalidCache() { }
+//   virtual size_t nbrVariables() const { return data.size(); }
+//   virtual void invalidate() { }
 //   virtual void reset( std::vector< std::vector<int> >& dm, std::vector<int>& pos ) {}
 // };
 
@@ -74,11 +74,11 @@
 // struct Similarity: public Simi {
 //   Similarity( const std::vector< std::vector<double> >& d ): data(d)
 //   {
-//     for ( size_t a = 0; a < d.size(); ++a ) {
-//       for ( size_t b = a+1; b < d.size(); ++b ) {
-//         size_t key = 2*d.size()*a+b;
+//     for ( size_t a = 0; a < d.nbrVariables(); ++a ) {
+//       for ( size_t b = a+1; b < d.nbrVariables(); ++b ) {
+//         size_t key = 2*d.nbrVariables()*a+b;
 //         double result = 0.0;
-//         for ( size_t i = 0; i < data.at(0).size(); ++ i ) {
+//         for ( size_t i = 0; i < data.at(0).nbrVariables(); ++ i ) {
 //           result += (data[a][i] - data[b][i] ) * ( data[a][i] - data[b][i] );
 //         }    
 //         valCache[key] = std::sqrt(result);
@@ -91,13 +91,13 @@
 //     if ( a > b) return (*this)(b,a);
 //     if ( a == b ) return 1;
     
-//     size_t key = 2*data.size()*a+b;
+//     size_t key = 2*data.nbrVariables()*a+b;
 //     double scaled = ( m_max - valCache.at(key) ) / m_max;
 //     return scaled;
 //   }
   
-//   virtual size_t size() const { return data.size(); }
-//   virtual void invalidCache() { }
+//   virtual size_t size() const { return data.nbrVariables(); }
+//   virtual void invalidate() { }
 
 //   const std::vector< std::vector<double> >& data;
 //   std::map< size_t, double > valCache;

@@ -31,13 +31,13 @@ struct CompMatrix {
 
   /** Returns the total number of variables @todo; change the name to nbrOfVariables.
    */
-  virtual size_t size() const = 0;
+  virtual size_t nbrVariables() const = 0;
 
   /** Invalidates current caching if any. Caching may be helpful when the computation of the matrix
    * is performed on the go (example: mutual information as similarity and entropies stored in the cache).
    *  @TODO: invalid-> invalidate
    */
-  virtual void invalidCache() = 0;
+  virtual void invalidate() = 0;
 
 };
 

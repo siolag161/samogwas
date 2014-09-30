@@ -144,14 +144,14 @@ int main(int argc, char** argv) {
 //   utl::CSVIterator<int> matrixLine(matrixFile);
   
 //   for( ; matrixLine != utl::CSVIterator<int>(); ++matrixLine ) {         
-//     std::vector<int> row(matrixLine->size(), 0);
-//     for (unsigned i = 0; i < matrixLine->size(); ++i) {
+//     std::vector<int> row(matrixLine->nbrVariables(), 0);
+//     for (unsigned i = 0; i < matrixLine->nbrVariables(); ++i) {
 //       row[i] = matrixLine->at(i);
 //     }
 //     dt->push_back(row);    
 //   }
 
-//   dt->resize(dt->size());
+//   dt->resize(dt->nbrVariables());
 //   std::cout << "done loading data" << std::endl << std::endl;
 //   return dt;
 // }
@@ -179,7 +179,7 @@ int main(int argc, char** argv) {
 //     positions.push_back(position);
 //   }
 
-//   std::cout << "load " << labels.size() << " variables.\n";
+//   std::cout << "load " << labels.nbrVariables() << " variables.\n";
 // }
 
 // ////////////////////////////////////////////////////////
@@ -193,7 +193,7 @@ int main(int argc, char** argv) {
 //   std::cout << "begin clustering." << std::endl;
 
 //   std::vector<unsigned> idMap;
-//   for ( unsigned id = 0; id < positions.size(); ++id ) {
+//   for ( unsigned id = 0; id < positions.nbrVariables(); ++id ) {
 //     idMap.push_back(id);
 //   }
   
@@ -206,7 +206,7 @@ int main(int argc, char** argv) {
 // double evaluateClustering( const CAST_Partition& clustering, unsigned nbrVars ) {
 
 //   if (nbrVars <= 1 ) return 0.0;
-//   const unsigned cltSz = clustering.size();
+//   const unsigned cltSz = clustering.nbrVariables();
 //   std::vector<unsigned> index2Cluster( nbrVars, -1);
 //   std::vector<unsigned> cluster2Index( cltSz, 0);
     
@@ -238,13 +238,13 @@ int main(int argc, char** argv) {
 // static const char SEPARATOR = ',';
 
 // static const std::string CHR = "chr"; 
-// static const std::string CLUSTER = "cluster";
+// static const std::string CLUSTER = "setLabel";
 
 // void saveClusteringComparation( const  CAST_Partition& clustering, const std::vector<unsigned>& ids,
 //                                 std::vector<Label>& labels,
 //                                 std::string clustFN ) { 
 //   std::ofstream clustOut(clustFN);
-//   std::cout << "saving clustering of " <<  clustering.size() << " clusters into " << clustFN << std::endl;
+//   std::cout << "saving clustering of " <<  clustering.nbrVariables() << " clusters into " << clustFN << std::endl;
 
 //   clustOut << CHR << SEPARATOR
 //            << ID << SEPARATOR
@@ -254,13 +254,13 @@ int main(int argc, char** argv) {
 //   std::string chr = "chr2";
 
 //   unsigned maxId = 0;
-//   for ( size_t i = 0; i < ids.size(); ++i ) {
+//   for ( size_t i = 0; i < ids.nbrVariables(); ++i ) {
 //     if ( ids[i] > maxId ) {
 //       maxId = ids[i];
 //     }
 //   }
 //  std::vector<int> id_reverser( maxId + 1, -1);
-//   for ( size_t i = 0; i < ids.size(); ++i ) {
+//   for ( size_t i = 0; i < ids.nbrVariables(); ++i ) {
 //     id_reverser[ ids[i] ] = i;
 //   }
   
@@ -287,20 +287,20 @@ int main(int argc, char** argv) {
 //   clustOut << ID << SEPARATOR << LATENT << SEPARATOR << PARENT << SEPARATOR
 //            << LEVEL << SEPARATOR << CARDINALITY << "\n";  // writes header
 
-//   std::cout << "saving clustering of " << clustering.size() << " clusters into " << clustFN << std::endl; 
+//   std::cout << "saving clustering of " << clustering.nbrVariables() << " clusters into " << clustFN << std::endl;
   
-//   size_t currentLatentIndex = ids[ids.size()-1] + 1;
+//   size_t currentLatentIndex = ids[ids.nbrVariables()-1] + 1;
 //   for ( auto iter = clustering.begin(); iter != clustering.end(); ++iter ) {
 //     for ( auto citer = iter->second->begin(); citer != iter->second->end(); ++citer ) {
-//       int id_parent =  iter->second->size() > 1 ? currentLatentIndex : -1;
+//       int id_parent =  iter->second->nbrVariables() > 1 ? currentLatentIndex : -1;
 //       clustOut << citer->globalIndex << SEPARATOR << 0 << SEPARATOR << id_parent << SEPARATOR
 //                << 0 << SEPARATOR << 3 << std::endl;  // writes header
 //     }
-//     if ( iter->second->size() > 1)
+//     if ( iter->second->nbrVariables() > 1)
 //       ++currentLatentIndex;
 //   }
 
-//   for (size_t latentId = ids[ids.size()-1] + 1; latentId < currentLatentIndex; ++latentId) {
+//   for (size_t latentId = ids[ids.nbrVariables()-1] + 1; latentId < currentLatentIndex; ++latentId) {
 //     clustOut << latentId << SEPARATOR << 1 << SEPARATOR << -1 << SEPARATOR
 //              << 1 << SEPARATOR << 3 << std::endl;  // writes header
 //   }

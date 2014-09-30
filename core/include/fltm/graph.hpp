@@ -1,6 +1,7 @@
 /****************************************************************************************
  * File: Graph.hpp
- * Description: 
+ * Description: This module provides the structure for the FLTM model.
+ *
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
  * @date: 13/07/2014
 
@@ -49,43 +50,47 @@ struct Node {
   
   bool isLeaf;
   int position; // physical position on the genome
-  int level; // indicates which level to which this node belongs
+  int level; // indicates the level to which this node belongs.
 
   Graph* graph; // reference to its graph
 
-  RandomVariable variable; // represents the underlying random variable
+  RandomVariable variable; // represents the underlying random variable.
   JointDistribution jointDistribution; // joint distribution of the Naive Bayes Model rooted in the variable
   
-  Node(): isLeaf(true), position(-1), level(0), graph(NULL) { 
-    //jointDistribution = new JointDistribution();
-  }
+  Node(): isLeaf(true), position(-1), level(0), graph(NULL) {}
 
-  inline Node& setDistribution(JointDistribution& jointDist);
-  inline Node& setPosition(Label2Index& label2Index, plComputableObjectList& objectList);  
-  inline Node& setLevel(Label2Index& label2Index, plComputableObjectList& objectList);
-  inline Node& setVariable(plComputableObjectList& objectList);
+  inline Node& setDistribution(JointDistribution &jointDistri);
+  inline Node& setPosition(Label2Index &label2Index, plComputableObjectList &objectList);
+  inline Node& setLevel(Label2Index &label2Index, plComputableObjectList &objectList);
+  inline Node& setVariable(plComputableObjectList &objectList);
   
-  /** Sets the following properties:
-   *
+  /* Requires that the node is a latent variable.
+   * Sets the following properties:
    *    - parent graph (from parameter)
-   *    - joint distribution (directly from parameter)
-   *    - variable (deduced from parameter)
-   *    - position (deduced from parameter)
-   *    - level (deduced from parameter)
+   *    - joint distribution (from parameter)
+   *    - variable (deduced from parameters)
+   *    - position (deduced from parameters)
+   *    - level (deduced from parameters).
    *
-   * Requires Label2Index which maps the label of a variable to its index
-   * Requires that the node is a latent variable
+   * Requires Label2Index which maps the label of a variable to its index.
    */
   Node& setupProperties(Graph* graph,
                         JointDistribution& jointDist,
                         Label2Index& label2Index ) {
     plComputableObjectList objectList = jointDist.get_computable_object_list();
-    return setGraph(graph)
-              .setDistribution(jointDist)
-              .setVariable(objectList)
-              .setLabel(label2Index)
-              .setPosition(label2Index, objectList)
-              .setLevel(label2Index, objectList);
+
+    setGraph(graph);
+    setDistribution(jointDist);
+    setVariable(objectList);
+    setLabel(label2Index);
+    setPosition(label2Index, objectList);
+    setLevel(label2Index, objectList);
+    return (*this);
+    /**
+    return setGraph(graph).setDistribution(jointDist)
+            .setVariable(objectList).setLabel(label2Index)
+            .setPosition(label2Index, objectList).setLevel(label2Index, objectList);
+    */
   }
   
 
@@ -100,22 +105,20 @@ struct Node {
   unsigned getIndex() const {
     return index;
   }
-
-
 };
 
+//////////////////////////////////////////////////////////////////
 /**
  *
  */
-typedef Graph::vertex_descriptor vertex_t; 
+typedef Graph::vertex_descriptor vertex_t;
 
 /**
  *
  */
 typedef Graph::edge_descriptor edge_t;
 
-typedef boost::graph_traits < Graph >::vertex_descriptor Vertex;
-
+typedef boost::graph_traits< Graph >::vertex_descriptor Vertex;
 typedef boost::graph_traits<Graph>::vertex_iterator vertex_iterator;
 typedef boost::graph_traits<Graph>::edge_iterator edge_iterator;
 
@@ -127,44 +130,52 @@ typedef std::pair<edge_iterator, edge_iterator> edge_iter_pair;
  *
  */
 inline vertex_t createVertex( Graph& graph,
-                              const unsigned& cardinality,
+                              const unsigned &cardinality,
                               const bool isLeaf,                              
-                              const std::string& label = "",
-                              const unsigned& position = -1,
-                              const unsigned& level = -1) {
+                              const std::string &label = "",
+                              const unsigned &position = -1,
+                              const unsigned &level = -1) {
   
-  vertex_t vertexId = boost::add_vertex(graph);
-  graph[vertexId].variable = RandomVariable(label, plIntegerType(0, cardinality - 1));
-  graph[vertexId].isLeaf = isLeaf;
-  graph[vertexId].position = position; // physical position on the genome
-  graph[vertexId].label = label;
-  graph[vertexId].index = vertexId;
-  graph[vertexId].graph = &graph;
-  graph[vertexId].level = level;
+  vertex_t vertexId = boost::add_vertex(graph); // adds a new Node to the graph and returns the newly added node's index.
+
+  Node &newNode = graph[vertexId];
+  newNode.variable = RandomVariable(label, plIntegerType(0, cardinality - 1));
+  newNode.isLeaf = isLeaf;
+  newNode.position = position; // physical position on the genome
+  newNode.label = label;
+  newNode.index = vertexId;
+  newNode.graph = &graph;
+  newNode.level = level;
   return vertexId;
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////
-Node& Node::setDistribution(JointDistribution& jointDist) {
-  jointDistribution = jointDist;
+Node& Node::setDistribution(JointDistribution &jointDist) {
+  this->jointDistribution = jointDist;
   return *this;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
 /**
  *
  */
-Node& Node::setVariable(plComputableObjectList& objectList) {
-  unsigned latentVarIdx = 0;   
-  variable = objectList[latentVarIdx].get_variables()[0]; // objectList is the collection of distributions for the Naive Bayes Model, augmented with annotations.
-  // Example: P(X1,X2,Z) = P(Z)*P(X1|Z)*P(X2|Z). ObjectList[0] = P(Z), ObjectList[1] = P(X1|Z), ObjectList[2] = P(X2|Z). P(Z).get_variables() = {Z},
-  // P(X1|Z).get_variables() = {Z,X1}. 
+Node& Node::setVariable(plComputableObjectList &objectList) {
+  unsigned latentVarIdx = 0;
+  this->variable = objectList[latentVarIdx].get_variables()[0];
+  // objectList is the collection of distributions for
+  // the Naive Bayes Model, augmented with annotations.
+  // Example: P(X1,X2,Z) = P(Z)*P(X1|Z)*P(X2|Z).
+  // ObjectList[0] = P(Z), ObjectList[1] = P(X1|Z), ObjectList[2] = P(X2|Z).
+  // P(Z).get_variables() = {Z} ,P(X1|Z).get_variables() = {Z,X1}.
   
   return *this;
 }
 
-Node& Node::setPosition(Label2Index& label2Index, plComputableObjectList& objectList) {
+//////////////////////////////////////////////////////////////////////////////////////////
+// See above or a description of objectList.
+// Computes the fictive position of the latent variable as the average of the children's positions.
+Node& Node::setPosition(Label2Index &label2Index, plComputableObjectList &objectList) {
  
   unsigned nbrChildren = objectList.size() - 1;
   
@@ -177,13 +188,15 @@ Node& Node::setPosition(Label2Index& label2Index, plComputableObjectList& object
     }
     
     this->position = totalPos / nbrChildren;
-    // label2Pos[variable.name()] = position;  
   }
+
   return *this;
   
 }
 
-Node& Node::setLevel(Label2Index& label2Index, plComputableObjectList& objectList) {
+//////////////////////////////////////////////////////////////////////////////////////////
+// See above or a description of objectList.
+Node& Node::setLevel(Label2Index &label2Index, plComputableObjectList &objectList) {
   unsigned nbrChildren = objectList.size() - 1;
 
   int maxChildrenLevel = 0;
@@ -195,14 +208,14 @@ Node& Node::setLevel(Label2Index& label2Index, plComputableObjectList& objectLis
       maxChildrenLevel = (*graph)[index].level;
     }
   }
+        
   this->level = maxChildrenLevel + 1;
-
   
   return *this;  
 }
 
 
-} // namespace samogwas ends here. fltm
+} // namespace samogwas ends here.
 
 /****************************************************************************************/
 #endif // SAMOGWAS_GRAPH_HPP

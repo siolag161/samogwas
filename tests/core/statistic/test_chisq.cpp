@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(  Test_ChiSqrt_Corrected )
   
 //   loadDataTable ( geno, "/home/pdt/Desktop/fltm/out/OUT/x20/fltm_CAST_0.500_imputedData.csv" );
 //   // loadPhenotype( pheno, "in/pheno.csv" );
-//   std::vector<int> max_vals( geno.size(), -1);
+//   std::vector<int> max_vals( geno.nbrVariables(), -1);
 //   // stats::StatisticTest<stats::CHISQ> chisq;
 //   // for ( int i = 0; i < 20; ++i ) {
 //   //    std::cout << i << ": " << chisq(geno[i], pheno, 3, 2) << std::endl;
@@ -93,8 +93,8 @@ BOOST_AUTO_TEST_CASE(  Test_ChiSqrt_Corrected )
 //   // BOOST_CHECK_CLOSE( chisq(geno, pheno, 2, 2), 0.4233054, 0.0001 );
 //   std::ofstream os("in/max_vals.csv");
 
-//   for ( int i = 0; i < geno.size(); ++i ) {
-//     for ( int j = 0; j < geno[i].size(); ++j ) {
+//   for ( int i = 0; i < geno.nbrVariables(); ++i ) {
+//     for ( int j = 0; j < geno[i].nbrVariables(); ++j ) {
 //       max_vals[i] = std::max( max_vals[i], geno[i][j]);
 //     }
 //     os << max_vals[i] << std::endl;

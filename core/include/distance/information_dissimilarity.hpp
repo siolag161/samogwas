@@ -27,15 +27,15 @@ const static double MAX_DISTANCE = 1.0, MIN_DISTANCE = 0.0; //@todo: DISTANCE ->
  *  This method also takes into consideration the positions of the variables along a line (example: genome order).
  *  The dissimilarity between two variables is set to MAX_DISTANCE if these variables are 
  *  located too far apart (above maxDist).
- *  Usage without this maxDist contraint can be achieved by setting the value of maxDist to +infinity. 
+ *  Usage without this maxDist constraint can be achieved by setting the value of maxDist to +infinity.
  */
 template<class DataMatrix>
 struct MutInfoDissimilarity: public DissimilarityMatrix {
   
   /** The constructor takes a reference to the actual dataset, the positions, tha maxDist constraint and the threshold. 
    *  The threshold determines whether to compute the binary 0/1 dissimilarity values or the actual 
-   *  continous dissimilarity values.
-   *  The thresholded 0/1 dissimilarity is specified if `thres` is set as a positive value. 
+   *  continuous dissimilarity values.
+   *  The threshold 0/1 dissimilarity is specified if `thres` is set as a positive value.
    *  The dissimilarity value is `1` if the actual dissimilarity value is greater than this threshold; 
    *  otherwise, the dissimilarity value is 0. 
    *  If `thres` is negative, then the dissimilarity value is the actual dissimilarity value.
@@ -50,13 +50,13 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
   
   /** Returns the number of total elements actually stored in the matrix (which is possibly sparse).
    */
-  virtual size_t size() const { return dataMat.size(); }
+  virtual size_t nbrVariables() const { return dataMat.size(); }
 
   /** Invalidates current caching if any. Caching may be helpful when the computation of the matrix
    *  is performed on the go (example: mutual information as similarity and entropies stored in the cache).
    *  @TODO: invalid-> invalidate
    */
-  virtual void invalidCache() {
+  virtual void invalidate() {
     distCache.clear();
     entropyMap.clear();
     entropyMap.resize(positions.size(), -MAX_DISTANCE); // reset 
@@ -117,17 +117,17 @@ MutInfoDissimilarity<DM>::MutInfoDissimilarity( DM& dm,
                      // therefore, all the actual dissimilarity values must be computed.
     boost::accumulators::accumulator_set< double,
                                           boost::accumulators::stats<boost::accumulators::tag::median(boost::accumulators::with_p_square_quantile) > > acc;
-#pragma omp parallel for
+//#pragma omp parallel for
     for ( size_t varA = 0; varA < nbrVars; ++varA) {
       for ( size_t varB = varA+1; varB < nbrVars; ++varB ) {
         if ( abs( positions[varA] - positions[varB] ) > maxPos ) continue; 
         double result = mutualInformationDistance( entropyMap, distCache, dataMat, varA, varB );
-#pragma omp critical
+//#pragma omp critical
         acc(result);
       }
     }
-#pragma omp critical
-    m_thres = boost::accumulators::median(acc);
+//#pragma omp critical
+    m_thres = boost::accumulators::median(acc); // set m_thres equal to median
   }
 }
 
@@ -135,24 +135,30 @@ MutInfoDissimilarity<DM>::MutInfoDissimilarity( DM& dm,
 template<class DM>
 double MutInfoDissimilarity<DM>::compute( const size_t varA, const size_t varB ) {
   if ( varA == varB ) return MIN_DISTANCE;
-  if( varA > varB ) return this->compute( varB, varA );
+  if( varA > varB ) {
+
+      return this->compute( varB, varA );
+  }
+  assert( varA < varB );
   if ( abs( positions[varA] - positions[varB] ) >= maxPosition ) return MAX_DISTANCE;
 
   size_t nbrVars = dataMat.size();
-  size_t key = 2*nbrVars*varA + varB;   
+  size_t key = 2*nbrVars*varA + varB;
+
   double result = MAX_DISTANCE, rs = MAX_DISTANCE;
-  std::map<size_t, double>::iterator iter;
+  // std::map<size_t, double>::iterator iter;
       
   // #pragma omp critical
-  iter = distCache.find(key);
-
-  if ( iter == distCache.end() ) {
+  if ( distCache.find(key) == distCache.end() ) {
     rs =  mutualInformationDistance( entropyMap, distCache, dataMat, varA, varB );
+      distCache[key] = rs;
+  } else {
+      rs = distCache.at(key);
   }
 
+//        printf("mi[%d,%d->%d]: %f\n", varA, varB, key, rs);
   // #pragma omp critical
-  distCache[key] = rs;
-    
+
   if ( m_thres > 0 ) { // case when dissimilarity values are binary (0/1)
     result = ( rs > m_thres ) ? MAX_DISTANCE : MIN_DISTANCE;  
   } else { 
@@ -179,7 +185,8 @@ double mutualInformationDistance( std::vector<double>& entropyMap,
   Entropy<EMP> entropy; // empirical entropy (estimation of the probability by frequency)
   JointEntropy<EMP> mutEntropy; // empirical mutual entropy;
   double enA, enB;
-#pragma omp critical
+
+//#pragma omp critical
   {  
     if ( entropyMap.at(varA) < 0.0 ) { // if not already computed
       entropyMap[varA] = entropy( dataMat.at(varA) ); // computes entropy of varA 
@@ -187,7 +194,7 @@ double mutualInformationDistance( std::vector<double>& entropyMap,
     enA = entropyMap[varA];
   }
 
-#pragma omp critical
+//#pragma omp critical
   { 
     if ( entropyMap.at(varB) < 0.0 ) {  // if not already computed
       entropyMap[varB] = entropy( dataMat.at(varB) ) ; // computes entropy of varB

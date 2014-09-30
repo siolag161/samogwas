@@ -22,9 +22,9 @@
 namespace stats
 {
 
-struct CollectionPermutate {
-  
-  CollectionPermutate( unsigned long seed = 1 ) {
+struct CollectionPermute {
+
+    CollectionPermute( unsigned long seed = 1 ) {
     rng.seed(seed);
   }
 
@@ -71,7 +71,7 @@ struct CollectionPermutate {
   // Permutation with the current state
   template<typename VecType>
   void operator()(VecType& vec) {
-    Rand rand(CollectionPermutate::rng); // current state
+    Rand rand(CollectionPermute::rng); // current state
     std::random_shuffle(vec.begin(), vec.end(), rand );
   }
  private:
@@ -80,7 +80,7 @@ struct CollectionPermutate {
 
 //////////////////////////////////////////////////////////////////////////////////
 // Returns the p-value of observing a value less than or equal to v. 
-// This value is sampled from the true theorical distribution D and dist is an empirical sample of D.
+// This value is sampled from the true theoretical distribution D and dist is an empirical sample of D.
 template<typename T>
 double p_value( const T v, const std::vector<T>& dist ) {
   double count = 0.0;
@@ -126,11 +126,11 @@ void performTesting( std::vector< std::vector< std::vector<double> > >& dists,
                                                       std::vector<double>( permu, 2.0 )));
     
 
-    CollectionPermutate permutate;
+    CollectionPermutate permute;
     #pragma omp parallel for
     for ( int p = 0; p < permu; ++p ) {
        #pragma omp critical
-       permutate(pheno);
+       permute(pheno);
        for ( size_t test = 0; test < ntests; ++ test ) {
          if (statTests[test]->name == "Fisher") omp_set_num_threads(1);
          for ( size_t snp = 0; snp < nvars; ++snp ) {
@@ -180,11 +180,11 @@ void performTesting( std::vector<double>& dist,
 
   if ( permu > 0 ) {
     dist.resize(permu, 2.0);
-    CollectionPermutate permutate;
+    CollectionPermutate permute;
     #pragma omp parallel for  
     for ( int p = 0; p < permu; ++p ) {
        #pragma omp critical
-       permutate(pheno);
+       permute(pheno);
        if (statTest->name == "Fisher") omp_set_num_threads(1);
        for ( size_t snp = 0; snp < nvars; ++snp ) {
          int candidate = candidates.at(snp);

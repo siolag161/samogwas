@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE( Test_Gaussian_K_CAST_10 ) {
   Partition result = cast();
   for ( int i = 0; i < nrows; ++i ) {
     int expected_cluster = i / 3;
-    BOOST_CHECK_EQUAL( result.cluster(i), expected_cluster );
+    BOOST_CHECK_EQUAL(result.getLabel(i), expected_cluster );
   }
   
 }

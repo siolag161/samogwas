@@ -62,10 +62,10 @@ BOOST_AUTO_TEST_CASE( Test_Gaussian_K_DBSCAN_10 ) {
   // std::vector<int> va { 1, 2, 3 };
   // A a(&va);
   // a.a->push_back(2);
-  // // printf("%d,%d\n", a.a->size(), va.size());
+  // // printf("%d,%d\n", a.a->nbrVariables(), va.size());
   // std::vector<int> vb =  { 1, 2, 3, 4, 5, 6, 7 };
   // a.set(&vb);
-  // printf("%d,%d,%d\n", a.a->size(), va.size(), vb.size());
+  // printf("%d,%d,%d\n", a.a->nbrVariables(), va.size(), vb.size());
 
   // DBSCAN dbscan_2( diss_2, 2, 0.2 );
 

@@ -34,7 +34,7 @@ void initOptions( FLTM_Options& opt ) {
   opt.cardinality = 3;
   opt.nbrSteps = 2;
   opt.emThres = 0.0000001;
-  opt.infoThres = 0.0;
+  opt.latentVarQualityThres = 0.0;
 }
 
 void initData( FLTM_Data& input, int nclusts, int N, int ncols, int CARD) {
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( Test_Def ) {
   initOptions(opt);
 
   LinearCardinality emLC(0.2, 1, 5);
-  EMFunc* multiEM = new MultiEM(CARD, 3);
+  EMInterface * multiEM = new NaiveBayesEM(CARD, 3);
 
   AlgoClustering* dbscan = new DBSCAN<MutInfoDiss>( diss, 2, 0.2);
   FLTM fltm( dbscan, emLC, multiEM ); 

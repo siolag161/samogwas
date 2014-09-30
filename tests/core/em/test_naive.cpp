@@ -77,14 +77,14 @@ BOOST_AUTO_TEST_CASE( Test_EM_Init_Values ) {
   loadPheno( pheno, "data/em_pheno_dump.csv" );
   unsigned rows = utility::nrows(geno);
   
-  MultiEM em(10,1);
+  NaiveBayesEM em(10,1);
   ResultEM result;
   Variable Y = createVar("Y",2);
   Variable X1 = createVar("X1",2), X2 = createVar("X2", 3), X3= createVar("X3", 2);
   Variables X = X1 ^ X2 ^ X3;
   std::vector< std::vector<bool> > defTable;
 
-  EMFunc* multiEM = new MultiEM(10, 3);
+  EMInterface * multiEM = new NaiveBayesEM(10, 3);
 
 
 }

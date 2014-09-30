@@ -74,7 +74,7 @@ namespace samogwas
 
 template<int EstimateMethodType> 
 template<template<class> class MatrixT, class T>
-boost::shared_ptr<MatrixT<double> > MutualInformation<EstimateMethodT>::operator()(const MatrixT<T>& mat)
+boost::shared_ptr<MatrixT<double> > MutualInformation<EstimateMethodType>::operator()(const MatrixT<T>& mat)
 {
   return compute(mat, utility::Int2Type<EstimateMethodType>());
 }
@@ -117,7 +117,7 @@ double MutualInformation<EstimateMethodType>::compute( XIterator xBegin, XIterat
 template<int EstimateMethodType> 
 template<template<class> class MatrixT, class T>
 boost::shared_ptr<MatrixT<double> >
-     MutualInformation<EstimateMethodT>::compute(const MatrixT<T>& mat,
+     MutualInformation<EstimateMethodType>::compute(const MatrixT<T>& mat,
                                                  utility::Int2Type<EMP>)
 {
   boost::shared_ptr<MatrixT<double> > result(new MatrixT<double>(mat.nbrRows(), mat.nbrRows()));

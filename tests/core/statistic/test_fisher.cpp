@@ -11,7 +11,7 @@ class Data
 { 
 };
  
-BOOST_FIXTURE_TEST_SUITE( Test_Fisher, Data ) 
+BOOST_FIXTURE_TEST_SUITE( Test_Fisher_SUITE, Data )
 
 
 BOOST_AUTO_TEST_CASE( Test_Fisher ) {

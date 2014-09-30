@@ -80,11 +80,11 @@ struct TestChiSquared {
    */
   template<class ContingencyTabT>
   double chisqTest( const ContingencyTabT& contingencyTab, bool useYates = false ) const {
-    assert(contigencyTab.size() > 0);
+    assert(contingencyTab.size() > 0);
     const unsigned nbrRows = contingencyTab.size();
-    const unsigned nbrColumns = contigencyTab[0].size();
+    const unsigned nbrColumns = contingencyTab[0].size();
 
-    ContigencyTabT tab = contigencyTab;    
+    ContingencyTabT tab = contingencyTab;
     double tableSum = 0.0;
     std::vector<double> rowSums(nbrRows, 0.0), columnSums(nbrColumns, 0.0);
 

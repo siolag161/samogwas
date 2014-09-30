@@ -1,3 +1,20 @@
+/****************************************************************************************
+* File: core_em.cpp
+* Description: Implementation of the core_em.hpp, the common interface for all EM algorithms.
+*
+* @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
+* @date: 31/07/2014
+
+***************************************************************************************/
+
+/****************************************************************************************
+* File: em_helper.cpp
+* Description:
+*
+* @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
+* @date: 31/07/2014
+
+***************************************************************************************/
 
 #include "em/em_helper.hpp"
 #include "utils/matrix_utils.hpp"
