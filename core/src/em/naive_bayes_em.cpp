@@ -14,6 +14,7 @@
 #include "em/naive_bayes_em.hpp"
 #include "utils/matrix_utils.hpp"
 
+
 namespace samogwas
 {
 

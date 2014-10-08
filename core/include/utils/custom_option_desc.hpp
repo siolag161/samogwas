@@ -23,7 +23,7 @@
 
 #include <string>
 
-namespace rad
+namespace samogwas
 {
 //*********************************************************************************************************************
   class CustomOptionDescription

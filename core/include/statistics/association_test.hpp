@@ -8,7 +8,7 @@
 #ifndef STATS_ASSOCIATION_TEST_HPP
 #define STATS_ASSOCIATION_TEST_HPP
 
-#include "statistics.hpp"
+#include "test_statistics.hpp"
 
 namespace stats
 {
