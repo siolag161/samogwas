@@ -101,7 +101,7 @@ inline Options getProgramOptions(int argc, char** argv) {
     try { 
       po::store(po::command_line_parser(argc, argv).options(optDesc).run(), vm); // throws on error
       if (vm.count("help") ) {
-        rad::OptionPrinter::printStandardAppDesc(appName,std::cout, optDesc, NULL);
+        samogwas::OptionPrinter::printStandardAppDesc(appName,std::cout, optDesc, NULL);
         exit(1);
       }
       po::notify(vm);   	    
@@ -109,9 +109,9 @@ inline Options getProgramOptions(int argc, char** argv) {
     } 
     catch(boost::program_options::required_option& e) /** missing arguments **/
     {
-      rad::OptionPrinter::formatRequiredOptionError(e);
+      samogwas::OptionPrinter::formatRequiredOptionError(e);
       std::cout << e.what() << std::endl << std::endl;
-      rad::OptionPrinter::printStandardAppDesc( appName,std::cout,
+        samogwas::OptionPrinter::printStandardAppDesc( appName,std::cout,
                                                 optDesc, NULL);
 
       exit(-1);

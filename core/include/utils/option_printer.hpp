@@ -23,7 +23,7 @@
 #include "custom_option_desc.hpp" // CustomOptionDescription
 #include <vector>
 #include <string>
-namespace rad
+namespace samogwas
 {
 //*********************************************************************************************************************
   class OptionPrinter

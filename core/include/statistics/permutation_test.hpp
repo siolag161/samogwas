@@ -58,7 +58,7 @@ struct CollectionPermute {
   // Permutation with the default random number generator
   template<typename p_valueype>
   void operator()(VecType& vec) {    
-    std::random_shuffle(vec.begin(), vec.end()));
+    std::random_shuffle(vec.begin(), vec.end());
   }
   
   // Permutation with a specific state 
