@@ -23,8 +23,8 @@ namespace samogwas
  
 struct FLTM {
   FLTM( AlgoClusteringInterface* clustA,
-          CardFunc& cardF,
-          EMInterface* emF): clustAlgo(clustA), cardFunc(cardF), emFunc(emF) { }
+        CardFunc& cardF,
+        EMInterface* emF): clustAlgo(clustA), cardFunc(cardF), emFunc(emF) { }
 
   void operator()( FLTM_Result& result, FLTM_Data& data, FLTM_Options& opt );
   ~FLTM() { delete clustAlgo; delete emFunc; }
@@ -46,10 +46,11 @@ struct FLTM {
 
   ///////////////////////////////////////
   void initializeEM( Matrix &emMat,
-          Variables &vars,
-          const FLTM_Data &input,
-          const std::vector<int> &cluster,
-          const std::vector<int> local2Global);
+                     Variables &vars,
+                     const FLTM_Data &input,
+                     const Graph& graph,
+                     const std::vector<int> &cluster,
+                     const std::vector<int> local2Global);
 
   bool goodLatentVariable( std::vector<int>& latentCol,
                            Matrix& transposedMat,
@@ -63,12 +64,14 @@ struct FLTM {
 
   void initializeNextStep( Matrix &nextRowMatrix, Matrix2GraphIndex &nextRoundMat2GraphIndex,
                            const Matrix2GraphIndex &mat2GraphIndex,
-                             const Matrix &matrix, const std::vector<int> &cluster);
+                           const Matrix &matrix, const std::vector<int> &cluster);
+
+  void initializeGraph( const FLTM_Data &input, Graph& graph );
 
  protected:
-    AlgoClusteringInterface* clustAlgo;
-    CardFunc& cardFunc;
-    EMInterface* emFunc;
+  AlgoClusteringInterface* clustAlgo;
+  CardFunc& cardFunc;
+  EMInterface* emFunc;
 };
 
 } // namespace samogaws ends here.
