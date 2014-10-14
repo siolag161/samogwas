@@ -15,7 +15,7 @@
 #include <boost/filesystem.hpp> // to obtain the program's name
 #include "fltm/core_fltm.hpp"
 #include "utils/option_printer.hpp"
-
+#include "utils/custom_option_desc.hpp"
 // #include "OptionPrinter.hpp" //for printing
 // #include "FLTM.hpp"
 namespace po = boost::program_options;   
@@ -111,7 +111,7 @@ inline Options getProgramOptions(int argc, char** argv) {
     {
       samogwas::OptionPrinter::formatRequiredOptionError(e);
       std::cout << e.what() << std::endl << std::endl;
-        samogwas::OptionPrinter::printStandardAppDesc( appName,std::cout,
+      samogwas::OptionPrinter::printStandardAppDesc( appName,std::cout,
                                                 optDesc, NULL);
 
       exit(-1);

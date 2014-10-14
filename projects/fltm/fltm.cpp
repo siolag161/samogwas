@@ -81,8 +81,8 @@ int main(int argc, char** argv) {
       outImpLab = (outputPath / imputedLab_fn).string(),
       outGraph = (outputPath / graph_fn).string();
   
-  SingleGraphSave()( fltm_data.graph, outGraph );
-  bayesGraphSave( fltm_data.graph, outBayesVertex, outBayesDist );  
+  // SingleGraphSave()( fltm_data.graph, outGraph );
+  // bayesGraphSave( fltm_data.graph, outBayesVertex, outBayesDist );  
   saveImputedData( outImpDat, outImpLab, fltm_data, tmpMatrix, result );
 
   std::cout << "BYE...\n" << std::endl;
@@ -181,16 +181,16 @@ void saveImputedData( std::string dataPath, std::string labposPath,
   std::ofstream labPosOut(labposPath);
   vertex_iterator vi, vi_end;
   int latId = input.indexes[input.indexes.size()-1];
-  for ( boost::tie(vi, vi_end) = boost::vertices(input.graph); vi != vi_end; ++vi ) {
-    vertex_t vertex = *vi;
-    if ( vertex < input.indexes.size() )
-      labPosOut << input.indexes[vertex] << "," << input.graph[vertex].label << "," << input.graph[vertex].position
-                << "," << input.graph[vertex].variable.cardinality() << std::endl;
-    else {
-      labPosOut << ++latId << "," << "\"imputed-" + input.graph[vertex].label << "\"," << input.graph[vertex].position
-                << "," << input.graph[vertex].variable.cardinality() << std::endl;
-    }
-  }
+  // for ( boost::tie(vi, vi_end) = boost::vertices(input.graph); vi != vi_end; ++vi ) {
+  //   vertex_t vertex = *vi;
+  //   if ( vertex < input.indexes.size() )
+  //     labPosOut << input.indexes[vertex] << "," << input.graph[vertex].label << "," << input.graph[vertex].position
+  //               << "," << input.graph[vertex].variable.cardinality() << std::endl;
+  //   else {
+  //     labPosOut << ++latId << "," << "\"imputed-" + input.graph[vertex].label << "\"," << input.graph[vertex].position
+  //               << "," << input.graph[vertex].variable.cardinality() << std::endl;
+  //   }
+  // }
 
   labPosOut.close();
 }

@@ -22,6 +22,7 @@ struct NaiveBayesEM: public EMInterface {
   NaiveBayesEM( int nRestarts, int imMode ): nbrRestarts(nRestarts), imputMode(imMode) {}
   ~NaiveBayesEM() {}
 
+protected:
   virtual void run( ResultEM& result,
                     const Variable& latentVar,
                     const Variables& variables,

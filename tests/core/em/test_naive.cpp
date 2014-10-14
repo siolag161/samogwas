@@ -1,3 +1,4 @@
+/*
 #define BOOST_TEST_DYN_LINK
 #ifdef STAND_ALONE
 #   define BOOST_TEST_MODULE
@@ -16,6 +17,7 @@
 #include "em/em_helper.hpp"
 #include "utils/matrix_utils.hpp"
 #include "fltm/fltm.hpp"
+#include "data_generation.hpp"
 
 using namespace samogwas;
 using namespace utility;
@@ -35,7 +37,7 @@ void loadGeno( std::vector< std::vector<T> >& dt,
                     const char& quote = '"' ) {
   std::ifstream matrixFile(infile.c_str());
   if (!matrixFile) {
-    std::cout << "not exists..." << std::endl;
+    std::cout << infile <<": not exists..." << std::endl;
     return;
   }
    dt.reserve(100000);
@@ -76,18 +78,25 @@ BOOST_AUTO_TEST_CASE( Test_EM_Init_Values ) {
   loadGeno( geno, "data/em_geno_dump.csv" );
   loadPheno( pheno, "data/em_pheno_dump.csv" );
   unsigned rows = utility::nrows(geno);
-  
-  NaiveBayesEM em(10,1);
+
+  size_t nclusts = 5, ncols = 40;
+  size_t N = 3, CARD = 3, MAX_POS = 50;
+  int nrows = nclusts*N;
+  std::vector<int> positions; for ( int i = 0; i < nrows; ++i ) positions.push_back(i);
+  auto data = data_gen::GenerateClusteredData( nclusts, N, CARD, ncols )();
+
+        EMInterface* em = new NaiveBayesEM(10,1);
   ResultEM result;
-  Variable Y = createVar("Y",2);
-  Variable X1 = createVar("X1",2), X2 = createVar("X2", 3), X3= createVar("X3", 2);
+  Variable Y = createVar("Y", CARD);
+  Variable X1 = createVar("X1", CARD), X2 = createVar("X2", CARD), X3= createVar("X3", CARD);
   Variables X = X1 ^ X2 ^ X3;
   std::vector< std::vector<bool> > defTable;
 
-  EMInterface * multiEM = new NaiveBayesEM(10, 3);
 
+  em->run(result, Y, X, data, 0.01);
 
 }
 
 
 BOOST_AUTO_TEST_SUITE_END()  /// Test InfoTheo ends here
+*/

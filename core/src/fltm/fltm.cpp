@@ -24,7 +24,9 @@ void FLTM::operator()( FLTM_Result& result,
   Matrix2GraphIndex mat2GraphIndex; StrLabel2GraphIndex label2GraphIndex;
   const unsigned nbrObsVars = input.matrix.size();
   std::cout << "beginning FLTM..." << std::endl;
-  initializeClustering(input, result, mat2GraphIndex, label2GraphIndex, nbrObsVars, opt.cardinality);
+  Graph &graph = result.graph;
+  // initializeGraph(input, graph);
+  initializeClustering( input, result, mat2GraphIndex, label2GraphIndex, nbrObsVars, opt.cardinality );
   for ( int step = 0; step < opt.nbrSteps; ++step) {
     printf( "\nbeging step: %d of %d...\n", step, opt.nbrSteps );
     Matrix nextRoundMatrix; Matrix2GraphIndex nextRoundMat2GraphIndex;  
@@ -45,24 +47,24 @@ void FLTM::operator()( FLTM_Result& result,
       if ( clt.size() > 1 ) {
         Matrix emMat; ResultEM resultEM;
         Variables emVars; 
-        Variable latentVar = createLatentVar( boost::num_vertices(input.graph), cardFunc(clt) );
-          initializeEM(emMat, emVars, input, clt, mat2GraphIndex);
+        Variable latentVar = createLatentVar( boost::num_vertices(graph), cardFunc(clt) );
+        initializeEM(emMat, emVars, input, graph, clt, mat2GraphIndex);
         std::cout << "Cluster: " << num_Clust++ << " over " << clustering.size() - singletonCount << " of step: " << step << std::endl;
         std::cout << "executing EM on setLabel of nbrVariables: " << clt.size() << std::endl;
         emFunc->run( resultEM, latentVar, emVars, emMat, opt.emThres );
         std::cout << "done EM" << std::endl << std::endl;        
         if ( goodLatentVariable( resultEM.imputedData, input.matrix, clt, opt.latentVarQualityThres) ) { // @todo: minASMI --> thresLatent
-          vertex_t vertex = addLatentNode( input.graph, latentVar, resultEM, label2GraphIndex ); // vertex is the index of the newly added node
+          vertex_t vertex = addLatentNode( graph, latentVar, resultEM, label2GraphIndex ); // vertex is the index of the newly added node
           goodClusterCount++;
           nextRoundMatrix.push_back(resultEM.imputedData);
           nextRoundMat2GraphIndex.push_back( (int)vertex );
-          result.addNode( input.graph[vertex] );
+          // result.addNode( graph[vertex] );
           result.imputedData.push_back( resultEM.imputedData );
         } else {
-            initializeNextStep(nextRoundMatrix, nextRoundMat2GraphIndex, mat2GraphIndex, input.matrix, clt);
+          initializeNextStep(nextRoundMatrix, nextRoundMat2GraphIndex, mat2GraphIndex, input.matrix, clt);
         }
       } else {
-          initializeNextStep(nextRoundMatrix, nextRoundMat2GraphIndex, mat2GraphIndex, input.matrix, clt);
+        initializeNextStep(nextRoundMatrix, nextRoundMat2GraphIndex, mat2GraphIndex, input.matrix, clt);
       }
     }
     
@@ -72,21 +74,21 @@ void FLTM::operator()( FLTM_Result& result,
     }
     mat2GraphIndex = nextRoundMat2GraphIndex;
     input.matrix = nextRoundMatrix;
-    input.positions = extractPositionsForMatrixVariables( input.graph, mat2GraphIndex );
+    input.positions = extractPositionsForMatrixVariables( graph, mat2GraphIndex );
   }
 }
 
 
 ///////////////////////////////////////////
 void FLTM::initializeClustering(FLTM_Data &input,
-            FLTM_Result &result,
-            Matrix2GraphIndex &mat2GraphIndex,
-            StrLabel2GraphIndex &label2GraphIndex,
-            const size_t &nbrVars,
-            const size_t &cardinality) {
+                                FLTM_Result &result,
+                                Matrix2GraphIndex &mat2GraphIndex,
+                                StrLabel2GraphIndex &label2GraphIndex,
+                                const size_t &nbrVars,
+                                const size_t &cardinality) {
   for (size_t i = 0; i < input.labels.size(); ++i) {
-    vertex_t vertex = createVertex( input.graph, cardinality, true, input.labels[i], input.positions[i], 0 );
-    result.addNode( input.graph[vertex] );
+   vertex_t vertex = createVertex( result.graph, cardinality, true, input.labels[i], input.positions[i], 0 );
+    // result.addNode( input.graph[vertex] );
     label2GraphIndex[ input.labels[i] ] = (int) vertex;
     mat2GraphIndex.push_back((int)vertex) ;
   }
@@ -119,24 +121,26 @@ Variable FLTM::createLatentVar( const int lab, const int cardinality ) {
 }
 
 ///////////////////////////////////////
-void FLTM::initializeEM(Matrix &emMat,
-            Variables &vars,
-            const FLTM_Data &input,
-            const std::vector<int> &cluster,
-            const std::vector<int> mat2GraphIndex)  {
-  std::cout << "prepare-1" << std::endl;
+void FLTM::initializeEM( Matrix &emMat,
+                         Variables &vars,
+                         const FLTM_Data &input,
+                         const Graph& graph,
+                         const std::vector<int> &cluster,
+                         const std::vector<int> mat2GraphIndex )  {
+  // std::cout << "prepare-1" << std::endl;
   Matrix *tEMMat = new Matrix();
   tEMMat->reserve(cluster.size());
   vars.clear();  
   tEMMat->push_back( std::vector<int>( ncols(input.matrix), -1) );
-  std::cout << "prepare-2" << std::endl;
+  // std::cout << "prepare-2" << std::endl;
   for ( auto& it: cluster ) {
-    printf("%d: %d (%d)\n", (int)it, (int)mat2GraphIndex.size(), (int)cluster.size());
-    vars ^= input.graph[mat2GraphIndex.at(it)].variable;
+    // printf("%d: %d (%d)\n", (int)it, (int)mat2GraphIndex.size(), (int)cluster.size());
+    // vars ^= input.graph[mat2GraphIndex.at(it)].variable;
+    vars ^= graph[mat2GraphIndex.at(it)].variable;
     tEMMat->push_back( input.matrix.at(it) );      
   }
   emMat = Transpose(*tEMMat);
-  std::cout << "prepare-3" << std::endl;
+  // std::cout << "prepare-3" << std::endl;
 
   delete(tEMMat);
 }
@@ -167,11 +171,16 @@ vertex_t FLTM::addLatentNode( Graph& graph,
 
 ///////////////////////////////////////////////
 void FLTM::initializeNextStep(Matrix &nextRoundMatrix, Matrix2GraphIndex &nextRoundMat2GraphIndex,
-            const Matrix2GraphIndex &mat2GraphIndex, const Matrix &matrix, const std::vector<int> &cluster) {
+                              const Matrix2GraphIndex &mat2GraphIndex, const Matrix &matrix, const std::vector<int> &cluster) {
   for ( auto& cit: cluster ) {
     nextRoundMat2GraphIndex.push_back( mat2GraphIndex[cit] );
     nextRoundMatrix.push_back( matrix[cit] );     
   }
+}
+
+///////////////////////////////////////////////
+void initializeGraph( const FLTM_Data &input, Graph& graph ) {
+
 }
 
 
