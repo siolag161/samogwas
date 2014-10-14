@@ -38,7 +38,6 @@ BOOST_AUTO_TEST_CASE( Test_DBSCAN_10 ) {
   for ( int i = 0; i < nrows; ++i ) {
      int expected_cluster = i / N;
        BOOST_CHECK_EQUAL(result.getLabel(i), expected_cluster );
-
   }
 
   printf("diff = %f\n", (*diss)(0,1));

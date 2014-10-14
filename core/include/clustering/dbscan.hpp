@@ -116,7 +116,7 @@ Partition DBSCAN<DissMatrix>::run() {
       Neighbors neighbors  = find_neighbors(pid); 
       if ( neighbors.size() >= minPts ) { // If the neighborhood is dense,
         m_LabelSet[pid] = cluster_id; // we form a new cluster.
-        printf("clust(%d): %d\n", pid, cluster_id);
+        // printf("clust(%d): %d\n", pid, cluster_id);
         for ( int i = 0; i < neighbors.size(); ++i) { // We grow this cluster by trying to reach other points
                                                      // from each of its members.
           int nPid = neighbors[i]; // 
@@ -130,7 +130,7 @@ Partition DBSCAN<DissMatrix>::run() {
             }
           }
           if ( m_LabelSet[nPid] ==  UNASSIGNED_LABEL ) { // to avoid overriding a possible previous cluster assignment
-                    printf("clust(%d): %d\n", nPid, cluster_id);
+                    // printf("clust(%d): %d\n", nPid, cluster_id);
 
             m_LabelSet[nPid] = cluster_id; 
           }
@@ -150,7 +150,7 @@ typename DBSCAN<DissMatrix>::Neighbors DBSCAN<DissMatrix>::find_neighbors( const
   Neighbors ne;
   size_t nvars = this->compMatrix->nbrVariables(); // @todo: remove direct access to compMatrix
   for ( Index i = 0; i < nvars; ++i ) {
-    printf("diff(%d,%d) = %f vs %f\n", pid, i, this->compMatrix->compute( i, pid ), epsilon);
+    // printf("diff(%d,%d) = %f vs %f\n", pid, i, this->compMatrix->compute( i, pid ), epsilon);
 
     if ( this->compMatrix->compute( i, pid ) <= epsilon ) { // @todo: remove direct access to compMatrix
       

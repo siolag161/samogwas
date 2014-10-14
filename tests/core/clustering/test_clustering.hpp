@@ -15,12 +15,12 @@
 
 typedef samogwas::MutInfoDissimilarity<data_gen::Matrix> MutInfoDiss;
 typedef samogwas::MutInfoSimilarity<data_gen::Matrix> MutInfoSimi;
+typedef samogwas::EuclidianDissimilarity<data_gen::Matrix> EucDiss;
 
 typedef samogwas::DBSCAN<MutInfoDiss> DBSCAN;
 typedef samogwas::CAST<MutInfoSimi> CAST;  
-
-
 typedef samogwas::Partition Partition;
+typedef samogwas::DBSCAN<EucDiss> EucDBSCAN;
 
 using namespace data_gen;
 

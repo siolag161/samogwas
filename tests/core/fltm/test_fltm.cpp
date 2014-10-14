@@ -10,10 +10,8 @@
 #include <math.h>
 #include <boost/lexical_cast.hpp>
 
-// #include "em/em.hpp"
 #include "em/naive_bayes_em.hpp"
 #include "utils/csv_parser.hpp"
-// #include "em/em_helper.hpp"
 #include "utils/matrix_utils.hpp"
 #include "clustering/cast.hpp"
 #include "clustering/dbscan.hpp"

@@ -12,6 +12,7 @@
 
 #include "information_dissimilarity.hpp" //@todo: mutual_information_dissimilarity.hpp
 //#include "euclidian_dissimilarity.hpp"
+#include "euclidian.hpp"
 
 /****************************************************************************************/
 #endif // SAMOGWAS_DISSIMILARITY_HPP
