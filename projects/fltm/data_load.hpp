@@ -19,8 +19,8 @@
 namespace samogwas
 {
 
-template< typename T >
-void loadDataTable( std::vector< std::vector<T> >& dt,
+// template< typename T >
+void loadDataTable( std::vector< std::vector<int> >& dt,
                     const std::string& infile,
                     const char& sep = ',',
                     const char& quote = '"' ) {
@@ -34,10 +34,10 @@ void loadDataTable( std::vector< std::vector<T> >& dt,
   }
    dt.reserve(100000);
 
-  utility::CSVIterator<T> matrixLine(matrixFile);
+  utility::CSVIterator<int> matrixLine(matrixFile);
   
-  for( ; matrixLine != utility::CSVIterator<T>(); ++matrixLine ) {         
-    std::vector<T> row(matrixLine->size(), 0);
+  for( ; matrixLine != utility::CSVIterator<int>(); ++matrixLine ) {         
+    std::vector<int> row(matrixLine->size(), 0);
     for (unsigned i = 0; i < matrixLine->size(); ++i) {
       row[i] = matrixLine->at(i);
     }
