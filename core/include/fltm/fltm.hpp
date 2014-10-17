@@ -30,12 +30,12 @@ struct FLTM {
   ~FLTM() { delete clustAlgo; delete emFunc; }
 
  protected:
-  void initializeClustering(  FLTM_Data &input,
-                              FLTM_Result &result,
-                              Matrix2GraphIndex &mat2GraphIndex,
-                              StrLabel2GraphIndex &label2GraphIndex,
-                              const size_t &nbrVars,
-                              const size_t &cardinality);
+  void initializeFLTM( FLTM_Data &input,
+                       FLTM_Result &result,
+                       Matrix2GraphIndex &mat2GraphIndex,
+                       StrLabel2GraphIndex &label2GraphIndex,
+                       const size_t &nbrVars,
+                       const size_t &cardinality);
 
   std::vector<Position> extractPositionsForMatrixVariables( const Graph& graph, Matrix2GraphIndex& mat2GraphIndex );
 

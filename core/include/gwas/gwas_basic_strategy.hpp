@@ -1,11 +1,11 @@
 /****************************************************************************************
-* File: gwas_basic_strategy.hpp
-* Description: This module provides @todo.
-*
-* @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
-* @date: 01/08/2014
+ * File: gwas_basic_strategy.hpp
+ * Description: This module provides @todo.
+ *
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
+ * @date: 01/08/2014
 
-***************************************************************************************/
+ ***************************************************************************************/
 
 #ifndef SAMOGWAS_BASIC_GWAS_STRATEGY_HPP
 #define SAMOGWAS_BASIC_GWAS_STRATEGY_HPP
@@ -19,17 +19,20 @@
 namespace samogwas
 {
 
-    class GWAS_Basic_Strategy: public GWAS_Strategy {
-    public:
-        GWAS_Basic_Strategy( std::vector<double>& thres ): thresholds(thres) {
+class GWAS_Basic_Strategy: public GWAS_Strategy {
+  
+ public:
+  GWAS_Basic_Strategy( std::vector<double>& thres ): thresholds(thres) {
 
-        }
+  }
 
-        virtual void execute(FLTM_Result& result, Matrix& genotype, Vector& phenotype, stats::StatTest* statTest);
+  // virtual std::map<int, std::vector<vertex_t> > 
+      
+  virtual void execute(FLTM_Result& result, Matrix& genotype, Vector& phenotype, stats::StatTest* statTest);
 
-    private:
-        std::vector<double>& thresholds;
-    };
+ private:
+  std::vector<double>& thresholds;
+};
 } // namespace samogwas ends here.
 
 /**************************************** IMPLEMENTATION BELOW THIS POINT ****************************************/
