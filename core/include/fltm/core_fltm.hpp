@@ -29,7 +29,6 @@ typedef int Index;
 typedef std::string StrLabel;
 typedef int Position;
 typedef std::map<StrLabel, Index> StrLabel2GraphIndex; // for a variable, label to its node index in the graph
-// typedef std::map<StrLabel, Position> StrLabel2Pos;
 typedef std::vector<Index> Matrix2GraphIndex; // maps a variable (i.e. row) in a matrix to its node index in the graph.
 
 /**

@@ -54,7 +54,6 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
 
   /** Invalidates current caching if any. Caching may be helpful when the computation of the matrix
    *  is performed on the go (example: mutual information as similarity and entropies stored in the cache).
-   *  @TODO: invalid-> invalidate
    */
   virtual void invalidate() {
     distCache.clear();
