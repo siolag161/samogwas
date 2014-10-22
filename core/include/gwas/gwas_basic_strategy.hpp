@@ -19,6 +19,11 @@
 namespace samogwas
 {
 
+/** The visitor for traversing the FLTM graph
+ *
+ */
+class GWAS_Basic_Visitor;
+
 class GWAS_Basic_Strategy: public GWAS_Strategy {
   
  public:
@@ -28,11 +33,12 @@ class GWAS_Basic_Strategy: public GWAS_Strategy {
 
   // virtual std::map<int, std::vector<vertex_t> > 
       
-  virtual void execute(FLTM_Result& result, Matrix& genotype, Vector& phenotype, stats::StatTest* statTest);
+  virtual void execute( FLTM_Result& result, Matrix& genotype, Vector& phenotype, stats::StatTest* statTest );
 
  private:
   std::vector<double>& thresholds;
 };
+
 } // namespace samogwas ends here.
 
 /**************************************** IMPLEMENTATION BELOW THIS POINT ****************************************/

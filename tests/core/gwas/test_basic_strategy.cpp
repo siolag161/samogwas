@@ -21,10 +21,9 @@ BOOST_FIXTURE_TEST_SUITE( Test_Basic_Strategy, Data )
 
 
 //////////////////////////////////////////////////////////////////
-    BOOST_AUTO_TEST_CASE( Test_Basic ) {
+BOOST_AUTO_TEST_CASE( Test_Basic ) {
 
-    }
-
+}
 
 BOOST_AUTO_TEST_SUITE_END()  /// Test InfoTheo ends here
 
