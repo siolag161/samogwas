@@ -45,14 +45,12 @@ BOOST_AUTO_TEST_CASE( Test_Threshold_Crtirion ) {
   std::vector<double> levelThres{ 0.05, 0.1, 0.1 };
   std::vector<double> scores{ 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2, 0.01, 0.01, 0.01};
 
-  shared_ptr<NodeCriterion> criterion_1(new LevelScoreNodeCriterion(levelThres, scores));
+  shared_ptr<LevelScoreNodeCriterion> criterion_1(new LevelScoreNodeCriterion(levelThres, scores));
 
   // BOOST_CHECK_EQUAL(criterion_1->isValid(graph,)
   for (int  i = 0; i < 11; ++i) {
     bool expected = ( i != 7 );
     BOOST_CHECK_EQUAL( expected, criterion_1->isValid(g,i) );
-    expected = ( i == 7 );
-    BOOST_CHECK_EQUAL( expected, criterion_1->isValid(g,i,false) );
   }
 }
 
@@ -63,7 +61,7 @@ class bfs_visitor: public boost::default_bfs_visitor {
  public:  
   typedef std::map<Vertex, boost::default_color_type> ColorMap;
   typedef boost::associative_property_map<ColorMap> Color;
-  bfs_visitor(std::shared_ptr<NodeCriterion> eval, Color& col): evaluator(eval), color(col) {}
+  bfs_visitor(std::shared_ptr<LevelScoreNodeCriterion> eval, Color& col): evaluator(eval), color(col) {}
   
   void initialize_vertex( Vertex v, const Graph &g) {
     std::cout << "Initialize: " << g[v].label << std::endl;
@@ -72,7 +70,7 @@ class bfs_visitor: public boost::default_bfs_visitor {
   
   void examine_vertex( Vertex& v, const Graph &g ) {
     // std::cout << "exam: " << v << " " << color[v] <<  std::endl;
-    printf("exam[%d]: color: %d\n", (int)v,(int)color[v]); 
+    // printf("exam[%d]: color: %d\n", (int)v,(int)color[v]); 
 
   }
   
@@ -86,7 +84,7 @@ class bfs_visitor: public boost::default_bfs_visitor {
   }
 
  private:
-  std::shared_ptr<NodeCriterion> evaluator;
+  std::shared_ptr<LevelScoreNodeCriterion> evaluator;
   Color& color;
 }; 
 
@@ -103,32 +101,21 @@ BOOST_AUTO_TEST_CASE( Test_Graph_Traversal ) {
   
   std::vector<double> levelThres{ 0.05, 0.1, 0.1 };
   std::vector<double> scores{ 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2, 0.01, 0.01, 0.01};
-  std::shared_ptr<NodeCriterion> criterion_1(new LevelScoreNodeCriterion(levelThres, scores));
+  std::shared_ptr<LevelScoreNodeCriterion> criterion_1(new LevelScoreNodeCriterion(levelThres, scores));
 
   bfs_visitor vis(criterion_1, colorMap);//(&reached);
-  boost::breadth_first_visit( g,
-                              10,
-                              q,
-                              vis,
-                              colorMap);
-  // std::cout << "\npart deux: \n";
+  boost::breadth_first_visit( g, 10, q, vis, colorMap);
+}
 
-  // boost::queue<vertex_t> q1; 
-  // ColorMap cmap1;
-  // Color colorMap1(cmap1);
-  // bfs_visitor vis1(criterion_1, colorMap);//(&reached);
+typedef NodeCriterion<double, std::less<double> > Criterion;
 
-  // boost::breadth_first_visit( g,
-  //                             10,
-  //                             q,
-  //                             vis,
-  //                             colorMap);
+BOOST_AUTO_TEST_CASE( Test_GWAS_Basic_Strategy_Build ) {
+  GWAS_Strategy_Builder* builder = new GWAS_Basic_Strategy_Builder();
 
+  auto criteria = std::make_shared<Criterion>();
+  
+  std::shared_ptr<GWAS_Strategy> basic_strategy =  builder.build();
 
-  // for ( int i = 0; i < 11; ++i ) {
-  //   printf("color[%d] = %d\n", i, colorMap[i]);
-  // }
-  // std::cout << "part deux: \n";
 }
 
 BOOST_AUTO_TEST_SUITE_END()  /// Test InfoTheo ends here

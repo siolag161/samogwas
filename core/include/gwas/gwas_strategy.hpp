@@ -11,9 +11,9 @@
 #define SAMOGWAS_GWAS_STRATEGY_HPP
 
 #include <vector>
-
+#include <memory> // std::shared_ptr
 #include "fltm/core_fltm.hpp"
-#include "statistics/association_test.hpp"
+#include "node_criteria.hpp"
 
 namespace samogwas
 {
@@ -28,11 +28,11 @@ class GWAS_Strategy {
 
   virtual Level2Vertices levels2Vertices( const Graph& graph);
   virtual Latent2Children latent2Children(const Graph& graph);
-  virtual void execute( FLTM_Result& result,
+  virtual void execute( Graph& graph,
                         Matrix& genotype,
-                        Vector& phenotype,
-                        stats::StatTest* statTest ) = 0;
+                        Vector& phenotype ) = 0;
 };
+
 
 } // namespace samogwas ends here.
 

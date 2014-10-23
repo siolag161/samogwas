@@ -10,38 +10,73 @@
 #ifndef SAMOGWAS_BASIC_GWAS_STRATEGY_HPP
 #define SAMOGWAS_BASIC_GWAS_STRATEGY_HPP
 
+
+#include <boost/graph/visitors.hpp>
+#include <boost/graph/breadth_first_search.hpp>
+#include <boost/lockfree/queue.hpp>
+
+#include <memory>
 #include <vector>
+
 #include <fltm/core_fltm.hpp>
 #include <statistics/association_test.hpp>
 
 #include "gwas_strategy.hpp"
-
+#include "gwas_graph_visitor.hpp"
 namespace samogwas
 {
 
 /** The visitor for traversing the FLTM graph
  *
  */
-class GWAS_Basic_Visitor;
 
 class GWAS_Basic_Strategy: public GWAS_Strategy {
   
  public:
-  GWAS_Basic_Strategy( std::vector<double>& thres ): thresholds(thres) {
+  GWAS_Basic_Strategy( std::shared_ptr<GWAS_Basic_Visitor>  vis): visitor(vis) {}  
 
+  GWAS_Basic_Strategy() {}  
+
+  GWAS_Basic_Strategy& setVisitor( std::shared_ptr<GWAS_Basic_Visitor> vis ) {
+    visitor = vis;
+    return *this;
   }
-
-  // virtual std::map<int, std::vector<vertex_t> > 
-      
-  virtual void execute( FLTM_Result& result, Matrix& genotype, Vector& phenotype, stats::StatTest* statTest );
+  
+  virtual void execute( Graph& graph,
+                        Matrix& genotype,
+                        Vector& phenotype );
 
  private:
-  std::vector<double>& thresholds;
+  std::shared_ptr<GWAS_Basic_Visitor> visitor; 
+};
+
+///////////////////////////////////////////////////////////
+
+class GWAS_Strategy_Builder {
+  virtual std::shared_ptr<GWAS_Strategy> build( std::shared_ptr<GraphNodeCriterion> criteria ) = 0;
+};
+
+
+class GWAS_Basic_Strategy_Builder: public GWAS_Strategy_Builder {
+  typedef NodeCriterion<double, std::less<double> > Criterion;
+
+  virtual std::shared_ptr<GWAS_Strategy> build( std::shared_ptr<GraphNodeCriterion> nodeCriteria ) {
+    std::shared_ptr<GWAS_Strategy> result;
+
+    auto criteria = std::dynamic_pointer_cast<Criterion>(nodeCriteria);
+    if (criteria) {
+      auto vis = std::make_shared<GWAS_Basic_Visitor>(criteria);
+      result =  std::make_shared<GWAS_Basic_Strategy>(vis);
+    }
+
+    return result;
+  }
+
 };
 
 } // namespace samogwas ends here.
 
-/**************************************** IMPLEMENTATION BELOW THIS POINT ****************************************/
+  /**************************************** IMPLEMENTATION BELOW THIS POINT ****************************************/
 
 
 /****************************************************************************************/

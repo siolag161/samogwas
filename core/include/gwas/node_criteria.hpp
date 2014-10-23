@@ -17,20 +17,44 @@
 namespace samogwas
 {
 
-struct NodeCriterion {
-  // typedef std::less<double> LESS;
-  // typedef std::greater<double> GREATER;
-  // virtual double 
-  virtual bool isValid( const Graph& graph, const vertex_t& vertex, bool less = true ) const = 0;   
+struct GraphNodeCriterion {
+  virtual bool isValid( const Graph& g, const vertex_t& vertex ) const = 0;  
 };
 
-struct NodeCriteria: public NodeCriterion {
+template<class T, class Func>
+struct NodeCriterion: public GraphNodeCriterion {
 
+  typedef typename std::map<Vertex, T> ScoreMap;
+  
+  virtual T nodeValue( const Graph& g, const vertex_t& vertex) const = 0;
 
+  virtual T benchmarkValue( const Graph& g, const vertex_t& vertex) const = 0;
+  
+  virtual bool isValid( const Graph& g, const vertex_t& vertex ) const {
+    T nodeVal = nodeValue(g,vertex);
+    T benchmarkVal = benchmarkValue(g,vertex);
+    return Func()(nodeVal, benchmarkVal);
+  }
 
-  virtual bool isValid( const Graph& graph, const vertex_t& vertex, bool less = true ) const {
+  virtual bool isValid( const Graph& g, const vertex_t& vertex, ScoreMap& scores) const {
+    if ( scores.find(vertex) == scores.end() )
+      scores[vertex] = nodeValue(g,vertex);
+    
+    T nodeVal = scores[vertex];
+    T benchmarkVal = benchmarkValue(g,vertex);
+    return Func()(nodeVal, benchmarkVal);
+  }
+  
+};
+
+template<class T, class Func>
+struct NodeCriteria: public NodeCriterion<T,Func> {
+  typedef NodeCriterion<T,Func> Criterion;
+  typedef std::shared_ptr<Criterion> CriterionPtr;
+  
+  virtual bool isValid( const Graph& graph, const vertex_t& vertex ) const {
     for ( auto& criterion: criteria ) {
-      if (!criterion->isValid(graph,vertex,less)) {
+      if (!criterion->isValid(graph,vertex)) {
         return false; // gotta be all true
       }
     }
@@ -38,7 +62,7 @@ struct NodeCriteria: public NodeCriterion {
   }
 
  protected:
-  std::vector< std::shared_ptr<NodeCriterion> > criteria;
+  std::vector<CriterionPtr> criteria;
 };
 
 } // namespace samogwasends here. samogwas

@@ -12,7 +12,6 @@
 
 namespace stats
 {
-
 struct StatTest {
   
   typedef std::vector<int> PhenoVec;
@@ -65,6 +64,7 @@ struct ChiSq: public StatTest  {
                           const PhenoVec& pheno,
                           const unsigned cardGenotype,
                           const unsigned cardPhenotype ) const {
+    
     return chisq(geno, pheno, cardGenotype, cardPhenotype);
   } 
   
@@ -135,6 +135,39 @@ struct G2Cor: public StatTest  {
   }
   stats::StatisticTest<stats::G2_YATES> g2;
 };
+
+////////////////////////////////////////////////////////////////////
+
+struct GWASAssociationTest {
+
+  typedef std::vector<int> PhenoVec;
+  typedef std::vector<int> GenoVec;
+  typedef std::vector< GenoVec > GenoMat;
+  typedef std::vector<GenoVec> DataMat;
+
+ public:
+  GWASAssociationTest( const DataMat& data,
+                       const PhenoVec& pheno,
+                       const unsigned cardPheno ): dataMat(data),
+                                                   phenoVec(pheno),
+                                                   phenoCard(cardPheno) {}
+
+  
+  /** Takes 2 vectors as input and performs an independance test. 
+   *  Returns the p-value
+   */
+  virtual double execute( const size_t& genoIdx, const unsigned genoCard ) const {
+    
+    return statTest->execute( dataMat[genoIdx], phenoVec, genoCard, phenoCard);
+  }
+
+ private:
+  DataMat dataMat;
+  std::shared_ptr<StatTest> statTest;
+  const PhenoVec& phenoVec;
+  unsigned phenoCard;
+};
+
 
 } // namespace stats ends here.
 

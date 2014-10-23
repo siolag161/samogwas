@@ -34,7 +34,7 @@ struct Node;
 /* 
  *
  */
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
+typedef boost::adjacency_list< boost::vecS, boost::vecS, boost::directedS,
                                 Node, boost::no_property> Graph;
 
 

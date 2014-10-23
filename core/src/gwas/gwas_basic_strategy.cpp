@@ -11,10 +11,10 @@
 
 namespace samogwas {
 
-void GWAS_Basic_Strategy::execute( FLTM_Result &result, Matrix& genotype,
-                                   Vector &phenotype, stats::StatTest *statTest ) {
+void GWAS_Basic_Strategy::execute( Graph& graph,
+                                   Matrix& genoMatrix,
+                                   Vector& phenoVec ) {
   
-  const Graph& graph = result.graph;
   auto latent2children = latent2Children(graph);
   edge_iterator ei, ei_end; vertex_iterator vi, vi_end;
   std::map<vertex_t,vertex_t> edgeMap;
@@ -23,7 +23,28 @@ void GWAS_Basic_Strategy::execute( FLTM_Result &result, Matrix& genotype,
     latent2children[boost::source(*ei, graph)].push_back(boost::target(*ei, graph));
   }
 
+  // std::vector<double> levelThres{ 0.05, 0.1, 0.1 };
+  // std::vector<double> scores{ 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.2, 0.01, 0.01, 0.01};
+  // std::shared_ptr<LevelScoreNodeCriterion> criterion_1(new LevelScoreNodeCriterion(levelThres, scores));
+
+  // bfs_visitor vis(criterion_1, colorMap);//(&reached);
+  int nbrLevels = latent2children.size();
+  boost::queue<vertex_t> q; 
+
+  // for ( auto& vertex: latent2children[nbrLevels-1] ) {    
+  //   boost::breadth_first_visit( graph, vertex, q, *visitor, *visitor->color);
+  // }
+
+  // GWAS_Basic_Visitor( std::shared_ptr<Criterion> eval, Color& col): evaluator(eval), color(col) {}  
+
+  // const int phenoCard = 2;
+  // GWASAssociationTest associationTest( genoMatrix, phenoVec, phenoCard );
+
   
+  // StatTestNodeCriterion statTest( std::vector<double>& thresholdsByLevel,
+  //                        std::shared_ptr<stats::GWASAssociationTest> test )
+
+
   
 }
 
