@@ -49,7 +49,9 @@ class GWAS_Basic_Visitor: public GWAS_BFS_Visitor {
   }
   
   void discover_vertex( Vertex& v, const Graph &g ) {
-    if (!evaluator->isValid(g,v,*scores)) {
+    std::cout << "visit: " << v << std::endl;
+    bool rs = (scores && evaluator->isValid(g,v,*scores)) || !scores && evaluator->isValid(g,v);
+    if (!rs) {
       typename boost::graph_traits<Graph>::out_edge_iterator ei, ei_end;
       for (boost::tie(ei, ei_end) = out_edges(v, g); ei != ei_end; ++ei) {
         Vertex u = target(*ei, g);  

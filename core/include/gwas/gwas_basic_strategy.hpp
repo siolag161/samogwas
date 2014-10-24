@@ -53,11 +53,13 @@ class GWAS_Basic_Strategy: public GWAS_Strategy {
 ///////////////////////////////////////////////////////////
 
 class GWAS_Strategy_Builder {
+ public:
   virtual std::shared_ptr<GWAS_Strategy> build( std::shared_ptr<GraphNodeCriterion> criteria ) = 0;
 };
 
 
 class GWAS_Basic_Strategy_Builder: public GWAS_Strategy_Builder {
+ public:
   typedef NodeCriterion<double, std::less<double> > Criterion;
 
   virtual std::shared_ptr<GWAS_Strategy> build( std::shared_ptr<GraphNodeCriterion> nodeCriteria ) {

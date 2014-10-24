@@ -28,21 +28,23 @@ struct NodeCriterion: public GraphNodeCriterion {
   
   virtual T nodeValue( const Graph& g, const vertex_t& vertex) const = 0;
 
-  virtual T benchmarkValue( const Graph& g, const vertex_t& vertex) const = 0;
+  virtual T referenceValue( const Graph& g, const vertex_t& vertex) const = 0;
   
   virtual bool isValid( const Graph& g, const vertex_t& vertex ) const {
     T nodeVal = nodeValue(g,vertex);
-    T benchmarkVal = benchmarkValue(g,vertex);
-    return Func()(nodeVal, benchmarkVal);
+    T referenceVal = referenceValue(g,vertex);
+    
+    return Func()(nodeVal, referenceVal);
   }
 
   virtual bool isValid( const Graph& g, const vertex_t& vertex, ScoreMap& scores) const {
     if ( scores.find(vertex) == scores.end() )
       scores[vertex] = nodeValue(g,vertex);
-    
+
     T nodeVal = scores[vertex];
-    T benchmarkVal = benchmarkValue(g,vertex);
-    return Func()(nodeVal, benchmarkVal);
+    T referenceVal = referenceValue(g,vertex);
+
+    return Func()(nodeVal, referenceVal);
   }
   
 };

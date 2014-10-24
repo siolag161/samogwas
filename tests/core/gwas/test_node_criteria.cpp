@@ -75,7 +75,6 @@ class bfs_visitor: public boost::default_bfs_visitor {
   }
   
   void discover_vertex( Vertex& v, const Graph &g ) {
-    printf("discover[%d]: color: %d\n", (int)v,(int)color[v]);
     typename graph_traits<Graph>::out_edge_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = out_edges(v, g); ei != ei_end; ++ei) {
       Vertex u = target(*ei, g);  
@@ -109,13 +108,54 @@ BOOST_AUTO_TEST_CASE( Test_Graph_Traversal ) {
 
 typedef NodeCriterion<double, std::less<double> > Criterion;
 
-BOOST_AUTO_TEST_CASE( Test_GWAS_Basic_Strategy_Build ) {
-  GWAS_Strategy_Builder* builder = new GWAS_Basic_Strategy_Builder();
+struct TestCriterion: public NodeCriterion<double, std::less<double> > {
+  TestCriterion( std::vector<double>& thresholdsByLevel )
+      : levelThresholds(thresholdsByLevel) {}
 
-  auto criteria = std::make_shared<Criterion>();
+  virtual double nodeValue( const Graph& g, const vertex_t& vertex) const {
+    if ( vertex == 7 ) return 0.2;
+    return 0.01;
+  }
   
-  std::shared_ptr<GWAS_Strategy> basic_strategy =  builder.build();
+  virtual double referenceValue( const Graph& g, const vertex_t& vertex) const {
+    int level = g[vertex].level;
+    return levelThresholds[level];
+  }
+  
+  
+ private:
+  std::vector<double>& levelThresholds;
+};
 
+BOOST_AUTO_TEST_CASE( Test_GWAS_Basic_Strategy_Build ) {
+  
+  Graph g = getGraph();
+  std::vector<double> levelThres{ 0.05, 0.1, 0.1 };
+  auto criteria = std::make_shared<TestCriterion>(levelThres); 
+  GWAS_Strategy_Builder* builder = new GWAS_Basic_Strategy_Builder;
+  std::shared_ptr<GWAS_Strategy> basic_strategy =  builder->build(criteria);
+
+  for (int  i = 0; i < 11; ++i) {
+    bool expected = ( i != 7 );
+    BOOST_CHECK_EQUAL( expected, criteria->isValid(g,i) );
+  }
+
+  
+  typedef std::map<Vertex, boost::default_color_type> ColorMap;
+  typedef boost::associative_property_map<ColorMap> Color;
+  typedef std::map<Vertex, double> ScoreMap;
+
+  ColorMap cmap;
+  auto colorMap = std::make_shared<Color>(cmap);
+  boost::queue<vertex_t> q; 
+  GWAS_Basic_Visitor visitor( criteria, std::make_shared<ScoreMap>(), colorMap);
+
+  // GWAS_Basic_Visitor( std::shared_ptr<Criterion> eval,
+  //                     std::shared_ptr<ScoreMap> scoreMap,
+  //                     std::shared_ptr<Color> col)
+
+  boost::breadth_first_visit( g, 10, q, visitor, *colorMap);
+    
 }
 
 BOOST_AUTO_TEST_SUITE_END()  /// Test InfoTheo ends here

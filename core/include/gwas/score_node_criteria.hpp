@@ -23,7 +23,7 @@ struct LevelScoreNodeCriterion: public NodeCriterion<double, std::less<double> >
     return scores[vertex];
   }
 
-  virtual double benchmarkValue( const Graph& g, const vertex_t& vertex) const {
+  virtual double referenceValue( const Graph& g, const vertex_t& vertex) const {
     int level = g[vertex].level;
     return levelThresholds[level];
   }
@@ -45,7 +45,7 @@ struct StatTestNodeCriterion: public NodeCriterion<double, std::less<double> > {
     return statTest->execute((size_t)vertex, g[vertex].variable.cardinality());
   }
 
-  virtual double benchmarkValue( const Graph& g, const vertex_t& vertex) const {
+  virtual double referenceValue( const Graph& g, const vertex_t& vertex) const {
     int level = g[vertex].level;
     return levelThresholds[level];
   }
