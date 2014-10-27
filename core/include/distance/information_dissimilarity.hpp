@@ -40,7 +40,7 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
    *  otherwise, the dissimilarity value is 0. 
    *  If `thres` is negative, then the dissimilarity value is the actual dissimilarity value.
    */
-  MutInfoDissimilarity( DataMatrix& dm, std::vector<int>& positions, unsigned maxDist, double thres );
+  MutInfoDissimilarity( DataMatrix& dm, std::vector<int>& positions, unsigned maxDist, double thres, bool has_missing_data = false );
 
   
   /** Computes and returns the dissimilarity between two variables, indexed by varA and varB
@@ -62,8 +62,7 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
     distCache = std::map< size_t, double >(); // free the memory
   }
   
- public:
-
+ protected:
   // reference to the actual data
   DataMatrix& dataMat;
 
@@ -87,28 +86,33 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
   std::map< size_t, double > distCache; 
 
   // the current median value over all the variables currently considered
-  double m_median; 
+  double m_median;
+
+  // if contains misisng data
+  bool has_missing_data;
+
+ protected:  
+  double mutualInformationDistance( std::vector<double>& entropyMap,
+                                    std::map<size_t,double>& distCache,
+                                    const DataMatrix& dataMat,
+                                    const size_t varA,
+                                    const size_t varB );
 };
 
-  
-template<class DM>
-double mutualInformationDistance( std::vector<double>& entropyMap,
-                                  std::map<size_t,double>& distCache,
-                                  const DM& dataMat,
-                                  const size_t varA,
-                                  const size_t varB );
                                   
                                   
 /************************************************* IMPLEMENTATION BELOW ****************************************/  
 
 template<class DM>
-MutInfoDissimilarity<DM>::MutInfoDissimilarity( DM& dm,
+MutInfoDissimilarity<DM>::MutInfoDissimilarity( DM& dm, 
                                                 std::vector<int>& pos, // bad identifier -> positions
                                                 unsigned maxPos, // bad identifier
-                                                double thres ):
+                                                double thres,
+                                                bool has_missing):
     dataMat(dm), positions(pos),
     maxPosition(maxPos), entropyMap(std::vector<double> (pos.size(), -MAX_DISTANCE)), 
-    m_thres(thres)
+    m_thres(thres),
+    has_missing_data(has_missing)
 {
   size_t nbrVars = positions.size();
   if ( thres > 0 ) { // case when dissimilarity values are binary (0/1)
@@ -135,7 +139,6 @@ template<class DM>
 double MutInfoDissimilarity<DM>::compute( const size_t varA, const size_t varB ) {
   if ( varA == varB ) return MIN_DISTANCE;
   if( varA > varB ) {
-
       return this->compute( varB, varA );
   }
   assert( varA < varB );
@@ -172,23 +175,25 @@ double MutInfoDissimilarity<DM>::compute( const size_t varA, const size_t varB )
  */
  
 template<class DM>
-double mutualInformationDistance( std::vector<double>& entropyMap,
-                                  std::map<size_t,double>& distCache,
-                                  const DM& dataMat,
-                                  const size_t varA,
-                                  const size_t varB )
+double MutInfoDissimilarity<DM>::mutualInformationDistance( std::vector<double>& entropyMap,
+                                                            std::map<size_t,double>& distCache,
+                                                            const DM& dataMat,
+                                                            const size_t varA,
+                                                            const size_t varB )
 {  
   double result = MAX_DISTANCE;
   size_t nVars = entropyMap.size();
   size_t key = 2*nVars*varA + varB;
+  
   Entropy<EMP> entropy; // empirical entropy (estimation of the probability by frequency)
   JointEntropy<EMP> mutEntropy; // empirical mutual entropy;
+  
   double enA, enB;
 
 //#pragma omp critical
   {  
     if ( entropyMap.at(varA) < 0.0 ) { // if not already computed
-      entropyMap[varA] = entropy( dataMat.at(varA) ); // computes entropy of varA 
+      entropyMap[varA] = entropy( dataMat.at(varA), has_missing_data ); // computes entropy of varA 
     }
     enA = entropyMap[varA];
   }
@@ -196,14 +201,14 @@ double mutualInformationDistance( std::vector<double>& entropyMap,
 //#pragma omp critical
   { 
     if ( entropyMap.at(varB) < 0.0 ) {  // if not already computed
-      entropyMap[varB] = entropy( dataMat.at(varB) ) ; // computes entropy of varB
+      entropyMap[varB] = entropy( dataMat.at(varB), has_missing_data ) ; // computes entropy of varB
     }
     enB = entropyMap[varB];
   }
 
   double minEntropyAB = std::min(enA, enB); // takes the min
   if (minEntropyAB != 0) {
-    double mutEntropyAB = mutEntropy( dataMat.at(varA), dataMat.at(varB) );
+    double mutEntropyAB = mutEntropy( dataMat.at(varA), dataMat.at(varB), has_missing_data );
     double mutualInfoAB = enA + enB - mutEntropyAB; // classic formula
     double normalizedMutInfo = mutualInfoAB / minEntropyAB;        
     result = MAX_DISTANCE - normalizedMutInfo;

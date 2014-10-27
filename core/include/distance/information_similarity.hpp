@@ -18,8 +18,8 @@ namespace samogwas
 // @todo: change: pos-> positions, maxPos -> maxDist
 template<class DataMatrix>
 struct MutInfoSimilarity: public SimilarityMatrix {
-  MutInfoSimilarity( std::vector< std::vector<int> >& dm, std::vector<int>& pos, unsigned maxPos, double thres ):
-      m_miDiss( dm, pos, maxPos, thres) {}
+  MutInfoSimilarity( std::vector< std::vector<int> >& dm, std::vector<int>& pos, unsigned maxPos, double thres, bool has_missing = false ):
+      m_miDiss( dm, pos, maxPos, thres, has_missing) {}
 
   virtual double compute( const size_t varA, const size_t varB ) {
     return 1.0 - m_miDiss(varA,varB);
