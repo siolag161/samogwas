@@ -68,16 +68,16 @@ BOOST_FIXTURE_TEST_SUITE( Test_NV_EM, Data )
 BOOST_AUTO_TEST_CASE( Test_EM_Init_Values ) {
   std::vector< std::vector<int> > geno;  std::vector<int> pheno;
 
-  loadGeno( geno, "data/em_geno_dump.csv" );
-  loadPheno( pheno, "data/em_pheno_dump.csv" );
-  unsigned rows = utility::nrows(geno);
+  // loadGeno( geno, "data/em_geno_dump.csv" );
+  // loadPheno( pheno, "data/em_pheno_dump.csv" );
+  // unsigned rows = utility::nrows(geno);
   
-  NV_EM em(10,1);
-  ResultEM result;
-  Variable Y = createVar("Y",2);
-  Variable X1 = createVar("X1",2), X2 = createVar("X2", 3), X3= createVar("X3", 2);
-  Variables X = X1 ^ X2 ^ X3;
-  std::vector< std::vector<bool> > defTable;
+  // NV_EM em(10,1);
+  // ResultEM result;
+  // Variable Y = createVar("Y",2);
+  // Variable X1 = createVar("X1",2), X2 = createVar("X2", 3), X3= createVar("X3", 2);
+  // Variables X = X1 ^ X2 ^ X3;
+  // std::vector< std::vector<bool> > defTable;
 
   // em.run( result, Y, X, geno, defTable, 0.0000000000001);
   // unsigned N = em.theta.size(), K = em.pYX.size(), P = em.pYX[0].nbrVariables();
@@ -144,55 +144,55 @@ void print_tabs( const std::vector< std::vector<double> >& theta,
 }
 
 BOOST_AUTO_TEST_CASE( Test_KL_Exp_Est ) {
-  std::vector<double> Y1 { 0.7, 0.3 };
-  std::vector< std::vector< std::vector<double> > > YX1 { { {0.3, 0.7}, {0.4, 0.3, 0.3}, {0.60, 0.40} },
-                                                          { {0.7, 0.3}, {0.2, 0.2, 0.6}, {0.75, 0.25} } };
+  // std::vector<double> Y1 { 0.7, 0.3 };
+  // std::vector< std::vector< std::vector<double> > > YX1 { { {0.3, 0.7}, {0.4, 0.3, 0.3}, {0.60, 0.40} },
+  //                                                         { {0.7, 0.3}, {0.2, 0.2, 0.6}, {0.75, 0.25} } };
                                                         
 
-  std::vector<double> Y2 { 0.3, 0.7 };
-  std::vector< std::vector< std::vector<double> > > YX2 { { {0.7, 0.3}, {0.2, 0.2, 0.6}, {0.75, 0.25} },
-                                                          { {0.3, 0.7}, {0.4, 0.3, 0.3}, {0.60, 0.40} } };
-  std::vector< std::vector<int> > geno;  std::vector<int> pheno;
-  loadGeno( geno, "data/em_geno_dump.csv" );
-  loadPheno( pheno, "data/em_pheno_dump.csv" );
-  unsigned rows = utility::nrows(geno);
+  // std::vector<double> Y2 { 0.3, 0.7 };
+  // std::vector< std::vector< std::vector<double> > > YX2 { { {0.7, 0.3}, {0.2, 0.2, 0.6}, {0.75, 0.25} },
+  //                                                         { {0.3, 0.7}, {0.4, 0.3, 0.3}, {0.60, 0.40} } };
+  // std::vector< std::vector<int> > geno;  std::vector<int> pheno;
+  // loadGeno( geno, "data/em_geno_dump.csv" );
+  // loadPheno( pheno, "data/em_pheno_dump.csv" );
+  // unsigned rows = utility::nrows(geno);
   
-  NV_EM em(10,1);
-  ResultEM result;
-  Variable Y = createVar("Y",2);
-  Variable X1 = createVar("X1",2), X2 = createVar("X2", 3), X3= createVar("X3", 2);
-  Variables X = X1 ^ X2 ^ X3;
-  std::vector< std::vector<bool> > defTable;
+  // NV_EM em(10,1);
+  // ResultEM result;
+  // Variable Y = createVar("Y",2);
+  // Variable X1 = createVar("X1",2), X2 = createVar("X2", 3), X3= createVar("X3", 2);
+  // Variables X = X1 ^ X2 ^ X3;
+  // std::vector< std::vector<bool> > defTable;
 
-  em.run( result, Y, X, geno, 0.0000000001, defTable);
+  // em.run( result, Y, X, geno, 0.0000000001, defTable);
 
 
-  std::cout << "KL Y1:\n";
-  double kl_y1 = KL( Y1, em.pY );
-  double kl_yx1 = 0.0;
-  for ( size_t y = 0; y < em.pYX.size(); ++y ) {
-    for ( size_t p = 0; p < em.pYX[p].size(); ++p ) {
-      // std::cout << "KL YX1:\n";
-      printf("KL-YX1: %d,%d: %d, %d\n", y,p, (int)YX1[y][p].size(), (int)em.pYX[y][p].size());
-      kl_yx1 += KL( YX1[y][p], em.pYX[y][p] );
-    }
-  }
+  // std::cout << "KL Y1:\n";
+  // double kl_y1 = KL( Y1, em.pY );
+  // double kl_yx1 = 0.0;
+  // for ( size_t y = 0; y < em.pYX.size(); ++y ) {
+  //   for ( size_t p = 0; p < em.pYX[p].size(); ++p ) {
+  //     // std::cout << "KL YX1:\n";
+  //     printf("KL-YX1: %d,%d: %d, %d\n", y,p, (int)YX1[y][p].size(), (int)em.pYX[y][p].size());
+  //     kl_yx1 += KL( YX1[y][p], em.pYX[y][p] );
+  //   }
+  // }
 
-  std::cout << "KL Y1:\n";
-  double kl_y2 = KL( Y1, em.pY );
-  double kl_yx2 = 0.0;
-  for ( size_t y = 0; y < em.pYX.size(); ++y ) {
-    for ( size_t p = 0; p < em.pYX[p].size(); ++p ) {
-      printf("KL-YX2: %d,%d: %d, %d\n", y,p, (int)YX2[y][p].size(), (int)em.pYX[y][p].size());
-      kl_yx2 += KL( YX2[y][p], em.pYX[y][p] );
-    }
-  }
+  // std::cout << "KL Y1:\n";
+  // double kl_y2 = KL( Y1, em.pY );
+  // double kl_yx2 = 0.0;
+  // for ( size_t y = 0; y < em.pYX.size(); ++y ) {
+  //   for ( size_t p = 0; p < em.pYX[p].size(); ++p ) {
+  //     printf("KL-YX2: %d,%d: %d, %d\n", y,p, (int)YX2[y][p].size(), (int)em.pYX[y][p].size());
+  //     kl_yx2 += KL( YX2[y][p], em.pYX[y][p] );
+  //   }
+  // }
 
-  print_tabs( em.theta, em.pY, em.pYX );
-
-  printf("KL1: y: %f, yx: %f\n", kl_y1, kl_yx1);
-  printf("KL2: y: %f, yx: %f\n", kl_y2, kl_yx2);
   // print_tabs( em.theta, em.pY, em.pYX );
+
+  // printf("KL1: y: %f, yx: %f\n", kl_y1, kl_yx1);
+  // printf("KL2: y: %f, yx: %f\n", kl_y2, kl_yx2);
+  // // print_tabs( em.theta, em.pY, em.pYX );
 
 
 

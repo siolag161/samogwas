@@ -58,8 +58,11 @@ struct EMInterface {
                            const Variable& latentVar,
                            const Variables& variables,
                            const Matrix& dataTable,                   
-                           const double threshold );
-  
+                           const double threshold ) {
+    return run(result, latentVar, variables, dataTable, threshold);
+  }
+
+
   /** Underlying method for operator()
    *
    */
@@ -68,6 +71,22 @@ struct EMInterface {
                     const Variables& variables,
                     const Matrix& dataTable,
                     const double threshold );
+
+  
+  /** This functor takes as parameters a latent variable, a set of observed variables,
+   *  a data matrix and performs an EM algorithm using a stopping threshold.
+   *  This threshold provides a stopping criterion: when two consecutive likelihoods
+   *  are close enough, the algorithm is said to have converged.
+   */
+  virtual void operator()( ResultEM& result,
+                           const Variable& latentVar,
+                           const Variables& variables,
+                           const Matrix& dataTable,                   
+                           const double threshold,
+                           std::vector< std::vector<bool> >* &defTable) {
+    return run(result, latentVar, variables, dataTable, threshold, defTable);
+  }
+  
 
   virtual ~EMInterface() {}
 
@@ -78,11 +97,11 @@ struct EMInterface {
    *    - Drawing randomly from the estimated joint distribution,
    *    - Taking the value that has the maximum likelihood.
    */
-  virtual void impute( ResultEM& result,                 
-                       const plSymbol& latentVar,
-                       const Matrix& dataTable,
-                       EMLearner& bestModel,
-                       plMatrixDataDescriptor<int>& dataDesc ) = 0;
+  virtual void imputeLatent( ResultEM& result,                 
+                             const plSymbol& latentVar,
+                             const Matrix& dataTable,
+                             EMLearner& bestModel,
+                             plMatrixDataDescriptor<int> &dataDesc ) = 0;
 
   /** This run() method that does most of the job. It will be called internally by the run() function above.
    *
@@ -92,7 +111,7 @@ struct EMInterface {
                     const Variables& variables,
                     const Matrix& dataTable,
                     const double threshold,
-                    const std::vector< std::vector<bool> > & defTable ) = 0;
+                    std::vector< std::vector<bool> >* &defTable ) = 0;
 
   /** Creates the "learn objects" needed by the EM algorithm method provided by ProBT.
    *
@@ -118,7 +137,7 @@ struct EMInterface {
    * The ProBT EM learner requires a parameter called "definition table" which indicates
    * whether the value is missing in the initial data matrix ( missing: 0; non-missing: 1).
    */
-  virtual std::vector< std::vector<bool> > createDefinitionTable( const Matrix& dataMat );
+  virtual std::vector< std::vector<bool> >* createDefinitionTable( const Matrix& dataMat );
 
 };
 

@@ -1,12 +1,12 @@
 /**                     NOT REVIEWED
-*
-* ****************************************************************************
-* File: multi_em.cpp
-* Description:
-* @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
-* @date: 03/08/2014
+ *
+ * ****************************************************************************
+ * File: multi_em.cpp
+ * Description:
+ * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
+ * @date: 03/08/2014
 
-***************************************************************************************/
+ ***************************************************************************************/
 
 #define NOT_MISSING 1
 #define MISSING 0
@@ -83,11 +83,11 @@ void NV_EM::run( ResultEM& result,
 /**
  *
  */
-void NV_EM::impute( ResultEM& result,                 
-                    const plSymbol& latentVar,
-                    const NV_EM::Matrix& dataTable,
-                    EMLearner& bestModel,
-                    plMatrixDataDescriptor<int>& dataDesc ) {
+void NV_EM::imputeLatent( ResultEM& result,                 
+                          const plSymbol& latentVar,
+                          const NV_EM::Matrix& dataTable,
+                          EMLearner& bestModel,
+                          plMatrixDataDescriptor<int>& dataDesc ) {
   
 }
 

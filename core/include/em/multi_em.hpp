@@ -1,6 +1,6 @@
 /**                     NOT REVIEWED
-*
-* ****************************************************************************
+ *
+ * ****************************************************************************
  * File: multi_em.hpp
  * Description: 
  * @author: Duc-Thanh Phan siolag161 (thanh.phan@outlook.com), under the supervision of Christine Sinoquet
@@ -32,11 +32,11 @@ struct NV_EM: public EMInterface {
                     const double threshold,
                     const std::vector< std::vector<bool> > & defTable );
 
-  virtual void impute( ResultEM& result,                 
-                       const plSymbol& latentVar,
-                       const Matrix& dataTable,
-                       EMLearner& bestModel,
-                       plMatrixDataDescriptor<int>& dataDesc );
+  virtual void imputeLatent( ResultEM& result,                 
+                             const plSymbol& latentVar,
+                             const Matrix& dataTable,
+                             EMLearner& bestModel,
+                             plMatrixDataDescriptor<int>& dataDesc );
   // protected:
   virtual void clear_values();
   virtual void init_values( int N, int K, const Variables& variables );

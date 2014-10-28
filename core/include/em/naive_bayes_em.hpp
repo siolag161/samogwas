@@ -22,20 +22,20 @@ struct NaiveBayesEM: public EMInterface {
   NaiveBayesEM( int nRestarts, int imMode ): nbrRestarts(nRestarts), imputMode(imMode) {}
   ~NaiveBayesEM() {}
 
-protected:
+ protected:
   virtual void run( ResultEM& result,
                     const Variable& latentVar,
                     const Variables& variables,
                     const Matrix& dataTable,
                     const double threshold,
-                    const std::vector< std::vector<bool> > & defTable);
+                    std::vector< std::vector<bool> > *&defTable);
 
 
-  virtual void impute( ResultEM& result,
-                       const plSymbol& latentVar,
-                       const Matrix& dataTable,
-                       EMLearner& bestModel,
-                       plMatrixDataDescriptor<int>& dataDesc );
+  virtual void imputeLatent( ResultEM& result,
+                             const plSymbol& latentVar,
+                             const Matrix& dataTable,
+                             EMLearner& bestModel,
+                             plMatrixDataDescriptor<int> &dataDesc );
 
   int nbrRestarts;
   int imputMode; // methods for imputing missing values  (ARGMAX or DRAW)

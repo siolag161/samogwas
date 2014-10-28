@@ -19,20 +19,12 @@ namespace samogwas
 {
 
 /////////////////////////////////////////////////////////////////////////////////////
-void EMInterface::operator()( ResultEM& result,
-                              const Variable& latentVar,
-                              const Variables& variables,
-                              const Matrix& dataTable,
-                              const double threshold ) {
-  run( result, latentVar, variables, dataTable, threshold );
-}
-
 void EMInterface::run( ResultEM& result,
                        const Variable& latentVar,
                        const Variables& variables,
                        const Matrix& dataTable,
                        const double threshold ) {
-  std::vector< std::vector<bool> > defTable = createDefinitionTable( dataTable ); 
+  std::vector< std::vector<bool> >* defTable = createDefinitionTable( dataTable ); 
   run( result, latentVar, variables, dataTable, threshold, defTable );
 }
 
@@ -102,16 +94,18 @@ EMInterface::EMLearner EMInterface::getBestModel( CandidateModels& learners,
   * in the definition table. The column corresponding to the latent variable is entirely missing.
   *
   */
-std::vector< std::vector<bool> > EMInterface::createDefinitionTable( const Matrix& dataMat ) {
+std::vector< std::vector<bool> >* EMInterface::createDefinitionTable( const Matrix& dataMat ) {
     
   const Size nbrInds = utility::nrows(dataMat);
   const Size nbrVars = utility::ncols(dataMat);
   
-  std::vector< std::vector<bool> > defTable;
-  defTable.reserve( nbrInds );
+  std::vector< std::vector<bool> >* defTable = new std::vector< std::vector<bool> >(
+      nbrInds, std::vector<bool>( nbrVars, NOT_MISSING )
+  );
+  // defTable.reserve( nbrInds );
   for (size_t ind = 0; ind < nbrInds; ++ind) { // Each row will contain (FALSE TRUE TRUE ... TRUE).
-    defTable.push_back(std::vector<bool>(nbrVars, NOT_MISSING));
-    defTable[ind][0] = false; // The first column is FALSE.
+    // defTable.push_back(std::vector<bool>(nbrVars, NOT_MISSING));
+    (*defTable)[ind][0] = false; // The first column is FALSE.
   }
 
   return defTable;
