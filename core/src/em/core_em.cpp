@@ -9,11 +9,11 @@
 
 #define NOT_MISSING 1
 #define MISSING 0
-#define DEFAULT_VALUE = -1
+#define DEFAULT_VALUE -1
+#define MISSING_VALUE -1
 
 #include "em/core_em.hpp"
 #include "utils/matrix_utils.hpp"
-
 
 namespace samogwas
 {
@@ -33,7 +33,6 @@ EMInterface::LearnObjectPtrs EMInterface::createLearnObjects( const Variable& la
                                                               const Variables& variables )
 {
   LearnObjectPtrs learnObjects;
-
   plLearnObject* learnLatent = new plLearnHistogram(latentVar);
   learnObjects.push_back(learnLatent);
   
@@ -98,17 +97,15 @@ std::vector< std::vector<bool> >* EMInterface::createDefinitionTable( const Matr
     
   const Size nbrInds = utility::nrows(dataMat);
   const Size nbrVars = utility::ncols(dataMat);
-  
-  std::vector< std::vector<bool> >* defTable = new std::vector< std::vector<bool> >(
-      nbrInds, std::vector<bool>( nbrVars, NOT_MISSING )
-  );
-  // defTable.reserve( nbrInds );
+  auto defTable = new std::vector<std::vector<bool>>(nbrInds, std::vector<bool>(nbrVars, NOT_MISSING));
   for (size_t ind = 0; ind < nbrInds; ++ind) { // Each row will contain (FALSE TRUE TRUE ... TRUE).
-    // defTable.push_back(std::vector<bool>(nbrVars, NOT_MISSING));
-    (*defTable)[ind][0] = false; // The first column is FALSE.
+    for ( size_t v = 0; v < nbrVars; ++v ) {
+      if (dataMat[ind][v]== MISSING_VALUE)
+        (*defTable)[ind][v] = MISSING;
+    }
+    
   }
-
-  return defTable;
+   return defTable;
 } 
 
 }

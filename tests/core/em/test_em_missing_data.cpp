@@ -34,6 +34,9 @@ typedef samogwas::Partition Partition;
 using namespace data_gen;// using namespace samogwas;
 using namespace utility;
 
+template<typename T>
+void printMatrix(T& mat);
+
 
 BOOST_FIXTURE_TEST_SUITE( Test_EM_Missing_Data, Data ) 
 
@@ -57,10 +60,12 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
   int nrows = nclusts*N;
   std::vector<int> positions; for ( int i = 0; i < nrows; ++i ) positions.push_back(i);
   auto data = GenerateClusteredData( nclusts, N, CARD, ncols )();  
-  for ( int i = 0; i < 5*3; ++i ) {
-    // data[i][i] = -1;
+  for ( int i = 0; i < 15; ++i ) {
+    data[i][i] = -1;
   }
 
+  // std::cout << "dim of mat: "
+  printf("dim of data: %d-%d\n", (int)data.size(), (int)data[0].size());
   
   MutInfoSimi* diss = new MutInfoSimi(data, positions, MAX_POS, -1);  
   CAST cast( diss, 0.3 );  
@@ -80,7 +85,9 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
 
     local2Global.push_back(vertex) ;
   }
- 
+
+  int i = 0;
+  
   for ( auto& clt: result.to_clustering() ) {
     Matrix emMat;
     Variables vars;
@@ -88,8 +95,20 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
     Variable latentVar = createLatentVar( boost::num_vertices(graph), 3 );
     samogwas::ResultEM resultEM;
     samogwas::NaiveBayesEM multiEM(3,1);
-    auto defTab = getDefTab(emMat);
+    auto defTab = samogwas::EMInterface::createDefinitionTable(emMat);
     multiEM( resultEM, latentVar, vars, emMat, 0.000001, defTab );
+
+    // printMatrix(emMat);
+    // printMatrix(*defTab);
+
+    // for (int i=0; i<emMat.size();++i) {
+    //   for (int j=0; j<emMat[0].size();++j) {
+    //     std::cout << "("<<emMat[i][j]<< " - " << (*defTab)[i][j] << "), ";
+    //   }
+    //   std::cout<<std::endl;
+    // }
+    
+    // break;
   }
 }
 
@@ -140,7 +159,7 @@ void prepareEM( Matrix& emMat,
 std::vector< std::vector<bool> >* getDefTab(Matrix& dataMat) {
   const auto nbrInds = utility::nrows(dataMat);
   const auto nbrVars = utility::ncols(dataMat);
-  printf("size: %d,%d\n", nbrInds, nbrVars);
+  // printf("size: %d,%d\n", nbrInds, nbrVars);
   std::vector< std::vector<bool> >* defTable =
        new std::vector< std::vector<bool> >( nbrInds, std::vector<bool>(nbrVars, NOT_MISSING)) ;
   for (size_t ind = 0; ind < nbrInds; ++ind) {
@@ -160,9 +179,19 @@ std::vector< std::vector<bool> >* getDefTab(Matrix& dataMat) {
     (*defTable)[ind][0] = MISSING; // The first column is FALSE.
   }
 
-  return defTable;
-  
+  return defTable;  
 }
+
+
+// template<typename M>
+// void printMatrix(M& mat) {
+//   for (int i=0; i<mat.size();++i) {
+//     for (int j=0; j<mat[0].size();++j) {
+//       std::cout<<mat[i][j]<< ", ";
+//     }
+//     std::cout<<std::endl;
+//   }
+// }
 
 
 BOOST_AUTO_TEST_SUITE_END()  /// Test InfoTheo ends here

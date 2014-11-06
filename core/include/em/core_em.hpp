@@ -113,31 +113,32 @@ struct EMInterface {
                     const double threshold,
                     std::vector< std::vector<bool> >* &defTable ) = 0;
 
+ public:
   /** Creates the "learn objects" needed by the EM algorithm method provided by ProBT.
    *
    */
-  virtual LearnObjectPtrs createLearnObjects( const Variable& latentVar, const Variables& variables );
+  static LearnObjectPtrs createLearnObjects( const Variable& latentVar, const Variables& variables );
 
   /** Creates the "computable objects" needed by the EM algorithm method provided by ProbBT.
    * 
    */
-  virtual plComputableObjectList createComputableObjects( const Variable& latentVar, const Variables& variables );
+  static plComputableObjectList createComputableObjects( const Variable& latentVar, const Variables& variables );
 
   /** Takes a reference to the "EM learner" and the data set and returns the logLikelihood.
    *
    */
-  virtual double logLikelihood( EMLearner& learner, plMatrixDataDescriptor<int>& dataDesc );
+  static double logLikelihood( EMLearner& learner, plMatrixDataDescriptor<int>& dataDesc );
 
   /** Takes a set of models and returns one that has the best likelihood.
    *
    */
-  virtual EMLearner getBestModel( CandidateModels& learners,
+  static EMLearner getBestModel( CandidateModels& learners,
                                   plMatrixDataDescriptor<int>& dataDesc );
   /** 
    * The ProBT EM learner requires a parameter called "definition table" which indicates
    * whether the value is missing in the initial data matrix ( missing: 0; non-missing: 1).
    */
-  virtual std::vector< std::vector<bool> >* createDefinitionTable( const Matrix& dataMat );
+  static std::vector< std::vector<bool> >* createDefinitionTable( const Matrix& dataMat );
 
 };
 
