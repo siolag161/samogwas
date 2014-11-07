@@ -72,7 +72,7 @@ inline Options getProgramOptions(int argc, char** argv) {
         
         ("out,o", po::value<std::string>(&result.outputFile)->required(), "Output File")
 
-        ("clust,c", po::value<int>(&result.clustAlgo)->required(), "Clust Algo")
+        ("clust,c", po::value<int>(&result.clustAlgo)->required(), "Clust Algo. (0): DBSCAN (1): CAST")
 
         ("max_dist,x", po::value<int>(&result.fltm_maxDist)->required(), "Max Dist")
         ("simi_thres,t", po::value<double>(&result.fltm_simiThres)->required(), "Simi Thres")

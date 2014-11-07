@@ -14,11 +14,6 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp> // to obtain the program's name
 
-// #include "utils/csv_parser.hpp"
-// #include "utils/matrix_utils.hpp"
-// #include "utils/timer_utils.hpp"
-// #include "utils/option_printer.hpp" //for printing
-
 #include "distance/comparable.hpp"
 #include "clustering/cast.hpp"
 #include "clustering/dbscan.hpp"
@@ -70,11 +65,11 @@ int main( int argc, char** argv ) {
   std::string outBayesVertex, outBayesDist, outImpDat, outImpLab, outGraph;
    boost::filesystem::create_directories(outputPath);
   char bayesVertex_fn[256], bayesDist_fn[256], imputedDat_fn[256], imputedLab_fn[256], graph_fn[256];
-  sprintf( bayesVertex_fn, "fltm_%s_bayes.vertex", algoClust->name() );
-  sprintf( bayesDist_fn, "fltm_%s_bayes.dist", algoClust->name() );
-  sprintf( imputedDat_fn, "fltm_%s_imputedData.algo", algoClust->name() );
-  sprintf( imputedLab_fn, "fltm_%s_imputedLab.lab", algoClust->name() );
-  sprintf( graph_fn, "fltm_%s.graph", algoClust->name() );
+  sprintf(bayesVertex_fn, "fltm_%s_bayes.vertex", algoClust->name() );
+  sprintf(bayesDist_fn, "fltm_%s_bayes.dist", algoClust->name() );
+  sprintf(imputedDat_fn, "fltm_%s_imputedData.algo", algoClust->name() );
+  sprintf(imputedLab_fn, "fltm_%s_imputedLab.lab", algoClust->name() );
+  sprintf(graph_fn, "fltm_%s.graph", algoClust->name() );
 
   outBayesVertex = (outputPath / bayesVertex_fn).string(),
       outBayesDist = (outputPath / bayesDist_fn).string(),
@@ -127,7 +122,6 @@ void saveImputedData( std::string dataPath, std::string labposPath,
     matOut << std::endl;
   }
   printf("then: saving imputed data of nbrVariables: %d\n", (int)(utility::nrows(result.imputedData)));
-
   for(size_t row = 0; row < utility::nrows(result.imputedData); row++) {
     for(size_t col = 0; col < utility::ncols(result.imputedData) - 1; col++) {
       matOut << result.imputedData[row][col] << ",";
