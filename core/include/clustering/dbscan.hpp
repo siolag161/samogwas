@@ -45,7 +45,7 @@ namespace samogwas
  
 template<typename DissMatrix>  // for instance, may be instanciated as MutInfoDissimilarityMatrix
 struct DBSCAN: public AlgoClust<DissMatrix> {
-  const static int UNASSIGNED_LABEL = -1;
+  enum { UNASSIGNED_LABEL = -1 };
   typedef int Index;
   typedef std::vector<Index> Neighbors; // An important concept of DBSCAN involves Neighbors, a set of nearby points.typedef int Index;
     
