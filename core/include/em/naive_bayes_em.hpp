@@ -14,10 +14,10 @@
 namespace samogwas
 {
 
-
-struct NaiveBayesEM: public EMInterface {
-  typedef std::vector< std::vector<int> > Matrix;
-
+struct NaiveBayesEM: public EMInterface {  
+  using EMInterface::Matrix;  
+  using EMInterface::MatrixPtr;
+  using EMInterface::DefTabPtr;
  public:
   NaiveBayesEM( int nRestarts, int imMode ): nbrRestarts(nRestarts), imputMode(imMode) {}
   ~NaiveBayesEM() {}
@@ -26,14 +26,14 @@ struct NaiveBayesEM: public EMInterface {
   virtual void run( ResultEM& result,
                     const Variable& latentVar,
                     const Variables& variables,
-                    const Matrix& dataTable,
+                    const MatrixPtr dataTable,
                     const double threshold,
-                    std::vector< std::vector<bool> > *&defTable);
+                    DefTabPtr defTable);
 
 
   virtual void imputeLatent( ResultEM& result,
                              const plSymbol& latentVar,
-                             const Matrix& dataTable,
+                             const MatrixPtr dataTable,
                              EMLearner& bestModel,
                              plMatrixDataDescriptor<int> &dataDesc );
 

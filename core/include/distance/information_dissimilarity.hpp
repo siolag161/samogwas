@@ -11,6 +11,7 @@
 
 #include <stdlib.h> /* abs */
 #include <map>
+#include <memory>
 
 #include <boost/accumulators/accumulators.hpp> /** to compute median **/
 #include <boost/accumulators/statistics/stats.hpp>  /** to compute median **/
@@ -40,7 +41,8 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
    *  otherwise, the dissimilarity value is 0. 
    *  If `thres` is negative, then the dissimilarity value is the actual dissimilarity value.
    */
-  MutInfoDissimilarity( DataMatrix& dm, std::vector<int>& positions, unsigned maxDist, double thres, bool has_missing_data = false );
+  typedef std::shared_ptr<DataMatrix> DataMatPtr;
+  MutInfoDissimilarity( DataMatPtr dm, std::vector<int>& positions, unsigned maxDist, double thres, bool has_missing_data = false );
 
   
   /** Computes and returns the dissimilarity between two variables, indexed by varA and varB
@@ -50,7 +52,7 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
   
   /** Returns the number of total elements actually stored in the matrix (which is possibly sparse).
    */
-  virtual size_t nbrVariables() const { return dataMat.size(); }
+  virtual size_t nbrVariables() const { return dataMat->size(); }
 
   /** Invalidates current caching if any. Caching may be helpful when the computation of the matrix
    *  is performed on the go (example: mutual information as similarity and entropies stored in the cache).
@@ -64,7 +66,7 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
   
  protected:
   // reference to the actual data
-  DataMatrix& dataMat;
+  DataMatPtr dataMat;
 
   // reference to the positions of the variables 
   std::vector<int>& positions;
@@ -94,7 +96,7 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
  protected:  
   double mutualInformationDistance( std::vector<double>& entropyMap,
                                     std::map<size_t,double>& distCache,
-                                    const DataMatrix& dataMat,
+                                    const DataMatPtr dataMat,
                                     const size_t varA,
                                     const size_t varB );
 };
@@ -104,7 +106,7 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
 /************************************************* IMPLEMENTATION BELOW ****************************************/  
 
 template<class DM>
-MutInfoDissimilarity<DM>::MutInfoDissimilarity( DM& dm, 
+MutInfoDissimilarity<DM>::MutInfoDissimilarity( std::shared_ptr<DM> dm, 
                                                 std::vector<int>& pos, // bad identifier -> positions
                                                 unsigned maxPos, // bad identifier
                                                 double thres,
@@ -144,7 +146,7 @@ double MutInfoDissimilarity<DM>::compute( const size_t varA, const size_t varB )
   assert( varA < varB );
   if ( abs( positions[varA] - positions[varB] ) >= maxPosition ) return MAX_DISTANCE;
 
-  size_t nbrVars = dataMat.size();
+  size_t nbrVars = dataMat->size();
   size_t key = 2*nbrVars*varA + varB;
 
   double result = MAX_DISTANCE, rs = MAX_DISTANCE;
@@ -153,7 +155,7 @@ double MutInfoDissimilarity<DM>::compute( const size_t varA, const size_t varB )
   // #pragma omp critical
   if ( distCache.find(key) == distCache.end() ) {
     rs =  mutualInformationDistance( entropyMap, distCache, dataMat, varA, varB );
-      distCache[key] = rs;
+    distCache[key] = rs;
   } else {
       rs = distCache.at(key);
   }
@@ -177,7 +179,7 @@ double MutInfoDissimilarity<DM>::compute( const size_t varA, const size_t varB )
 template<class DM>
 double MutInfoDissimilarity<DM>::mutualInformationDistance( std::vector<double>& entropyMap,
                                                             std::map<size_t,double>& distCache,
-                                                            const DM& dataMat,
+                                                            const std::shared_ptr<DM> dataMat,
                                                             const size_t varA,
                                                             const size_t varB )
 {  
@@ -193,7 +195,7 @@ double MutInfoDissimilarity<DM>::mutualInformationDistance( std::vector<double>&
 //#pragma omp critical
   {  
     if ( entropyMap.at(varA) < 0.0 ) { // if not already computed
-      entropyMap[varA] = entropy( dataMat.at(varA), has_missing_data ); // computes entropy of varA 
+      entropyMap[varA] = entropy( dataMat->at(varA), has_missing_data ); // computes entropy of varA 
     }
     enA = entropyMap[varA];
   }
@@ -201,14 +203,14 @@ double MutInfoDissimilarity<DM>::mutualInformationDistance( std::vector<double>&
 //#pragma omp critical
   { 
     if ( entropyMap.at(varB) < 0.0 ) {  // if not already computed
-      entropyMap[varB] = entropy( dataMat.at(varB), has_missing_data ) ; // computes entropy of varB
+      entropyMap[varB] = entropy( dataMat->at(varB), has_missing_data ) ; // computes entropy of varB
     }
     enB = entropyMap[varB];
   }
 
   double minEntropyAB = std::min(enA, enB); // takes the min
   if (minEntropyAB != 0) {
-    double mutEntropyAB = mutEntropy( dataMat.at(varA), dataMat.at(varB), has_missing_data );
+    double mutEntropyAB = mutEntropy( dataMat->at(varA), dataMat->at(varB), has_missing_data );
     double mutualInfoAB = enA + enB - mutEntropyAB; // classic formula
     double normalizedMutInfo = mutualInfoAB / minEntropyAB;        
     result = MAX_DISTANCE - normalizedMutInfo;

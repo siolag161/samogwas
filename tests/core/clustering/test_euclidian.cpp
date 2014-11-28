@@ -26,15 +26,15 @@ BOOST_AUTO_TEST_CASE( Test_DBSCAN_10 ) {
   int nrows = nclusts*N;
   auto data = generateEuclidianClusteredData( nclusts, N, ncols );
 
-  for (int i = 0; i < nrows; ++i) {
-    for (int j=0; j<ncols; ++j) {
-      std::cout << data[i][j] << " ";
-    }
-    std::cout << std::endl;
-  }
+  // for (int i = 0; i < nrows; ++i) {
+  //   for (int j=0; j<ncols; ++j) {
+  //     std::cout << data[i][j] << " ";
+  //   }
+  //   std::cout << std::endl;
+  // }
   // std::vector<int> positions; for ( int i = 0; i < nrows; ++i ) positions.push_back(i);
 
-  auto* diss = new EucDiss(data);
+  auto diss = new EucDiss(data);
   
 
   EucDBSCAN dbscan( diss, 2, 0.32 );
@@ -53,9 +53,9 @@ Matrix generateEuclidianClusteredData( const size_t nclusts, const size_t N, con
   Matrix result(nbrVars, std::vector<int>(ncols, 0.0));
 
   for ( size_t i = 0; i < nbrVars; ++i ) {
-    // for ( size_t j = 0; j < ncols; ++ j ) {
-    // result[i] = std::vector<int>(ncols, (i/N));
-    // }
+     for ( size_t j = 0; j < ncols; ++ j ) {
+     result[i] = std::vector<int>(ncols, (i/N));
+     }
   }
   
   return result;

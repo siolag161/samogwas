@@ -39,6 +39,7 @@ typedef std::vector<DistValueVec> DistValueMat;
 static RandomNumberGenerator generator(std::time(0));
 
 // generator.seed( std::time(0) );  
+typedef std::shared_ptr<Matrix> MatrixPtr;
 
 struct GenerateNaiveBayes {
 
@@ -46,7 +47,7 @@ struct GenerateNaiveBayes {
       variables(childVs), latentVar(latentV), nbrInds(nbrIs)
   {}
   
-  inline Matrix operator()(const bool includeLatent = true);  
+  inline MatrixPtr operator()(const bool includeLatent = true);  
 
   Variables& variables;
   Variable& latentVar;
@@ -54,10 +55,11 @@ struct GenerateNaiveBayes {
   plJointDistribution jointDist;  
 };
 
+
 struct GenerateClusteredData {
   GenerateClusteredData( const size_t nbrClusts, const size_t clustSz, const size_t card, const size_t nbrIs ):
       nbrClusters(nbrClusts), clustSize(clustSz), cardinality(card), nbrInds(nbrIs) {}  
-  inline Matrix operator()(); 
+  inline MatrixPtr operator()(); 
  protected:
   size_t nbrClusters;
   size_t clustSize;
@@ -66,7 +68,7 @@ struct GenerateClusteredData {
 };
 
 
-inline void writeData(const Matrix& matrix, std::string outFileName);
+inline void writeData(const MatrixPtr matrix, std::string outFileName);
 inline Generator getUniformGenerator(const float rangeMin, const float rangeMax);
 //////////////////////////////////////////////////////////////////////////////////////////////
 inline plJointDistribution createNBJointDist(Variables& variables, Variable& latentVar);
@@ -87,9 +89,9 @@ inline void normalizeDistValues(DistValues& distValues);
 namespace data_gen
 {
 
-Matrix GenerateNaiveBayes::operator()(const bool includeLatent) {
-  Matrix matrix;
-  matrix.reserve(nbrInds); 
+MatrixPtr GenerateNaiveBayes::operator()(const bool includeLatent) {
+  auto matrix = std::make_shared<Matrix>();
+  matrix->reserve(nbrInds); 
   plValues values(latentVar ^ variables);
   jointDist = createNBJointDist(variables, latentVar);
   //std::cout << jointDist << std::endl << jointDist.get_computable_object_list() << std::endl;
@@ -101,13 +103,13 @@ Matrix GenerateNaiveBayes::operator()(const bool includeLatent) {
       for (size_t var = 0; var < variables.size(); ++var) {
         row[var+1] = values[variables[var]]; 
       }
-      matrix.push_back(row);
+      matrix->push_back(row);
     } else {
       std::vector<int> row(variables.size()); 
       for (size_t var = 0; var < variables.size(); ++var) {
         row[var] = values[variables[var]]; 
       }
-      matrix.push_back(row);
+      matrix->push_back(row);
     } 
   }    
   return matrix;
@@ -181,21 +183,21 @@ DistValueMat createNBProbTables( const Variables& variables,  const Variable& la
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static Matrix Transpose( const Matrix& mat ) {
-  Matrix m( mat[0].size(), std::vector<int>( mat.size(), 0) );
+static MatrixPtr Transpose( const Matrix& mat ) {
+  auto m = std::make_shared<Matrix>( mat[0].size(), std::vector<int>( mat.size(), 0) );
 
   for ( size_t r = 0; r < mat[0].size(); ++ r ) {
     for ( size_t c = 0; c < mat.size(); ++c ) {
-      m[r][c] = mat[c][r];
+      (*m)[r][c] = mat[c][r];
     }
   }
 
   return m;
 }
 
-Matrix GenerateClusteredData::operator()() {
-  Matrix matrix;
-  matrix.reserve(nbrInds);
+MatrixPtr GenerateClusteredData::operator()() {
+  auto matrix = std::make_shared<Matrix>();
+  matrix->reserve(nbrInds);
   Variables variables;
   
   for (size_t var = 0; var < nbrClusters * clustSize; ++var) {
@@ -221,11 +223,11 @@ Matrix GenerateClusteredData::operator()() {
     for (size_t var = 0; var < variables.size(); ++var) {
       row[var] = values[variables[var]];  
     }
-    matrix.push_back(row);
+    matrix->push_back(row);
   }
 
   //std::cout << jointDist << std::endl;
-  return Transpose(matrix);
+  return Transpose(*matrix);
 }
 
 plJointDistribution createClusteringJointDist( const Variables& variables, const Clustering& clustering) {

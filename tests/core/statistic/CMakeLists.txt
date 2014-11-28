@@ -14,6 +14,7 @@ include_directories(
   "${ProBT_INCLUDE_DIR}"
   "${Boost_INCLUDE_DIR}"
   "${PROJECT_SOURCE_DIR}/core/include" 
+  "${PROJECT_SOURCE_DIR}/tests/common" 
 
 )
 

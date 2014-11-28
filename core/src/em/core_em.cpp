@@ -22,9 +22,9 @@ namespace samogwas
 void EMInterface::run( ResultEM& result,
                        const Variable& latentVar,
                        const Variables& variables,
-                       const Matrix& dataTable,
+                       const MatrixPtr dataTable,
                        const double threshold ) {
-  std::vector< std::vector<bool> >* defTable = createDefinitionTable( dataTable ); 
+  auto defTable = createDefinitionTable( dataTable ); 
   run( result, latentVar, variables, dataTable, threshold, defTable );
 }
 
@@ -93,14 +93,14 @@ EMInterface::EMLearner EMInterface::getBestModel( CandidateModels& learners,
   * in the definition table. The column corresponding to the latent variable is entirely missing.
   *
   */
-std::vector< std::vector<bool> >* EMInterface::createDefinitionTable( const Matrix& dataMat ) {
+EMInterface::DefTabPtr EMInterface::createDefinitionTable( const MatrixPtr dataMat ) {
     
-  const Size nbrInds = utility::nrows(dataMat);
-  const Size nbrVars = utility::ncols(dataMat);
-  auto defTable = new std::vector<std::vector<bool>>(nbrInds, std::vector<bool>(nbrVars, NOT_MISSING));
+  const Size nbrInds = utility::nrows(*dataMat);
+  const Size nbrVars = utility::ncols(*dataMat);
+  auto defTable = std::make_shared<DefTab>(nbrInds, std::vector<bool>(nbrVars, NOT_MISSING));
   for (size_t ind = 0; ind < nbrInds; ++ind) { // Each row will contain (FALSE TRUE TRUE ... TRUE).
     for ( size_t v = 0; v < nbrVars; ++v ) {
-      if (dataMat[ind][v]== MISSING_VALUE)
+      if ((*dataMat)[ind][v]== MISSING_VALUE)
         (*defTable)[ind][v] = MISSING;
     }
     

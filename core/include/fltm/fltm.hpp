@@ -28,7 +28,6 @@ namespace samogwas
  
 struct FLTM {
 
-
   FLTM( AlgoClusteringInterface* clustA,
         CardFunc &cardF,
         EMInterface* emF): clustAlgo(clustA), cardFunc(cardF), emFunc(emF) { }

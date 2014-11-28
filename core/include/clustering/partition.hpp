@@ -48,27 +48,41 @@ struct Partition {
    */
   typedef std::map<Index,Label> Index2Label; 
   
-  size_t nbrClusters() const { return m_labelSet.size(); }
-  size_t nbrItems() const { return m_index2Label.size(); } 
+  virtual size_t nbrClusters() const { return m_labelSet.size(); }
+  virtual size_t nbrItems() const { return m_index2Label.size(); } 
 
   /// Converts itself to a clustering
-  Clustering to_clustering() const {
-    Clustering clustering( nbrClusters(), std::vector<int>() );
+  virtual Clustering to_clustering() const {
+    Clustering clustering( nbrClusters(), Cluster() );
     for ( const auto& indexLabelPair: m_index2Label ) {  
-    // for ( const std::pair<Index,Label>& indexLabelPair: m_index2Label ) {  
       clustering[ indexLabelPair.second ].push_back( indexLabelPair.first );
     }  
     return clustering;
   } 
 
-  int getLabel(int itemIdx) const { return m_index2Label.at(itemIdx); } //@todo: getLabel +change Cluster -> Label
-  void setLabel(int itemIdx, int clusterIdx) {  //@doto: setLabel
-    m_index2Label[itemIdx] = clusterIdx; 
+  virtual Label getLabel(Index itemIdx) const { return m_index2Label.at(itemIdx); } //@todo: getLabel +change Cluster -> Label
+  
+  virtual void setLabel(Index itemIdx, Index clusterIdx) {  //@doto: setLabel
     m_labelSet.insert(clusterIdx);
+    m_index2Label[itemIdx] = clusterIdx; 
   }
 
- private:
-  std::set<int> m_labelSet; // A label is a cluster identifier. 
+
+  virtual void removeLabel(Index clusterIdx) {
+    for( auto iter = m_labelSet.begin(); iter != m_labelSet.end();  )
+    {
+      if(*iter==clusterIdx)
+      {
+        iter = m_labelSet.erase(iter);
+      }
+      else
+      {
+        ++iter;
+      }
+    }
+  }
+ protected:
+  std::set<Label> m_labelSet; // A label is a cluster identifier. 
   Index2Label m_index2Label;
 };
 

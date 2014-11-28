@@ -23,12 +23,12 @@ namespace samogwas
 void NaiveBayesEM::run( ResultEM& result,
                         const Variable& latentVar,
                         const Variables& variables,
-                        const Matrix& dataTable,
+                        const MatrixPtr dataTable,
                         const double threshold,
-                        std::vector< std::vector<bool> >* &defTable ) {
+                        DefTabPtr defTable ) {
 
   LearnObjectPtrs learnObjs = createLearnObjects(latentVar, variables);
-  plMatrixDataDescriptor<int> dataDesc(latentVar ^ variables, &dataTable, defTable);
+  plMatrixDataDescriptor<int> dataDesc(latentVar ^ variables, dataTable.get(), defTable.get());
 
   CandidateModels candidateModels;  // vector to store different learners
 
@@ -51,7 +51,7 @@ void NaiveBayesEM::run( ResultEM& result,
 ///////////////////////////////////////////////////////////////////////////////////
 void NaiveBayesEM::imputeLatent( ResultEM& result,
                                  const plSymbol& latentVar,
-                                 const Matrix& dataTable,
+                                 const MatrixPtr dataTable,
                                  EMLearner& bestModel,
                                  plMatrixDataDescriptor<int> &dataDesc )
 {

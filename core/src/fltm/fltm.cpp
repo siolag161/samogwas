@@ -24,17 +24,17 @@ void FLTM::operator()( FLTM_Result &result,
                        FLTM_Options &options) {
         
   Matrix2GraphIndex mat2GraphIndex; StrLabel2GraphIndex label2GraphIndex;
-  const unsigned nbrObsVars = input.matrix.size();
+  const unsigned nbrObsVars = input.matrix->size();
   std::cout << "beginning FLTM..." << std::endl;
   
-  Graph &graph = result.graph;
+  Graph &graph = *result.graph;
   initializeFLTM( input, result, mat2GraphIndex, label2GraphIndex, nbrObsVars, options.cardinality );
   
   for ( int step = 0; step < options.nbrSteps; ++step) {
     printf( "\nbeging step: %d of %d...\n", step, options.nbrSteps );
-    Matrix nextStepMatrix; Matrix2GraphIndex nextStepMat2GraphIndex;  
+    MatrixPtr nextStepMatrix(new Matrix); Matrix2GraphIndex nextStepMat2GraphIndex;  
     clustAlgo->invalidate();
-    printf( "start clustering of data of: %zu variables...\n", input.matrix.size() );
+    printf( "start clustering of data of: %zu variables...\n", input.matrix->size() );
     auto clustering = clustAlgo->run().to_clustering(); // auto: to prevent explicite declaration of the type.
     printf( "end clustering, obtained: %zu clusters...\n", clustering.size() );
 
@@ -44,29 +44,29 @@ void FLTM::operator()( FLTM_Result &result,
       return;
     }
      
-    int goodClusterCount = 0; nextStepMatrix.reserve(clustering.size());
+    int goodClusterCount = 0; nextStepMatrix->reserve(clustering.size());
     int num_Clust = 0;
     for ( auto &cluster: clustering ) {
       if ( cluster.size() > 1 ) {
-        Matrix emMat; ResultEM resultEM;
+        MatrixPtr emMat(new Matrix); ResultEM resultEM;
         Variables emVars; 
         Variable latentVar = createLatentVar( boost::num_vertices(graph), cardFunc(cluster) );
-        initializeEM(emMat, emVars, input, graph, cluster, mat2GraphIndex);
+        initializeEM( *emMat, emVars, input, graph, cluster, mat2GraphIndex);
         std::cout << "Cluster: " << num_Clust++ << " over " << clustering.size() - singletonCount << " of step: " << step << std::endl;
         std::cout << "executing EM on setLabel of nbrVariables: " << cluster.size() << std::endl;
         emFunc->run( resultEM, latentVar, emVars, emMat, options.emThres );
         std::cout << "done EM" << std::endl << std::endl;        
-        if ( goodLatentVariable( resultEM.imputedData, input.matrix, cluster, options.latentVarQualityThres) ) {
+        if ( goodLatentVariable( resultEM.imputedData, *input.matrix, cluster, options.latentVarQualityThres) ) {
           vertex_t vertex = addLatentNode( graph, latentVar, resultEM, label2GraphIndex ); // vertex is the index of the newly added node
           goodClusterCount++;
-          nextStepMatrix.push_back(resultEM.imputedData);
+          nextStepMatrix->push_back(resultEM.imputedData);
           nextStepMat2GraphIndex.push_back( (int)vertex );
-          result.imputedData.push_back( resultEM.imputedData );
+          result.imputedData->push_back(resultEM.imputedData );
         } else {
-          initializeNextStep(nextStepMatrix, nextStepMat2GraphIndex, mat2GraphIndex, input.matrix, cluster);
+          initializeNextStep(*nextStepMatrix, nextStepMat2GraphIndex, mat2GraphIndex, *input.matrix, cluster);
         }
       } else {
-        initializeNextStep(nextStepMatrix, nextStepMat2GraphIndex, mat2GraphIndex, input.matrix, cluster);
+        initializeNextStep(*nextStepMatrix, nextStepMat2GraphIndex, mat2GraphIndex, *input.matrix, cluster);
       }
     }
     
@@ -89,10 +89,10 @@ void FLTM::initializeFLTM( FLTM_Data &input,
                            const size_t &nbrVars,
                            const size_t &cardinality) {
   // `labels` stores the names (labels) of the variables.
-  assert( input.matrix.size() == input.positions.size()); // `input.positions` has to be set.
+  assert( input.matrix->size() == input.positions.size()); // `input.positions` has to be set.
   for ( size_t i = 0; i < input.labels.size(); ++i) {
     int level = 0;
-    vertex_t vertex = createVertex( result.graph, cardinality, true, input.labels[i], input.positions[i], level );
+    vertex_t vertex = createVertex( *result.graph, cardinality, true, input.labels[i], input.positions[i], level );
     label2GraphIndex[ input.labels[i] ] = (int) vertex;
     mat2GraphIndex.push_back((int)vertex) ;
   }
@@ -131,17 +131,17 @@ void FLTM::initializeEM( Matrix &emMat,
                          const Graph &graph,
                          const std::vector<int> &cluster,
                          const std::vector<int> &mat2GraphIndex )  {
-  Matrix *tEMMat = new Matrix();
+  MatrixPtr tEMMat(new Matrix);
   tEMMat->reserve(cluster.size());
   vars.clear();
   // A column in `matrix` corresponds to an observation (e.g. an individual).
-  tEMMat->push_back( std::vector<int>( ncols(input.matrix), -1) ); // data for the latent variable (initialized to -1)
+  tEMMat->push_back( std::vector<int>( ncols(*input.matrix), -1) ); // data for the latent variable (initialized to -1)
   for ( auto &it: cluster ) {
     vars ^= graph[mat2GraphIndex.at(it)].variable;
-    tEMMat->push_back( input.matrix.at(it) );      
+    tEMMat->push_back( input.matrix->at(it) );      
   }
   emMat = Transpose(*tEMMat); // A row in `emMat corresponds to an observation (e.g. an individual).
-  delete(tEMMat);
+  // delete(tEMMat);
 }
 ///////////////////////////////////////////////
 bool FLTM::goodLatentVariable( std::vector<int> &latentData,

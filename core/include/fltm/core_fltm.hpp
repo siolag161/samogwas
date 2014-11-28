@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 
 #include "clustering/clustering.hpp"
 #include "em/em.hpp"
@@ -18,7 +19,6 @@
 
 #include "em_card_func.hpp"
 #include "graph.hpp"
-
 
 namespace samogwas
 {
@@ -30,6 +30,8 @@ typedef std::string StrLabel;
 typedef int Position;
 typedef std::map<StrLabel, Index> StrLabel2GraphIndex; // for a variable, label to its node index in the graph
 typedef std::vector<Index> Matrix2GraphIndex; // maps a variable (i.e. row) in a matrix to its node index in the graph.
+typedef std::shared_ptr<Matrix> MatrixPtr;
+typedef std::shared_ptr<Graph> GraphPtr;
 
 /**
  *
@@ -50,8 +52,13 @@ struct FLTM_Result {
   // ///
   // int nbrLatentVariables;
   // std::vector< std::vector<vertex_t> > level2LatentVars; // latent variables by level
-  Matrix imputedData;
-  Graph graph;    
+  MatrixPtr imputedData;
+  GraphPtr graph;
+
+  FLTM_Result() {
+    imputedData = std::make_shared<Matrix>();
+    graph = std::make_shared<Graph>();
+  }
 };
 
 /** Encapsulates the information and the structure (graph) of the input data.
@@ -61,9 +68,13 @@ struct FLTM_Data {
   std::vector<StrLabel> labels;
   std::vector<Position> positions; // physical positions
   std::vector<unsigned> indexes; //
-  std::vector< std::vector<int> > matrix;
+  MatrixPtr matrix;
   // Graph graph;
   int cardinality;
+
+  FLTM_Data() {
+    matrix = std::make_shared<Matrix>();    
+  }
 };
 
 struct FLTM_Options {

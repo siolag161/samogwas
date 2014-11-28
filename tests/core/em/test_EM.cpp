@@ -33,12 +33,14 @@ using namespace utility;
 
 BOOST_FIXTURE_TEST_SUITE( Test_EM, Data ) 
 
-inline void prepareEM( Matrix& emMat,
+inline void prepareEM( MatrixPtr& emMat,
                        Variables& vars,
-                       const Matrix& cltMat,
+                       const MatrixPtr cltMat,
                        const samogwas::Graph& graph,
                        const std::vector<int>& cluster,
                        const std::vector<int> local2Global);
+
+
 
 Variable createLatentVar( const int lab, const int cardinality ) {
   return Variable( boost::lexical_cast<std::string>(lab), plIntegerType(0, cardinality - 1) );
@@ -54,10 +56,13 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
   MutInfoSimi* diss = new MutInfoSimi(data, positions, MAX_POS, -1);  
   CAST cast( diss, 0.5 );  
   Partition result = cast();
+  
   for ( int i = 0; i < nrows; ++i ) {
     int expected_cluster = i / 3;
     BOOST_CHECK_EQUAL(result.getLabel(i), expected_cluster );
   }
+
+  printf("TEST_EM_FUNC-1\n");
   
   std::vector<int> local2Global;
 
@@ -70,7 +75,7 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
   }
 
   for ( auto& clt: result.to_clustering() ) {
-    Matrix emMat;
+    auto emMat = std::make_shared<Matrix>();
     Variables vars;
     prepareEM( emMat, vars, data, graph, clt, local2Global );
     Variable latentVar = createLatentVar( boost::num_vertices(graph), 3 );
@@ -81,23 +86,23 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
 }
 
 
-void prepareEM( Matrix& emMat,
+inline void prepareEM( MatrixPtr& emMat,
                 Variables& vars,
-                const Matrix& cltMat,
+                const MatrixPtr cltMat,
                 const samogwas::Graph& graph,
                 const std::vector<int>& cluster,
                 const std::vector<int> local2Global ) {
   
-  Matrix *tEMMat = new Matrix();
+  auto tEMMat = std::make_shared<Matrix>();
   tEMMat->reserve(cluster.size());
   vars.clear();  
-  tEMMat->push_back( std::vector<int>( ncols(cltMat), -1) );  
+  tEMMat->push_back( std::vector<int>( ncols(*cltMat), -1) );  
   for ( auto& it: cluster ) {    
     vars ^= graph[local2Global.at(it)].variable;
-    tEMMat->push_back( cltMat.at(it) );      
+    tEMMat->push_back( cltMat->at(it) );      
   }
   emMat = Transpose(*tEMMat);
-  delete(tEMMat);
+   // delete(tEMMat);
 }
 
 

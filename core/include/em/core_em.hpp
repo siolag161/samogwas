@@ -11,6 +11,7 @@
 
 #include <pl.h> // ProBT library
 #include <vector>
+#include <memory>
 
 namespace samogwas
 {
@@ -48,7 +49,10 @@ struct EMInterface {
   typedef std::vector<EMLearner> CandidateModels;
   
   typedef std::vector< std::vector<int> > Matrix;
+  typedef std::shared_ptr<Matrix> MatrixPtr;
 
+ typedef std::vector< std::vector<bool>> DefTab;
+  typedef std::shared_ptr<DefTab> DefTabPtr;
   /** This functor takes as parameters a latent variable, a set of observed variables,
    *  a data matrix and performs an EM algorithm using a stopping threshold.
    *  This threshold provides a stopping criterion: when two consecutive likelihoods
@@ -57,7 +61,7 @@ struct EMInterface {
   virtual void operator()( ResultEM& result,
                            const Variable& latentVar,
                            const Variables& variables,
-                           const Matrix& dataTable,                   
+                           const MatrixPtr dataTable,                   
                            const double threshold ) {
     return run(result, latentVar, variables, dataTable, threshold);
   }
@@ -69,7 +73,7 @@ struct EMInterface {
   virtual void run( ResultEM& result,
                     const Variable& latentVar,
                     const Variables& variables,
-                    const Matrix& dataTable,
+                    const MatrixPtr dataTable,
                     const double threshold );
 
   
@@ -81,9 +85,9 @@ struct EMInterface {
   virtual void operator()( ResultEM& result,
                            const Variable& latentVar,
                            const Variables& variables,
-                           const Matrix& dataTable,                   
+                           const MatrixPtr dataTable,                   
                            const double threshold,
-                           std::vector< std::vector<bool> >* &defTable) {
+                           DefTabPtr defTable) {
     return run(result, latentVar, variables, dataTable, threshold, defTable);
   }
   
@@ -99,7 +103,7 @@ struct EMInterface {
    */
   virtual void imputeLatent( ResultEM& result,                 
                              const plSymbol& latentVar,
-                             const Matrix& dataTable,
+                             const MatrixPtr dataTable,
                              EMLearner& bestModel,
                              plMatrixDataDescriptor<int> &dataDesc ) = 0;
 
@@ -109,9 +113,9 @@ struct EMInterface {
   virtual void run( ResultEM& result,
                     const Variable& latentVar,
                     const Variables& variables,
-                    const Matrix& dataTable,
+                    const MatrixPtr dataTable,
                     const double threshold,
-                    std::vector< std::vector<bool> >* &defTable ) = 0;
+                    DefTabPtr defTable ) = 0;
 
  public:
   /** Creates the "learn objects" needed by the EM algorithm method provided by ProBT.
@@ -138,7 +142,7 @@ struct EMInterface {
    * The ProBT EM learner requires a parameter called "definition table" which indicates
    * whether the value is missing in the initial data matrix ( missing: 0; non-missing: 1).
    */
-  static std::vector< std::vector<bool> >* createDefinitionTable( const Matrix& dataMat );
+  static DefTabPtr createDefinitionTable( const MatrixPtr dataMat );
 
 };
 

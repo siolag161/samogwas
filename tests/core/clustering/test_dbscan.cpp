@@ -8,6 +8,7 @@
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <math.h>
+#include <memory>
 
 #include "test_clustering.hpp"
 class Data 
