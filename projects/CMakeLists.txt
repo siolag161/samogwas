@@ -10,7 +10,7 @@ set(ProBT_LIBRARY_DIR "${LIB_DIR}/probt_spl_2_3_0/lib/" )
 
 #add_subdirectory(clustering/cast)
 #add_subdirectory(clustering/dbscan)
-#add_subdirectory(fltm)
+add_subdirectory(fltm)
 add_subdirectory(clustering/louvain)
 add_subdirectory(data_generation)
 add_subdirectory(clustering/clustering_algo)

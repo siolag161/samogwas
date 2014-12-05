@@ -13,6 +13,7 @@
 #define SAMOGWAS_FLTM_HPP  
 
 #include <vector>
+#include <memory>
 
 #include "clustering/clustering.hpp"
 #include "em/em.hpp"
@@ -25,16 +26,17 @@
 
 namespace samogwas
 {
- 
+typedef std::shared_ptr<EMInterface> EM_Algo_Ptr;
+typedef std::shared_ptr<AlgoClusteringInterface> Clust_Algo_Ptr;
 struct FLTM {
 
-  FLTM( AlgoClusteringInterface* clustA,
+  FLTM( Clust_Algo_Ptr clustA,
         CardFunc &cardF,
-        EMInterface* emF): clustAlgo(clustA), cardFunc(cardF), emFunc(emF) { }
+        EM_Algo_Ptr emF): clustAlgo(clustA), cardFunc(cardF), emFunc(emF) { }
 
   void operator()( FLTM_Result &result, FLTM_Data &data, FLTM_Options &options);
     
-  ~FLTM() { delete clustAlgo; delete emFunc; }
+  // ~FLTM() { delete clustAlgo; delete emFunc; }
 
  protected:
   void initializeFLTM( FLTM_Data &input,
@@ -76,9 +78,9 @@ struct FLTM {
 //  void initializeGraph( const FLTM_Data &input, Graph &graph );
 
  protected:
-  AlgoClusteringInterface* clustAlgo;
+  Clust_Algo_Ptr clustAlgo;
   CardFunc &cardFunc;
-  EMInterface* emFunc;
+  EM_Algo_Ptr emFunc;
 };
 
 } // namespace samogwas ends here.

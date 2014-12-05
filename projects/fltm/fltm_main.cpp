@@ -8,6 +8,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <memory>
 
 #include <fstream>
 #include <cstdio>
@@ -19,13 +20,14 @@
 #include "clustering/dbscan.hpp"
 #include "distance/dissimilarity.hpp"
 #include "distance/similarity.hpp"
+#include "fltm/fltm.hpp"
 
 #include "utils/option_printer.hpp"
 #include "utils/custom_option_desc.hpp"
 
 #include "utils/logs_utils.hpp"
 #include "data_load.hpp"
-#include "app_options.hpp"
+#include "application_options.hpp"
 
 using namespace utility;
 using namespace samogwas;
@@ -41,22 +43,24 @@ void saveImputedData( std::string dataPath, std::string labposPath,
                       const FLTM_Result& resultFLTM );
 
 // void printOptions( Options& opt ); // 
-AlgoClusteringInterface* getAlgoClust( FLTM_Data& input, Options& opt );
+std::shared_ptr<AlgoClusteringInterface> getAlgoClust( FLTM_Data& input, Options& opt );
 typedef measure<std::chrono::seconds> mea; // measure execution time in seconds
  
 int main( int argc, char** argv ) {
   Options pos = getProgramOptions( argc, argv );
   FLTM_Data fltm_data;
-  mea::log_execution( "load_data", "second", loadDataTable, fltm_data.matrix, pos.inputDataFile, ',','"' ); 
+  // mea::log_execution( "load_data", "second", loadDataTable, fltm_data.matrix, pos.inputDataFile, ',','"' );
+  fltm_data.matrix = loadDataTable(pos.inputDataFile);
+      
   loadLabelPosition( fltm_data.labels, fltm_data.indexes, fltm_data.positions, pos.inputLabelFile );
-  Matrix tmpMatrix = fltm_data.matrix;
-  printf("Data loaded. Matrix of nbrVariables: (%d,%d)n", utility::nrows( fltm_data.matrix ), utility::ncols( fltm_data.matrix ));
+  auto tmpMatrix = *fltm_data.matrix;
+  printf("Data loaded. Matrix of nbrVariables: (%d,%d)n", utility::nrows( *fltm_data.matrix ), utility::ncols( *fltm_data.matrix ));
 
   std::cout << "Performing FLTM...\n";
-  AlgoClusteringInterface* algoClust = getAlgoClust( fltm_data, pos );
+  auto algoClust = getAlgoClust( fltm_data, pos );
   FLTM_Result result;
   LinearCardinality emLC(pos.fltm_alpha, pos.fltm_beta, pos.fltm_maxCard);
-  NaiveBayesEM *multiEM = new NaiveBayesEM( pos.fltm_nbrRestarts, pos.fltm_imputeMode );
+  auto multiEM = std::make_shared<NaiveBayesEM>( pos.fltm_nbrRestarts, pos.fltm_imputeMode );
 
   FLTM fltm(algoClust, emLC, multiEM);
 
@@ -78,8 +82,8 @@ int main( int argc, char** argv ) {
       outImpLab = (outputPath / imputedLab_fn).string(),
       outGraph = (outputPath / graph_fn).string();
   
-  SingleGraphSave()( result.graph, outGraph );
-  BayesGraphSave()( result.graph, outBayesVertex, outBayesDist );  
+  SingleGraphSave()( *result.graph, outGraph );
+  BayesGraphSave()( *result.graph, outBayesVertex, outBayesDist );  
   saveImputedData( outImpDat, outImpLab, fltm_data, tmpMatrix, result );
 
   std::cout << "BYE...\n" << std::endl;
@@ -87,18 +91,17 @@ int main( int argc, char** argv ) {
 }
 
 
-AlgoClusteringInterface* getAlgoClust( FLTM_Data& input, Options& opt ) {
-  AlgoClusteringInterface* algo;
+std::shared_ptr<AlgoClusteringInterface> getAlgoClust( FLTM_Data& input, Options& opt ) {
+  std::shared_ptr<AlgoClusteringInterface> algo;
   if ( opt.clustAlgo == 0 ) { // DBSCAN
-    MutInfoDiss* diss = new MutInfoDiss( input.matrix, input.positions, opt.fltm_maxDist, opt.fltm_simiThres );  
-    algo = new DBSCAN<MutInfoDiss>( diss, opt.dbscan_minPts, opt.dbscan_eps );
+    auto diss = std::make_shared<MutInfoDiss>( input.matrix, input.positions, opt.fltm_maxDist, opt.fltm_simiThres );
+    algo = std::make_shared<DBSCAN<MutInfoDiss>>( diss, opt.dbscan_minPts, opt.dbscan_eps );
     printf("DBSCAN(%d,%.2f)\n", opt.dbscan_minPts, opt.dbscan_eps );
   } else {
-    MutInfoSimi* simi = new MutInfoSimi( input.matrix, input.positions, opt.fltm_maxDist, opt.fltm_simiThres );  
-    algo = new CAST<MutInfoSimi>(simi,opt.cast_cast);
+    auto simi = std::make_shared<MutInfoSimi>( input.matrix, input.positions, opt.fltm_maxDist, opt.fltm_simiThres );
+    algo = std::make_shared<CAST<MutInfoSimi>>( simi, opt.cast_cast);
     printf("CAST(%.2f)\n", opt.cast_cast );
   }
-
   return algo;
 }
 
@@ -122,29 +125,32 @@ void saveImputedData( std::string dataPath, std::string labposPath,
     }
     matOut << std::endl;
   }
-  printf("then: saving imputed data of nbrVariables: %d\n", (int)(utility::nrows(result.imputedData)));
-  for(size_t row = 0; row < utility::nrows(result.imputedData); row++) {
-    for(size_t col = 0; col < utility::ncols(result.imputedData) - 1; col++) {
-      matOut << result.imputedData[row][col] << ",";
+
+  auto& imputedData = *result.imputedData;
+  printf("then: saving imputed data of nbrVariables: %d\n", (int)(utility::nrows(imputedData)));
+  for(size_t row = 0; row < utility::nrows(imputedData); row++) {
+    for(size_t col = 0; col < utility::ncols(imputedData) - 1; col++) {
+      matOut << (imputedData)[row][col] << ",";
     }
-    if ( utility::ncols(result.imputedData) > 0) {
-      matOut << result.imputedData[row][utility::ncols(result.imputedData)-1];
+    if ( utility::ncols(imputedData) > 0) {
+      matOut << (imputedData)[row][utility::ncols(imputedData)-1];
     }
     matOut << std::endl;
-  }
+  } 
   matOut.close();
   ////////////////////////////////////
+  auto& graph = *result.graph;
   std::ofstream labPosOut(labposPath);
   vertex_iterator vi, vi_end;
   int latId = input.indexes[input.indexes.size()-1];
-  for ( boost::tie(vi, vi_end) = boost::vertices(result.graph); vi != vi_end; ++vi ) {
+  for ( boost::tie(vi, vi_end) = boost::vertices(graph); vi != vi_end; ++vi ) {
     vertex_t vertex = *vi;
     if ( vertex < input.indexes.size() )
-      labPosOut << input.indexes[vertex] << "," << result.graph[vertex].label << "," << result.graph[vertex].position
-                << "," << result.graph[vertex].variable.cardinality() << std::endl;
+      labPosOut << input.indexes[vertex] << "," << graph[vertex].label << "," << graph[vertex].position
+                << "," << graph[vertex].variable.cardinality() << std::endl;
     else {
-      labPosOut << ++latId << "," << "\"imputed-" + result.graph[vertex].label << "\"," << result.graph[vertex].position
-                << "," << result.graph[vertex].variable.cardinality() << std::endl;
+      labPosOut << ++latId << "," << "\"imputed-" + graph[vertex].label << "\"," << graph[vertex].position
+                << "," << graph[vertex].variable.cardinality() << std::endl;
     }
   }
 

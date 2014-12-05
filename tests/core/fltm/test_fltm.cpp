@@ -66,9 +66,9 @@ BOOST_AUTO_TEST_CASE( Test_Def ) {
   initOptions(opt);
 
   LinearCardinality emLC(0.2, 1, 5);
-  EMInterface * multiEM = new NaiveBayesEM(CARD, 3);
+  auto multiEM = std::make_shared<NaiveBayesEM>(CARD, 3);
 
-  AlgoClusteringInterface* dbscan = new DBSCAN<MutInfoDiss>( diss, 2, 0.2);
+  auto dbscan = std::make_shared<DBSCAN<MutInfoDiss>>( diss, 2, 0.2);
   FLTM fltm( dbscan, emLC, multiEM ); 
   fltm( result, input, opt );
   
