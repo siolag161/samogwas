@@ -42,6 +42,9 @@ void saveImputedData( std::string dataPath, std::string labposPath,
                       Matrix& mat,
                       const FLTM_Result& resultFLTM );
 
+char* current_date();
+boost::filesystem::path outputDir( Options& progOpt );
+
 // void printOptions( Options& opt ); // 
 std::shared_ptr<AlgoClusteringInterface> getAlgoClust( FLTM_Data& input, Options& opt );
 typedef measure<std::chrono::seconds> mea; // measure execution time in seconds
@@ -66,7 +69,7 @@ int main( int argc, char** argv ) {
 
   mea::execution( fltm, result, fltm_data, pos.fltm_opts  );
   
-  boost::filesystem::path outputPath = boost::filesystem::absolute(pos.outputFile);
+  auto outputPath = outputDir(pos);
   std::string outBayesVertex, outBayesDist, outImpDat, outImpLab, outGraph;
   boost::filesystem::create_directories(outputPath);
   char bayesVertex_fn[256], bayesDist_fn[256], imputedDat_fn[256], imputedLab_fn[256], graph_fn[256];
@@ -157,3 +160,24 @@ void saveImputedData( std::string dataPath, std::string labposPath,
   labPosOut.close();
 }
  
+
+char* current_date()
+{
+    time_t rawtime;
+    struct tm * timeinfo;
+    char* buffer = new char[80];
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
+    strftime (buffer,80,"%Y_%m_%d_%H_%M_%S",timeinfo);
+
+    return buffer;
+}
+
+boost::filesystem::path outputDir( Options& progOpt ) {
+  auto path = boost::filesystem::absolute(progOpt.outputDir);
+  // boost::filesystem::create_directories(path);
+  path /= current_date();
+  boost::filesystem::create_directories(path);
+
+  return path;
+}

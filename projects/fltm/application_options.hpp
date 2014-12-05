@@ -30,7 +30,7 @@ struct Options {
   
   /* Output */
   int verbose;
-  std::string outputFile;
+  std::string outputDir;
 
   int clustAlgo;
   
@@ -70,7 +70,7 @@ inline Options getProgramOptions(int argc, char** argv) {
         ("in_card,N", po::value<int>(&result.fltm_opts.cardinality)->required(), "Input cardinality")
         ("verbose,v", po::value<int>(&result.verbose)->default_value(0), "Verbose")
         
-        ("out,o", po::value<std::string>(&result.outputFile)->required(), "Output File")
+        ("out,o", po::value<std::string>(&result.outputDir)->required(), "Output Dir")
 
         ("clust,c", po::value<int>(&result.clustAlgo)->required(), "Clust Algo. (0): DBSCAN (1): CAST")
 
