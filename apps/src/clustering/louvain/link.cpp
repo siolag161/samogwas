@@ -13,14 +13,12 @@ namespace samogwas
 
 namespace louvain {
 
-WeightedLink::WeightedLink(WeightPtr w): weights(w) {}
-
+// WeightedLink::WeightedLink(WeightPtr w): weights(w) {} 
 WeightedLink::WeightedLink( const size_t sz) {
-  //weights = std::make_shared<Weight>( sz, std::vector<double>(sz, 0.0) ;
-  weights = std::make_shared<Weights>();
+  weights = std::make_shared<std::vector<Weights>>() ;
   weights->reserve(sz);
   for ( size_t i = 0; i < sz; ++i ) {
-    weights->push_back( std::vector<double>(i+1, 0.0) );    
+    weights->push_back( Weights(i+1,0.0) );    
   }
 }
 
@@ -29,6 +27,7 @@ size_t WeightedLink::nbrVariables() const {
 }
 
 double WeightedLink::compute( const size_t varA, const size_t varB ) {
+  // printf("computing: %d-%d\n", varA, varB);
   if (varA < varB) return compute(varB, varA);
   return (*weights)[varA][varB];
 }
@@ -41,4 +40,5 @@ void WeightedLink::setWeight( const size_t varA, const size_t varB, const double
 }
 
 }
+
 } // namespace samogwasends here. samogwas

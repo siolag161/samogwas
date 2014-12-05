@@ -1,4 +1,3 @@
-
 /****************************************************************************************
  * File: louv.hpp
  * Description: 
@@ -23,23 +22,33 @@ namespace samogwas
 namespace louvain {
 
 MethodLouvain::MethodLouvain(WeightsPtr wt): changed(true) {
-  auto g = std::make_shared<Graph>(wt);
-  network = std::make_shared<Network>(g);
+  graph = std::make_shared<Graph>(wt);
+  network = std::make_shared<Network>(graph);
+  partition = std::make_shared<Partition>();
+  for ( NodeIndex n = 0; n < network->nbrNodes(); ++n ) {
+    partition->setLabel(n, network->getCommunity(n));
+  }
+    
 }
 
 Partition MethodLouvain::run() {
+  // Network partition(network->nbrNodes());
   // Network network(graph);
   while (changed) {
     first_phase();
-    second_phase();
+    if (changed)
+      second_phase();
   }
 
-  return *network;
+   printf("\n-------------- DONE clustering -------------\n\n");
+
+  // Partition;
+  return *partition;
 }
 
 char* MethodLouvain::name() const {
   char* name = new char[80];
-  sprintf( name, "louvain%s", "");
+  sprintf( name, "LOUVAIN%s", "");
   return name;
 }
 

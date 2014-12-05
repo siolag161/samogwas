@@ -70,10 +70,10 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
   // std::cout << "dim of mat: "
   printf("dim of data: %d-%d\n", (int)data->size(), (int)(*data)[0].size());
   
-  MutInfoSimi* diss = new MutInfoSimi(data, positions, MAX_POS, -1);  
-  CAST cast( diss, 0.3 );  
+  auto simi = std::make_shared<MutInfoSimi>(data, positions, MAX_POS, -1);
+  
+  CAST cast( simi, 0.3 );  
   Partition result = cast();
-
   
   for ( int i = 0; i < nrows; ++i ) {
     int expected_cluster = i / 3;

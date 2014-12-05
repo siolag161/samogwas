@@ -53,7 +53,9 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
   int nrows = nclusts*N;
   std::vector<int> positions; for ( int i = 0; i < nrows; ++i ) positions.push_back(i);
   auto data = GenerateClusteredData( nclusts, N, CARD, ncols )();  
-  MutInfoSimi* diss = new MutInfoSimi(data, positions, MAX_POS, -1);  
+  // MutInfoSimi* diss = new MutInfoSimi(data, positions, MAX_POS, -1);
+  auto diss = std::make_shared<MutInfoSimi>(data, positions, MAX_POS, -1);  
+
   CAST cast( diss, 0.5 );  
   Partition result = cast();
   

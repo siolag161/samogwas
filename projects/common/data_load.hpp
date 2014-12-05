@@ -19,20 +19,23 @@
 namespace samogwas
 {
 
+typedef std::vector< std::vector<int> > Matrix;
+typedef std::shared_ptr<Matrix> MatrixPtr;
 // template< typename T >
-void loadDataTable( std::vector< std::vector<int> >& dt,
-                    const std::string& infile,
-                    const char& sep = ',',
-                    const char& quote = '"' ) {
 
-  std::cout << "loading data" << std::endl << std::endl;
+MatrixPtr loadDataTable( const std::string& infile,
+                         const char& sep = ',',
+                         const char& quote = '"' ) {
 
+  MatrixPtr dt(new Matrix());
   std::ifstream matrixFile(infile.c_str());
   if (!matrixFile) {
-    std::cout << "not exists..." << std::endl;
-    return;
+    printf("file data %s not existing\n", infile.c_str());
+    exit(-1);
   }
-   dt.reserve(100000);
+  std::cout << "loading data" << std::endl << std::endl;
+
+  dt->reserve(100000);
 
   utility::CSVIterator<int> matrixLine(matrixFile);
   
@@ -41,13 +44,14 @@ void loadDataTable( std::vector< std::vector<int> >& dt,
     for (unsigned i = 0; i < matrixLine->size(); ++i) {
       row[i] = matrixLine->at(i);
     }
-    dt.push_back(row);    
+    dt->push_back(row);    
   }
 
-  dt.resize(dt.size());
-  size_t ncols = dt.empty() ? 0 : dt[0].size();
-  std::cout << "done loading matrix of (" << dt.size() << "," << ncols << ")" << std::endl << std::endl;
+  dt->resize(dt->size());
+  size_t ncols = dt->empty() ? 0 : (*dt)[0].size();
+  std::cout << "done loading matrix of (" << dt->size() << "," << ncols << ")" << std::endl << std::endl;
 
+  return dt;
 }
 
 void loadLabelPosition( std::vector< std::string > & labels,
@@ -55,7 +59,10 @@ void loadLabelPosition( std::vector< std::string > & labels,
                         std::vector< int >& positions,
                         const std::string& infile )  {
   std::ifstream labPosFile(infile.c_str());
-  if (!labPosFile) return;
+  if (!labPosFile) {
+    printf("file lab-post %s not existing\n", infile.c_str());
+    exit(-1);
+  }
   std::vector<std::string>().swap(labels); //lab2Pos.clear();
   std::vector<int>().swap(positions); //.clear();
   utility::CSVIterator<std::string> labPosLine(labPosFile);// ++labPosLine;

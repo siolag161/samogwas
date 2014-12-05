@@ -40,13 +40,13 @@ double Network::totalWeights() const {
 
 /**
  */
-CommunityIndex Network::communityOf( const NodeIndex& node ) const {
-  // printf("network - communityOf: %d\n", node );
+CommunityIndex Network::getCommunity( const NodeIndex& node ) const {
+  // printf("network - getCommunity: %d\n", node );
   return getLabel(node);
 }
 
 bool Network::sameCommunity( const NodeIndex& i, const NodeIndex& j ) const {
-  return communityOf(i) == communityOf(j);
+  return getCommunity(i) == getCommunity(j);
 }
 
 
@@ -55,7 +55,7 @@ std::vector<NodeIndex> Network::membersOf( const CommunityIndex& comm ) const {
   std::vector<NodeIndex> members;
 
   for (int i = 0; i < nbrCommunities(); ++i) {
-    if (communityOf(i) == comm ) {
+    if (getCommunity(i) == comm ) {
       members.push_back(i);
     }
   }
@@ -63,11 +63,11 @@ std::vector<NodeIndex> Network::membersOf( const CommunityIndex& comm ) const {
   return members;
 }
 
-/**
- */
-double Network::weight2community( const NodeIndex& node, const CommunityIndex& target ) const {
+// /**
+//  */
+// double Network::weight2community( const NodeIndex& node, const CommunityIndex& target ) const {
   
-}
+// }
 
 /**
  */
@@ -80,7 +80,6 @@ double Network::modularity() {
   double tw2 = totalWeights()*2;
 
   for ( auto comm: communities() ) {
-    if ( nbrCommunities() == 1) printf("sing fucking leton: %f\n", tot_linked_weights[comm]);
     curr_modularity += in_weights[comm] / tw2 - (tot_linked_weights[comm]/tw2)*(tot_linked_weights[comm]/tw2);
   }  
   return curr_modularity;
@@ -91,7 +90,7 @@ double Network::modularity() {
  */
 void Network::moveNode( const NodeIndex& node, const CommunityIndex& target,
                         const double old_shared_weights, const double new_shared_weights ) {
-  CommunityIndex from = communityOf(node);
+  CommunityIndex from = getCommunity(node);
   if ( from == target ) return;
   removeNode(node, old_shared_weights);
   addNode(node, target, new_shared_weights);
@@ -101,7 +100,7 @@ void Network::moveNode( const NodeIndex& node, const CommunityIndex& target,
 /**
  */
 void Network::moveNode( const NodeIndex& node, const CommunityIndex& target ) {
-  CommunityIndex from = communityOf(node);
+  CommunityIndex from = getCommunity(node);
   if ( from == target ) return;
   double old_shared_weights = sharedWeights( node, from );
   double new_shared_weights = sharedWeights( node, target );
@@ -113,7 +112,7 @@ double Network::modularityGain( const NodeIndex& node,
                                 const double shared_weights) const
 {
   double gain = 0.0;
-  if ( communityOf(node) == comm ) return gain;
+  if ( getCommunity(node) == comm ) return gain;
   double sw = shared_weights;
   if ( shared_weights < 0 ) sw = sharedWeights(node,comm);
   double tw2 = 2*totalWeights();
@@ -128,7 +127,7 @@ double Network::modularityLoss( const NodeIndex& node,
                                 const double shared_weights ) const
 {
   double loss = 0.0;
-  const CommunityIndex comm = communityOf(node);
+  const CommunityIndex comm = getCommunity(node);
   double sw = shared_weights;
   if ( shared_weights < 0 ) sw = sharedWeights(node,comm);
 
@@ -170,9 +169,9 @@ void Network::setCommunity( const NodeIndex& node, const CommunityIndex& comm ) 
  */
 void Network::removeNode( const NodeIndex& node,
                           const double shared_weights) {
-  CommunityIndex comm = communityOf(node);
+  CommunityIndex comm = getCommunity(node);
   if ( comm >= 0 && comm < nbrNodes() ) {
-    setCommunity(node, TEMP_COMMUNITY);
+    setCommunity(node, Network::TEMP_COMMUNITY);
     community_member_counts[comm]--;
     if (community_member_counts[comm] == 0) {
       removeLabel(comm);
@@ -205,7 +204,7 @@ double Network::sharedWeights( const NodeIndex& node, const CommunityIndex& comm
   double sw = 0.0;
   for ( auto vp = graph->adjacentNodes(node); vp.first != vp.second; ++vp.first ) {
     NodeIndex adj_node = *vp.first;
-    if ( communityOf(adj_node) ==  comm ) {
+    if ( getCommunity(adj_node) ==  comm ) {
       sw += graph->weight(node, adj_node);
     }
   }
@@ -215,17 +214,21 @@ double Network::sharedWeights( const NodeIndex& node, const CommunityIndex& comm
 
 double Network::interCommunityWeight( const CommunityIndex& i,
                                       const CommunityIndex& j ) {
-  if ( i == j ) return in_weights[i];
+  if ( i == j ) return innerCommunityWeight(i);
 
   double inter_weight = 0.0;
   for ( auto vp = graph->allLinks(); vp.first != vp.second; ++vp.first ) {
     NodeIndex l = graph->source(*vp.first), r = graph->target(*vp.first);
-    CommunityIndex c_l = communityOf(l), c_r = communityOf(r);
+    CommunityIndex c_l = getCommunity(l), c_r = getCommunity(r);
     if ( c_l == i && c_r == j || c_l == j && c_r == i ) { 
       inter_weight += graph->weight(l,r);
     }
   }
   return inter_weight;
+}
+
+double Network::innerCommunityWeight( const CommunityIndex& i ) {
+  return in_weights[i];
 }
 
 

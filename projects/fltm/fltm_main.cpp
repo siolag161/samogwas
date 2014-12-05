@@ -20,11 +20,12 @@
 #include "distance/dissimilarity.hpp"
 #include "distance/similarity.hpp"
 
-#include "fltm/fltm.hpp"
-// #include "em/naive_bayes_em.hpp"
+#include "utils/option_printer.hpp"
+#include "utils/custom_option_desc.hpp"
+
 #include "utils/logs_utils.hpp"
-#include "application_options.hpp"
 #include "data_load.hpp"
+#include "app_options.hpp"
 
 using namespace utility;
 using namespace samogwas;
@@ -63,7 +64,7 @@ int main( int argc, char** argv ) {
   
   boost::filesystem::path outputPath = boost::filesystem::absolute(pos.outputFile);
   std::string outBayesVertex, outBayesDist, outImpDat, outImpLab, outGraph;
-   boost::filesystem::create_directories(outputPath);
+  boost::filesystem::create_directories(outputPath);
   char bayesVertex_fn[256], bayesDist_fn[256], imputedDat_fn[256], imputedLab_fn[256], graph_fn[256];
   sprintf(bayesVertex_fn, "fltm_%s_bayes.vertex", algoClust->name() );
   sprintf(bayesDist_fn, "fltm_%s_bayes.dist", algoClust->name() );

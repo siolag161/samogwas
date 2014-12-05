@@ -8,6 +8,8 @@
 #ifndef SAMOGWAS_ALGO_CLUSTERING_HPP 
 #define SAMOGWAS_ALGO_CLUSTERING_HPP
 
+#include <memory>
+
 #include "partition.hpp"
 
 namespace samogwas
@@ -36,12 +38,13 @@ class AlgoClust: public AlgoClusteringInterface {
   virtual char* name() const = 0;
   virtual void invalidate() { compMatrix->invalidate(); }
 
-  AlgoClust( CompareMatrix* c): compMatrix(c) {}
-  virtual ~AlgoClust() { delete compMatrix; }
+  AlgoClust( std::shared_ptr<CompareMatrix> c): compMatrix(c) {}
+  // virtual ~AlgoClust() { delete compMatrix; }
   
  protected:
   // Matrix of similarities or dissimilarities
-  CompareMatrix* compMatrix; 
+  // CompareMatrix* compMatrix;
+  std::shared_ptr<CompareMatrix> compMatrix;
 };
 
 

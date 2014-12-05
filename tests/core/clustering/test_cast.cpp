@@ -8,7 +8,7 @@
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <math.h>
-
+#include <memory>
 #include "test_clustering.hpp"
 class Data 
 { 
@@ -23,8 +23,8 @@ BOOST_AUTO_TEST_CASE( Test_Gaussian_K_CAST_10 ) {
   int nrows = nclusts*N;
   std::vector<int> positions; for ( int i = 0; i < nrows; ++i ) positions.push_back(i);
   auto data = GenerateClusteredData( nclusts, N, CARD, ncols )();  
-  MutInfoSimi* diss = new MutInfoSimi(data, positions, MAX_POS, -1);  
-  CAST cast( diss, 0.5 );  
+  auto simi = std::make_shared<MutInfoSimi>(data, positions, MAX_POS, -1);  
+  CAST cast( simi, 0.5 );  
   Partition result = cast();
   for ( int i = 0; i < nrows; ++i ) {
     int expected_cluster = i / 3;

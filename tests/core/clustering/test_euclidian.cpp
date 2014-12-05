@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE( Test_DBSCAN_10 ) {
   // }
   // std::vector<int> positions; for ( int i = 0; i < nrows; ++i ) positions.push_back(i);
 
-  auto diss = new EucDiss(data);
+  auto diss = std::make_shared<EucDiss>(data);
   
 
   EucDBSCAN dbscan( diss, 2, 0.32 );
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE( Test_DBSCAN_10 ) {
      BOOST_CHECK_EQUAL(result.getLabel(i), expected_cluster );
   }
 
-  printf("diff = %f\n", (*diss)(0,1));
+  // printf("diff = %f\n", (*diss)(0,1));
 
 }
 

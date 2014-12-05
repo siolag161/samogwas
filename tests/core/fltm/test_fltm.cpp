@@ -60,8 +60,9 @@ BOOST_AUTO_TEST_CASE( Test_Def ) {
   // auto data = GenerateClusteredData( nclusts, N, CARD, ncols )();
   typedef samogwas::MutInfoDissimilarity<data_gen::Matrix> MutInfoDiss;
 
-  MutInfoDiss* diss = new MutInfoDiss( input.matrix, input.positions, MAX_POS, -1);
-  
+  // MutInfoDiss* diss = new MutInfoDiss( input.matrix, input.positions, MAX_POS, -1);
+  auto diss = std::make_shared<MutInfoDiss>( input.matrix, input.positions, MAX_POS, -1);
+
   initOptions(opt);
 
   LinearCardinality emLC(0.2, 1, 5);

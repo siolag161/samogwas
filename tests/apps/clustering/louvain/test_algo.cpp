@@ -53,19 +53,72 @@ BOOST_AUTO_TEST_CASE( Test_Linked_Weights_Wikipedia ) {
     {1,0,0,1,0,0,1,0,0,0}    
   };
   
-std::shared_ptr<SimilarityMatrix> simi(new Simi(sim));
-auto louv = std::make_shared<MethodLouvain>(simi);
-louv->run();
-    // Network network(graph);
+  std::shared_ptr<SimilarityMatrix> simi(new Simi(sim));
+  auto louv = std::make_shared<MethodLouvain>(simi);
 
-  // while (changed) {
-  //   first_phase(network);
-  //   second_phase(network);
-  // }
-  // auto graph = std::make_shared<Graph>(simi);
-  // Network ntw(graph);
-  // louv->first_phase(ntw);
+  louv->first_phase();
+  double modul_1st = louv->network->modularity();
+  louv->second_phase();
+  double modul_2nd = louv->network->modularity();
+  BOOST_CHECK_EQUAL(modul_1st , modul_2nd);
+  auto clustering = louv->run();
   
+  BOOST_CHECK_EQUAL( clustering.nbrClusters(), 3 );
+  BOOST_CHECK_EQUAL( clustering.getLabel(0), clustering.getLabel(1));
+  BOOST_CHECK_EQUAL( clustering.getLabel(1), clustering.getLabel(2));
+  BOOST_CHECK_EQUAL( clustering.getLabel(2), clustering.getLabel(9));
+
+  
+  for ( NodeIndex n = 0; n < clustering.nbrItems(); ++n ) {
+    if ( n < 3 ) BOOST_CHECK_EQUAL( clustering.getLabel(n), 0);
+    else if ( n < 6 ) BOOST_CHECK_EQUAL( clustering.getLabel(n), 1);
+    else if ( n < 9 ) BOOST_CHECK_EQUAL( clustering.getLabel(n), 2);
+    else if ( n == 9 ) BOOST_CHECK_EQUAL( clustering.getLabel(n), 0);
+  }
+  
+}
+
+
+BOOST_AUTO_TEST_CASE(TEST_GENERATE) {
+  int commCard = 5, commCount = 4;
+  int nrows = commCard*commCount;
+  std::vector<int> positions; for ( int i = 0; i < nrows; ++i ) positions.push_back(i);
+  auto data = data_gen::GenerateClusteredData( commCount, commCard, CARD, NCOLS )();  
+  std::shared_ptr<SimilarityMatrix> simi( new MutInfoSimi(data, positions, MAX_POS, +1) );
+  std::shared_ptr<Graph> g(new Graph(simi));
+
+
+  std::ofstream wg("./input/wg_real.txt");
+  auto sz = data->size();
+  for ( int r = 0; r < sz; ++r) {
+    for ( int c = r+1; c < sz; ++ c) {
+      double w = simi->compute(c,r);
+      if ( w > 0)
+        wg << r << " " << c << " " << w << std::endl;
+    }
+  }
+  
+  Network network(g);
+  
+  BOOST_CHECK_EQUAL(network.nbrCommunities(), commCount*commCard); // initially
+  BOOST_CHECK_EQUAL(network.nbrNodes(), commCount*commCard);
+  BOOST_CHECK_EQUAL(network.modularity(), -0.5);
+
+  for (int i = 0; i < commCard*commCount; ++i) {
+    BOOST_CHECK_EQUAL( network.getCommunity(i), i ); // initially
+    BOOST_CHECK_EQUAL( network.membersOf(i).size(), 1 ); // initially
+    BOOST_CHECK_EQUAL( network.membersOf(i)[0], i ); // initially
+  }
+
+  auto louv = std::make_shared<MethodLouvain>(simi);
+  auto clustering = louv->run();
+
+  for ( NodeIndex n = 0; n < clustering.nbrItems(); ++n ) {
+    BOOST_CHECK_EQUAL( clustering.getLabel(n), n/5 ); // initially
+  }
+
+  // 
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()  /// 

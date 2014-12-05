@@ -25,6 +25,8 @@
 #ifndef SAMOGWAS_CAST_HPP // CS Homogeneize the names all throughout the project.
 #define SAMOGWAS_CAST_HPP
 
+#include <memory>
+
 #include "distance/similarity.hpp" // SimilarityMatrix
 
 #include "clustering.hpp" // AlgoClust
@@ -58,7 +60,7 @@ struct CAST: public AlgoClust<SimiMatrix>  {
    * candidate Opencluster.
    *
    */
-  CAST ( SimiMatrix* simMat, const double& thres): AlgoClust<SimiMatrix>(simMat), thresCAST(thres) {}
+  CAST ( std::shared_ptr<SimiMatrix> simMat, const double& thres): AlgoClust<SimiMatrix>(simMat), thresCAST(thres) {}
 
   /** Executes the algorithm given the current input (SimiMatrix).
    *

@@ -22,7 +22,7 @@
 
 namespace samogwas
 {
-const static double MAX_DISTANCE = 1.0, MIN_DISTANCE = 0.0; //@todo: DISTANCE -> DISSIMILARITY
+const double MAX_DISTANCE = 1.0, MIN_DISTANCE = 0.0; //@todo: DISTANCE -> DISSIMILARITY
 
 /** Mutual information values are scaled to the [0,1] range, to obtain a metric.
  *  This method also takes into consideration the positions of the variables along a line (example: genome order).

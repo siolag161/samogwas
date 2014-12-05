@@ -62,9 +62,23 @@ struct Partition {
 
   virtual Label getLabel(Index itemIdx) const { return m_index2Label.at(itemIdx); } //@todo: getLabel +change Cluster -> Label
   
-  virtual void setLabel(Index itemIdx, Index clusterIdx) {  //@doto: setLabel
-    m_labelSet.insert(clusterIdx);
-    m_index2Label[itemIdx] = clusterIdx; 
+  virtual void setLabel(Index itemIdx, Label clusterIdx) {  //@doto: setLabel
+
+     auto it = m_index2Label.find(itemIdx);
+     if ( it != m_index2Label.end() && it->second == clusterIdx )
+       return;
+
+     if ( m_cluster_member_counts.find(clusterIdx) == m_cluster_member_counts.end() )
+       m_cluster_member_counts[clusterIdx] = 0;
+     
+     if ( it !=  m_index2Label.end() )
+       m_cluster_member_counts[it->second]--;
+     if (m_cluster_member_counts[it->second]==0)
+       removeLabel(it->second);
+        
+     m_labelSet.insert(clusterIdx);
+     m_index2Label[itemIdx] = clusterIdx;
+     m_cluster_member_counts[clusterIdx]++;
   }
 
 
@@ -84,6 +98,8 @@ struct Partition {
  protected:
   std::set<Label> m_labelSet; // A label is a cluster identifier. 
   Index2Label m_index2Label;
+  std::map<Index,int> m_cluster_member_counts; // keeps track of the nbr of items per cluster
+
 };
 
 /** Convenient way to output the content of a clustering

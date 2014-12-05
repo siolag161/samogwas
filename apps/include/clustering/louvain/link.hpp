@@ -19,11 +19,11 @@ namespace samogwas
 namespace louvain {
 
 class WeightedLink: public SimilarityMatrix {
-  typedef std::vector<std::vector<double>> Weights;
-  typedef std::shared_ptr<Weights> WeightPtr;
+  typedef std::vector<double> Weights;
+  typedef std::shared_ptr< std::vector<Weights> > WeightPtr;
 
  public:
-  WeightedLink( WeightPtr w );
+  // WeightedLink( WeightPtr w );
   WeightedLink( const size_t sz );
 
   virtual double compute( const size_t varA, const size_t varB );

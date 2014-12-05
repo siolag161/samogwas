@@ -22,9 +22,9 @@ typedef Partition::Label CommunityIndex;
 class Network: public Partition {
   
  public:
-  static const int TEMP_COMMUNITY = -1;
-  static const int INVALID_MODULARITY = -2;
-  
+  const int TEMP_COMMUNITY = -1;
+  const int INVALID_MODULARITY = -2;
+  typedef double Weight;
   /**
    */
   Network(std::shared_ptr<Graph> g): graph(g) { initialize(); }
@@ -33,10 +33,10 @@ class Network: public Partition {
 
   /**
    */
-  void removeNode(const NodeIndex& node, const double shared_weights = 0);
+  void removeNode(const NodeIndex& node, const Weight shared_weights = 0);
 
   void moveNode( const NodeIndex& node, const CommunityIndex& target,
-                          const double old_shared_weights, const double new_shared_weights );
+                          const Weight old_shared_weights, const Weight new_shared_weights );
   
       /**
        */
@@ -45,41 +45,50 @@ class Network: public Partition {
   
   /**
    */
-  void addNode(const NodeIndex& node, const CommunityIndex& comm, const double shared_weights = 0);
+  void addNode(const NodeIndex& node, const CommunityIndex& comm, const Weight shared_weights = 0);
 
   /**
    */
-  double modularityLoss( const NodeIndex& node,
-                         // const double own_shared, 
-                         const double shared_weights = -1.0) const;
+  Weight modularityLoss( const NodeIndex& node,
+                         // const Weight own_shared, 
+                         const Weight shared_weights = -1.0) const;
 
   /**
    */
-  double modularityGain( const NodeIndex& node,
+  Weight modularityGain( const NodeIndex& node,
                          const CommunityIndex& target,
-                         // const double own_shared, 
-                         const double shared_weights = -1.0) const;
+                         // const Weight own_shared, 
+                         const Weight shared_weights = -1.0) const;
 
   // /**
   //  */
-  // double modularityGain( const NodeIndex& node,
+  // Weight modularityGain( const NodeIndex& node,
   //                        const CommunityIndex& comm,
-  //                        const double shared_weights = -1.0) const;
+  //                        const Weight shared_weights = -1.0) const;
   /**
    */
-  CommunityIndex communityOf( const NodeIndex& node ) const;
+  CommunityIndex getCommunity( const NodeIndex& node ) const;
 
-
-  
   Graph::AdjIteRng adjacentNodes( const NodeIndex& i ) const { return graph->adjacentNodes(i); }
 
+
+  Graph::LinkIteRng allLinks() const { return graph->allLinks(); }
+    
+  /**
+   */
+  NodeIndex source( const Graph::LinkIndex& link ) const { return graph->source(link); }
+
+  /**
+   */
+  NodeIndex target( const Graph::LinkIndex& link ) const { return graph->target(link); }
+  
   /**
    */
   bool sameCommunity( const NodeIndex& i, const NodeIndex& j ) const;
       
   /**
    */
-  double modularity();
+  Weight modularity();
 
   /**
    */
@@ -103,25 +112,38 @@ class Network: public Partition {
   void initialize();
 
 
-  /** sum of weights from a node to all the nodes a given community
-   */
-  double weight2community( const NodeIndex& node, const CommunityIndex& comm ) const;
+  // /** sum of weights from a node to all the nodes a given community
+  //  */
+  // Weight weight2community( const NodeIndex& node, const CommunityIndex& comm ) const;
   
   /**
    */
-  double totalWeights() const;
+  Weight totalWeights() const;
+
+    /**
+   *
+   */
+  Weight weight( const NodeIndex& i, const NodeIndex& j) const {
+    return graph->weight(i,j);
+  }
+
+  /**
+   *
+   */
+  Weight weight( const Graph::LinkIndex& j) const { return graph->weight(j); }
 
 
   // /**  given a node, computes the total weights of other nodes connected to this one
   //  *
   //  */
-  double linkedWeights( const NodeIndex& node ) const { return graph->linkedWeights(node); }
+  Weight linkedWeights( const NodeIndex& node ) const { return graph->linkedWeights(node); }
 
   //
   void setCommunity( const NodeIndex& node, const CommunityIndex& comm );
 
-  double interCommunityWeight( const CommunityIndex& i, const CommunityIndex& j);
+  Weight interCommunityWeight( const CommunityIndex& i, const CommunityIndex& j);
 
+  Weight innerCommunityWeight( const CommunityIndex& i );
   
   virtual size_t nbrClusters() const { return m_labelSet.size(); }
   virtual size_t nbrItems() const { return graph->nbrNodes(); }
@@ -134,9 +156,10 @@ class Network: public Partition {
     return m_labelSet;
   }
   
-  double sharedWeights( const NodeIndex& node, const CommunityIndex& comm ) const;
+  Weight sharedWeights( const NodeIndex& node, const CommunityIndex& comm ) const;
   
 
+  // void buildDendogram(const Graph& curr_graph);
  public:
   std::shared_ptr<Graph> graph;
 
@@ -144,13 +167,13 @@ class Network: public Partition {
   std::vector<int> community_member_counts; // keeps track of the nbr of member per comunity
   
   // modularities & links
-  std::vector<double> in_weights; // total weight of links (including self-loops) inside each community
-  std::vector<double> tot_linked_weights;
+  std::vector<Weight> in_weights; // total weight of links (including self-loops) inside each community
+  std::vector<Weight> tot_linked_weights;
 
 
-  double curr_modularity;
+  Weight curr_modularity;
 
-  // double valid_values;
+  // Weight valid_values;
 };
 
 } // louvain ends here.

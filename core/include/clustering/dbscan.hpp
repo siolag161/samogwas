@@ -33,6 +33,8 @@
 #ifndef SAMOGWAS_DBSCAN_HPP 
 #define SAMOGWAS_DBSCAN_HPP
 
+#include <memory>
+
 #include "clustering.hpp" // AlgoClust
 #include "partition.hpp" // Partition
 
@@ -58,7 +60,7 @@ struct DBSCAN: public AlgoClust<DissMatrix> {
    * and the maximum radius (epsilon) of the neighborhood to be considered, which determines whether two points are neighbors.
    */
    
-  DBSCAN( DissMatrix* d, const int minPoints, const double epsi ):
+  DBSCAN( std::shared_ptr<DissMatrix> d, const int minPoints, const double epsi ):
       AlgoClust<DissMatrix>(d), minPts(minPoints), epsilon(epsi) { 
   }
 

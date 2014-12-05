@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE( Test_DBSCAN_10 ) {
   int nrows = nclusts*N;
   std::vector<int> positions; for ( int i = 0; i < nrows; ++i ) positions.push_back(i);
   auto data = GenerateClusteredData( nclusts, N, CARD, ncols )();  
-  MutInfoDiss* diss = new MutInfoDiss(data, positions, MAX_POS, -1);
+  auto diss = std::make_shared<MutInfoDiss>(data, positions, MAX_POS, -1);
 
   for ( int i = 0; i < nrows; ++i ) {
     for ( int j = i; j < nrows; ++j ) {
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE( Test_DBSCAN_10 ) {
        BOOST_CHECK_EQUAL(result.getLabel(i), expected_cluster );
   }
 
-  printf("diff = %f\n", (*diss)(0,1));
+  // printf("diff = %f\n", (*diss)(0,1));
 }
 
 

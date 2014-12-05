@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE( Test_Construction ) {
   BOOST_CHECK_EQUAL(network.nbrNodes(), commCount*commCard);
 
   for (int i = 0; i < commCard*commCount; ++i) {
-    BOOST_CHECK_EQUAL( network.communityOf(i), i ); // initially
+    BOOST_CHECK_EQUAL( network.getCommunity(i), i ); // initially
     BOOST_CHECK_EQUAL( network.membersOf(i).size(), 1 ); // initially
     BOOST_CHECK_EQUAL( network.membersOf(i)[0], i ); // initially
   }
@@ -171,13 +171,12 @@ BOOST_AUTO_TEST_CASE( Test_Linked_Weights_Wikipedia ) {
   for (int i=0;i<10;++i)
   {
     if ( i < 3 || i == 9)
-      BOOST_CHECK_EQUAL( network.communityOf(i), A);
+      BOOST_CHECK_EQUAL( network.getCommunity(i), A);
     else if ( i < 6)
-      BOOST_CHECK_EQUAL( network.communityOf(i), B);
+      BOOST_CHECK_EQUAL( network.getCommunity(i), B);
     else if ( i < 9)
-      BOOST_CHECK_EQUAL( network.communityOf(i), C);
+      BOOST_CHECK_EQUAL( network.getCommunity(i), C);
   }
-
 
   
   BOOST_CHECK_EQUAL( network.nbrCommunities(), 3);
