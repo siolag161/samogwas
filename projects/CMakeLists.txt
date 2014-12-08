@@ -14,4 +14,4 @@ add_subdirectory(fltm)
 add_subdirectory(clustering/louvain)
 add_subdirectory(data_generation)
 add_subdirectory(clustering/clustering_algo)
-
+add_subdirectory(gwas)

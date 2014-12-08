@@ -335,7 +335,7 @@ void SingleGraphSave::operator()( Graph& graph, const std::string singleFileName
   std::map<int, int> edgeMap;
   edge_iterator ei, ei_end;
   for (boost::tie(ei, ei_end) = boost::edges(graph); ei != ei_end; ++ei) {
-    edgeMap[ boost::target(*ei, graph)  ] = boost::source(*ei, graph);
+    edgeMap[boost::target(*ei, graph)] = boost::source(*ei, graph);
   }
    
   vertex_iterator vi, vi_end;
