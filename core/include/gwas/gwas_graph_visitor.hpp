@@ -34,7 +34,9 @@ class GWAS_Basic_Visitor: public GWAS_BFS_Visitor {
   GWAS_Basic_Visitor( std::shared_ptr<Criterion> eval,
                       std::shared_ptr<ScoreMap> scoreMap,
                       std::shared_ptr<Color> col)
-      : evaluator(eval), scores(scoreMap), color(col) {}  
+      : evaluator(eval), scores(scoreMap), color(col) {
+    visited_vertices = std::make_shared<std::vector<Vertex>>();
+  }  
 
   GWAS_Basic_Visitor( std::shared_ptr<Criterion> eval,
                       std::shared_ptr<Color> col)
@@ -54,16 +56,28 @@ class GWAS_Basic_Visitor: public GWAS_BFS_Visitor {
     if (!rs) {
       typename boost::graph_traits<Graph>::out_edge_iterator ei, ei_end;
       for (boost::tie(ei, ei_end) = out_edges(v, g); ei != ei_end; ++ei) {
-        Vertex u = target(*ei, g);  
-        (*color)[u] = boost::color_traits<boost::default_color_type>::black();
+        Vertex u = target(*ei, g);
+        if ( u != v ) {
+          (*color)[u] = boost::color_traits<boost::default_color_type>::black();
+        } // else {
+        //   (*color)[u] = boost::color_traits<boost::default_color_type>::black();
+        // }
       }
-    }    
+    } else {
+      visited_vertices->push_back(v);
+    }
+  }
+
+  std::vector<Vertex>& visitedVertices() const {
+    return *visited_vertices;
   }
   
   // private:
   std::shared_ptr<Criterion> evaluator;
   std::shared_ptr<ScoreMap> scores;  
   std::shared_ptr<Color> color;
+
+  std::shared_ptr<std::vector<Vertex>> visited_vertices;
 }; 
 
 

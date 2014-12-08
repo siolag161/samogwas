@@ -34,7 +34,7 @@ struct NodeCriterion: public GraphNodeCriterion {
     T nodeVal = nodeValue(g,vertex);
     T referenceVal = referenceValue(g,vertex);
     
-    return Func()(nodeVal, referenceVal);
+    return func(nodeVal, referenceVal);
   }
 
   virtual bool isValid( const Graph& g, const vertex_t& vertex, ScoreMap& scores) const {
@@ -44,8 +44,10 @@ struct NodeCriterion: public GraphNodeCriterion {
     T nodeVal = scores[vertex];
     T referenceVal = referenceValue(g,vertex);
 
-    return Func()(nodeVal, referenceVal);
+    return func(nodeVal, referenceVal);
   }
+
+  Func func;
   
 };
 

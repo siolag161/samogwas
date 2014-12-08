@@ -156,10 +156,10 @@ void saveImputedData( std::string dataPath, std::string labposPath,
   for ( boost::tie(vi, vi_end) = boost::vertices(graph); vi != vi_end; ++vi ) {
     vertex_t vertex = *vi;
     if ( vertex < input.indexes.size() )
-      labPosOut << input.indexes[vertex] << "," << graph[vertex].label << "," << graph[vertex].position
+      labPosOut << "," << input.indexes[vertex] << "," << graph[vertex].label << "," << graph[vertex].position
                 << "," << graph[vertex].variable.cardinality() << std::endl;
     else {
-      labPosOut << ++latId << "," << "\"imputed-" + graph[vertex].label << "\"," << graph[vertex].position
+      labPosOut << "," << ++latId << "," << "\"imputed-" + graph[vertex].label << "\"," << graph[vertex].position
                 << "," << graph[vertex].variable.cardinality() << std::endl;
     }
   }

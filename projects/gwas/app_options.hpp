@@ -27,10 +27,18 @@ struct Options {
   std::string inputDataFile;
   std::string inputImputedDataFile;
   std::string inputLabelFile;
+  std::string inputPheno;
 
   std::string graphFile;
-  std::string bayesVertex;  
-  std::string bayesDist;  
+  std::string bayesVertices;  
+  std::string bayesDist;
+
+  std::string scoreFile;
+  std::string thresFile;
+
+  double overall_thres;
+
+  std::string outputDir;
   
 };
 
@@ -45,14 +53,21 @@ inline Options getProgramOptions(int argc, char** argv) {
      */
     optDesc.add_options()
         ("help,h", "Print help messages")        
-        ("in_dat,d", po::value<std::string>(&result.inputDataFile)->required(), "Input Data File")
+        ("in_dat,i", po::value<std::string>(&result.inputDataFile)->required(), "Input Data File")
         // ("in_imputed,i", po::value<std::string>(&result.inputDataFile)->required(), "Input Imputed Data File")
+        ("in_pheno,p", po::value<std::string>(&result.inputPheno)->required(), "Input Pheno File")
         ("in_graph,g", po::value<std::string>(&result.graphFile)->required(), "Input Graph File")
-        ("in_bayes,b", po::value<std::string>(&result.bayesFile)->required(), "Input Bayes File")
+        ("in_bayes_vertex,v", po::value<std::string>(&result.bayesVertices)->required(), "Input Bayes File")
+        ("in_bayes_dist,d", po::value<std::string>(&result.bayesDist)->required(), "Input Dist File")
 
         ("in_lab,l", po::value<std::string>(&result.inputLabelFile)->required(), "Input Label File")
-
+        ("score_file,s", po::value<std::string>(&result.scoreFile)->required(), "Input Score File")
+        ("thres_file,t", po::value<std::string>(&result.thresFile)->required(), "Input Threshold File")
         
+        ("overral_thres,r", po::value<double>(&result.overall_thres)->required(), "Input Overral Threshold")
+
+        ("outDir,o", po::value<std::string>(&result.outputDir)->required(), "Output Dir")
+
         ;
     po::variables_map vm; 
     try { 
