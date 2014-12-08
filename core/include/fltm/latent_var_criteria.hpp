@@ -53,7 +53,7 @@ double AverageMutInfo::operator()( const VecType &latentVar,
   
   double totalScaledMutInfo = 0.0;
   double varEntropy = entropy(latentVar);
-  
+
   for ( auto& idx: childrenIdx) {
     double idxEntropy = entropy( mat[idx] );     
     double minEntropy = std::min( idxEntropy, varEntropy );
@@ -65,7 +65,6 @@ double AverageMutInfo::operator()( const VecType &latentVar,
     double mutInfo = varEntropy + idxEntropy - jEntropy;
     double scaledMutualInfo = mutInfo / minEntropy;
     totalScaledMutInfo += scaledMutualInfo;
-    
   }
 
   double result = totalScaledMutInfo / childrenIdx.size();

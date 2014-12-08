@@ -39,6 +39,7 @@ struct CompMatrix {
    */
   virtual void invalidate() = 0;
 
+
 };
 
 /////////////////////////////////////////////////////

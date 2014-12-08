@@ -32,10 +32,15 @@ void FLTM::operator()( FLTM_Result &result,
   
   for ( int step = 0; step < options.nbrSteps; ++step) {
     printf( "\nbeging step: %d of %d...\n", step, options.nbrSteps );
-    MatrixPtr nextStepMatrix(new Matrix); Matrix2GraphIndex nextStepMat2GraphIndex;  
-    clustAlgo->invalidate();
+    MatrixPtr nextStepMatrix(new Matrix); Matrix2GraphIndex nextStepMat2GraphIndex;
+    if ( step > 0 )
+      clustAlgo->invalidate();
+    // clustAlgo->setData(input.matrix);
     printf( "start clustering of data of: %zu variables...\n", input.matrix->size() );
-    auto clustering = clustAlgo->run().to_clustering(); // auto: to prevent explicite declaration of the type.
+    auto partition = clustAlgo->run();
+    printf( "vares...\n", input.matrix->size() );
+
+    auto clustering = partition.to_clustering(); // auto: to prevent explicite declaration of the type.
     printf( "end clustering, obtained: %zu clusters...\n", clustering.size() );
 
     int singletonCount = 0;
@@ -75,7 +80,7 @@ void FLTM::operator()( FLTM_Result &result,
       return;
     }
     mat2GraphIndex = nextStepMat2GraphIndex;
-    input.matrix = nextStepMatrix;
+    *input.matrix = *nextStepMatrix;
     input.positions = extractPositionsForMatrixVariables( graph, mat2GraphIndex );
   }
 }
@@ -151,6 +156,7 @@ bool FLTM::goodLatentVariable( std::vector<int> &latentData,
 {
   AverageMutInfo averageMutInfo;
   double measuredQuantity = averageMutInfo( latentData, emMat, cluster );
+  printf("evaluting quality: %f vs threshold: %f\n", measuredQuantity, latentVarQualityThres);
   return ( measuredQuantity >= latentVarQualityThres);
 }
 

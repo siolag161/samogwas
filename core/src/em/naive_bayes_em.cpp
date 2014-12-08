@@ -42,9 +42,9 @@ void NaiveBayesEM::run( ResultEM& result,
     candidateModels.push_back(learner); // puts the learnt model into the collection
   }
 
-  // plEMLearner bestModel = getBestModel(candidateModels, dataDesc);
-  // imputeLatent( result, latentVar, dataTable, bestModel, dataDesc );
-  // result.jointDistribution = bestModel.get_joint_distribution();
+  plEMLearner bestModel = getBestModel(candidateModels, dataDesc);
+  imputeLatent( result, latentVar, dataTable, bestModel, dataDesc );
+  result.jointDistribution = bestModel.get_joint_distribution();
 
 }
 

@@ -62,9 +62,21 @@ struct MutInfoDissimilarity: public DissimilarityMatrix {
     entropyMap.clear();
     entropyMap.resize(positions.size(), -MAX_DISTANCE); // reset 
     distCache = std::map< size_t, double >(); // free the memory
+
+    maxPosition *= 3;
+    // printf(" after invaliding, we now have: %zu, %zu\n", dataMat->size(), maxPosition);
+
+  }
+
+  virtual void setData(DataMatPtr data) {
+    dataMat = data;
+  }
+
+  virtual void setPositions(std::vector<int>& pos) {
+    positions = pos;
   }
   
- protected:
+ // protected:
   // reference to the actual data
   DataMatPtr dataMat;
 
