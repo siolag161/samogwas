@@ -22,7 +22,7 @@ namespace samogwas
 namespace louvain {
 
 MethodLouvain::MethodLouvain(WeightsPtr wt): changed(true) {
-  graph = std::make_shared<Graph>(wt);
+  graph = std::make_shared<Graph>(wt, false);
   network = std::make_shared<Network>(graph);
   partition = std::make_shared<Partition>();
   for ( NodeIndex n = 0; n < network->nbrNodes(); ++n ) {
@@ -34,11 +34,11 @@ MethodLouvain::MethodLouvain(WeightsPtr wt): changed(true) {
 Partition MethodLouvain::run() {
   // Network partition(network->nbrNodes());
   // Network network(graph);
-  while (changed) {
+  // while (changed) {
     first_phase();
     if (changed)
       second_phase();
-  }
+  // }
 
    printf("\n-------------- DONE clustering -------------\n\n");
 

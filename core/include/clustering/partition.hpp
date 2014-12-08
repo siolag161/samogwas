@@ -81,7 +81,6 @@ struct Partition {
      m_cluster_member_counts[clusterIdx]++;
   }
 
-
   virtual void removeLabel(Index clusterIdx) {
     for( auto iter = m_labelSet.begin(); iter != m_labelSet.end();  )
     {

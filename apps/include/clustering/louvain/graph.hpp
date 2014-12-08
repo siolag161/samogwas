@@ -44,15 +44,18 @@ class Graph: public BaseGraph {
  public:
 
   static const int INVALID_WEIGHT = -1;
-  typedef SimilarityMatrix Weights; 
+  typedef double Weight;
+  typedef SimilarityMatrix WeightMat;
+  typedef std::vector<Weight> Weights;
   typedef std::shared_ptr<Weights> WeightsPtr;
+  typedef std::shared_ptr<WeightMat> WeightMatPtr;
   typedef Graph::edge_descriptor LinkIndex;
   typedef boost::graph_traits<Graph>::edge_descriptor LinkDesc;
   
   typedef boost::property_map<Graph, boost::edge_weight_t>::type LinkWeightMap;
   
   
-  Graph( WeightsPtr l);
+  Graph( WeightMatPtr l, bool keep_loops = false);
   /**
    *
    */
@@ -75,11 +78,11 @@ class Graph: public BaseGraph {
   Weight weight( const LinkIndex& j) const { return weight( source(j), target(j) ); }
 
 
-  void initialize(); 
+  void initialize(bool keep_loops = false); 
   /**
    *
    */
-  Weight selfLoopWeight( const NodeIndex& i ) const { return weight(i,i); }
+  Weight selfLoopWeight( const NodeIndex& i ) const { return self_loops->at(i); }
 
     
   Weight totalWeights();
@@ -100,14 +103,14 @@ class Graph: public BaseGraph {
   OutLinkIteRng linksFrom( const NodeIndex& i ) const;
 
   Weight linkedWeights( const NodeIndex& node) {
-    if ( linked_weights[node] == INVALID_WEIGHT ) {
-      linked_weights[node] = 0;
+    if ( linked_weights->at(node) == INVALID_WEIGHT ) {
+      (*linked_weights)[node] = 0;
       for ( auto vp = linksFrom(node); vp.first != vp.second; ++vp.first ) {
-        linked_weights[node] += weight(*vp.first);
+        (*linked_weights)[node] += weight(*vp.first);
       }
-      linked_weights[node] += selfLoopWeight(node); // self-loops 
+      (*linked_weights)[node] += selfLoopWeight(node); // self-loops 
     }
-    return linked_weights[node];
+    return linked_weights->at(node);
   }
 
 
@@ -121,12 +124,13 @@ class Graph: public BaseGraph {
   /**
    *
    */
-  WeightsPtr weights; // gives the weighted link between vertices links[a][b]
+  WeightMatPtr weights; // gives the weighted link between vertices links[a][b]
   size_t nbr_links;  
   // LinkWeightMap linkWeightMap;
   Weight total_weights;
 
-  std::vector<Weight> linked_weights; // weighted_degrees
+  WeightsPtr linked_weights; // weighted_degrees
+  WeightsPtr self_loops;
 };
 
 

@@ -72,10 +72,9 @@ std::vector<NodeIndex> Network::membersOf( const CommunityIndex& comm ) const {
 /**
  */
 double Network::modularity() {
-
-   if ( totalWeights() <= 0 ) {
-     return INVALID_MODULARITY;
-   }
+  if ( totalWeights() <= 0 ) {
+    return INVALID_MODULARITY;
+  }
   curr_modularity = 0.0;
   double tw2 = totalWeights()*2;
 
@@ -190,11 +189,17 @@ void Network::addNode(const NodeIndex& node,
                       const CommunityIndex& comm,
                       const double shared_weights) {
   if ( comm >= 0 && comm < nbrNodes() ) {
-    double tmp = in_weights[comm];
+    double tmp = in_weights[comm], loop_1 = graph->selfLoopWeight(node);
     setCommunity(node,comm);
     community_member_counts[comm]++;
     tot_linked_weights[comm] += linkedWeights(node);
     in_weights[comm] += 2*shared_weights + graph->selfLoopWeight(node);
+    double loop_2 = graph->selfLoopWeight(node);;
+    // if (community_member_counts[comm]==1) {
+    //   printf("adding %d -> %d, with shared_weights = %f -> %f, loop: %f->%f, in_w: %f\n", node, comm, tmp, 
+    //          shared_weights, loop_1, loop_2, in_weights[comm]);
+      
+    // }
   }  
 }
 

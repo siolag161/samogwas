@@ -56,11 +56,22 @@ BOOST_AUTO_TEST_CASE( Test_Linked_Weights_Wikipedia ) {
   std::shared_ptr<SimilarityMatrix> simi(new Simi(sim));
   auto louv = std::make_shared<MethodLouvain>(simi);
 
+  printf("\n\n\n------------------------------------------------BUGGGING--------------------------------------\n\n");
   louv->first_phase();
   double modul_1st = louv->network->modularity();
   louv->second_phase();
   double modul_2nd = louv->network->modularity();
+  auto ntw = louv->network;
+  for ( auto comm: ntw->communities() ) {
+    
+    double iw = ntw->in_weights[comm];
+    double tl = ntw->tot_linked_weights[comm];
+    printf("comm: %d, iw: %f, tw: %f, tot_w = %f\n", comm, iw, tl, ntw->totalWeights());
+  }  
+  
   BOOST_CHECK_EQUAL(modul_1st , modul_2nd);
+  printf("\n--------------------------------------------------------END - BUGGGING-------------------------------\n\n\n");
+
   auto clustering = louv->run();
   
   BOOST_CHECK_EQUAL( clustering.nbrClusters(), 3 );
@@ -84,11 +95,11 @@ BOOST_AUTO_TEST_CASE(TEST_GENERATE) {
   int nrows = commCard*commCount;
   std::vector<int> positions; for ( int i = 0; i < nrows; ++i ) positions.push_back(i);
   auto data = data_gen::GenerateClusteredData( commCount, commCard, CARD, NCOLS )();  
-  std::shared_ptr<SimilarityMatrix> simi( new MutInfoSimi(data, positions, MAX_POS, +1) );
+  std::shared_ptr<SimilarityMatrix> simi( new MutInfoSimi(data, positions, MAX_POS, -1) );
   std::shared_ptr<Graph> g(new Graph(simi));
 
 
-  std::ofstream wg("./input/wg_real.txt");
+  std::ofstream wg("./input/graph.txt");
   auto sz = data->size();
   for ( int r = 0; r < sz; ++r) {
     for ( int c = r+1; c < sz; ++ c) {
@@ -97,12 +108,14 @@ BOOST_AUTO_TEST_CASE(TEST_GENERATE) {
         wg << r << " " << c << " " << w << std::endl;
     }
   }
-  
+
+  printf("\n\n\n-------------------------------------BUNBUN-----------------------------\n\n\n");
   Network network(g);
-  
+
+  printf("-------------------------------------BUNBUN-----------------------------\n\n\n");
+
   BOOST_CHECK_EQUAL(network.nbrCommunities(), commCount*commCard); // initially
   BOOST_CHECK_EQUAL(network.nbrNodes(), commCount*commCard);
-  BOOST_CHECK_EQUAL(network.modularity(), -0.5);
 
   for (int i = 0; i < commCard*commCount; ++i) {
     BOOST_CHECK_EQUAL( network.getCommunity(i), i ); // initially
@@ -110,14 +123,36 @@ BOOST_AUTO_TEST_CASE(TEST_GENERATE) {
     BOOST_CHECK_EQUAL( network.membersOf(i)[0], i ); // initially
   }
 
+
+
+  double expected_modularity = 0.0;
+  double tw2 = 80;
+  for (int i = 0; i < commCard*commCount; ++i) {
+    // in_weights[comm] / tw2 - (tot_linked_weights[comm]/tw2)*(tot_linked_weights[comm]/tw2);
+    double iw = network.in_weights[i];
+    double itw = network.tot_linked_weights[i];
+    BOOST_CHECK_EQUAL( iw, 0.0 );
+    BOOST_CHECK_EQUAL( iw, 0.0 );
+
+    expected_modularity += ( iw - (itw/tw2)*( itw/tw2) );
+  }
+  BOOST_CHECK_CLOSE(network.modularity(), -0.05, 0.0001);
+
+
+  auto louv1 = std::make_shared<MethodLouvain>(simi);
+
+
+  double modul_1st = louv1->network->modularity();
+  louv1->second_phase();
+  double modul_2nd = louv1->network->modularity();
+  BOOST_CHECK_EQUAL(modul_1st , modul_2nd);
+
   auto louv = std::make_shared<MethodLouvain>(simi);
   auto clustering = louv->run();
-
+  
   for ( NodeIndex n = 0; n < clustering.nbrItems(); ++n ) {
     BOOST_CHECK_EQUAL( clustering.getLabel(n), n/5 ); // initially
   }
-
-  // 
 
 }
 

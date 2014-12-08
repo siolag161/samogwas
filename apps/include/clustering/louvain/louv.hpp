@@ -109,8 +109,7 @@ void MethodLouvain::second_phase() {
   auto nbrComms = network->nbrCommunities();
   std::vector<CommunityIndex> new2old_comm_map;
   std::copy( network->communities().begin(), network->communities().end(), std::back_inserter(new2old_comm_map) );
-  std::map<CommunityIndex, CommunityIndex> old2new_comm_map; 
- 
+  std::map<CommunityIndex, CommunityIndex> old2new_comm_map;  
 
   for ( CommunityIndex new_comm = 0; new_comm < new2old_comm_map.size(); ++new_comm ) {
     auto old_comm = new2old_comm_map[new_comm];
@@ -144,12 +143,13 @@ void MethodLouvain::second_phase() {
   
 
   update_partition( *partition, *network, old2new_comm_map); 
-  auto g = std::make_shared<Graph>(links);
+  auto g = std::make_shared<Graph>(links, true);
   network->setGraph(g);
 
   // printf("\n----------------hehe ends 2nd phase----we have %d over %d with %f modularity---------------\n",
   //        network->nbrNodes(), network->nbrCommunities(), network->modularity() );
 
+  
 }
 
 inline void MethodLouvain::resize_order( std::vector<NodeIndex>& node_order, const size_t sz ) {  

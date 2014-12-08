@@ -16,8 +16,11 @@
 #include <boost/filesystem.hpp> // to obtain the program's name
 
 #include "distance/comparable.hpp"
+
 #include "clustering/cast.hpp"
 #include "clustering/dbscan.hpp"
+#include "clustering/louvain/louv.hpp"
+
 #include "distance/dissimilarity.hpp"
 #include "distance/similarity.hpp"
 #include "fltm/fltm.hpp"
@@ -100,10 +103,14 @@ std::shared_ptr<AlgoClusteringInterface> getAlgoClust( FLTM_Data& input, Options
     auto diss = std::make_shared<MutInfoDiss>( input.matrix, input.positions, opt.fltm_maxDist, opt.fltm_simiThres );
     algo = std::make_shared<DBSCAN<MutInfoDiss>>( diss, opt.dbscan_minPts, opt.dbscan_eps );
     printf("DBSCAN(%d,%.2f)\n", opt.dbscan_minPts, opt.dbscan_eps );
-  } else {
+  } else if ( opt.clustAlgo == 1 ) { // CAST
     auto simi = std::make_shared<MutInfoSimi>( input.matrix, input.positions, opt.fltm_maxDist, opt.fltm_simiThres );
     algo = std::make_shared<CAST<MutInfoSimi>>( simi, opt.cast_cast);
     printf("CAST(%.2f)\n", opt.cast_cast );
+  } else {
+    auto simi = std::make_shared<MutInfoSimi>( input.matrix, input.positions, opt.fltm_maxDist, opt.fltm_simiThres );           
+    algo = std::make_shared<louvain::MethodLouvain>(simi);
+    printf("LOUVAIN\n", opt.cast_cast );
   }
   return algo;
 }

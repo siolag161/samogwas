@@ -44,6 +44,8 @@ boost::filesystem::path outputDir( ApplicationOptions& progOpt );
 char* current_date();
 void saveClustering( const Partition& partition, const std::vector<unsigned>& ids, std::string clustFN );
 
+void singletonClustering( const Partition& partition );
+
 int main(int argc, char** argv) {
   auto progOpt = getProgramOptions(argc, argv);
 
@@ -70,28 +72,11 @@ int main(int argc, char** argv) {
   auto outPath = outputDir(progOpt);
   std::ofstream statIs(statFileName(progOpt,outPath));
 
-  // std::ofstream wg("input/wg_real.txt");
-  // auto simi = std::make_shared<MutInfoSimi>( matrix, positions, progOpt.maxDist, -1 );
-  // auto sz = matrix->size();
-  // for ( int r = 0; r < sz; ++r) {
-  //   for ( int c = r+1; c < sz; ++ c) {
-  //     double w = simi->compute(c,r);
-  //     if ( w > 0)
-  //       wg << r << " " << c << " " << w << std::endl;
-  //   }
-  // }
 
-  // std::ofstream wg1("input/wg_bin.txt");
-  // auto simi1 = std::make_shared<MutInfoSimi>( matrix, positions, progOpt.maxDist, +1);
-  // for ( int r = 0; r < sz; ++r) {
-  //   for ( int c = r+1; c < sz; ++ c) {
-  //     double w = simi1->compute(c,r);
-  //     if ( w > 0)
-  //       wg << r << " " << c << " " << w << std::endl;
-  //   }
-  // }
-  // wg.close();
+  statIs << "clustering: " << labels.size() << " variables\n";
   for ( auto algo: clust_algos ) {
+    std::cout << "\n-----------------------------------------------\n\n";
+
     timer.restart();
     printf("starting to perform %s now ", algo->name());
     statIs << "clustering: " << algo->name();
@@ -100,10 +85,13 @@ int main(int argc, char** argv) {
     printf("done %s. got %d in %s\n ", algo->name(), clustering.nbrClusters(), timer.display().c_str()) ;
 
     // std::cout << "clustering %s done, takes " << timer.display() << std::endl;
-    statIs << "clustering done, takes " << timer.display() << std::endl << std::endl;
+    statIs << "clustering done. produces: " << clustering.nbrClusters() << "  clusters and takes " << timer.display() << std::endl;
+    singletonClustering(clustering);
+    std::cout << std::endl;
     auto clt_fn = clusteringFileName( algo, progOpt, outPath );
     std::cout << "writing result now...\n";
     saveClustering( clustering, ids, clt_fn );
+    std::cout << "\n-----------------------------------------------\n\n";
   }
 
   statIs.close();
@@ -264,4 +252,26 @@ std::string clusteringFileName( ClustAlgoPtr algo, ApplicationOptions& progOpt, 
   outputFileName = (path / clustering_fn).string();
 
   return outputFileName;
+}
+
+
+void singletonClustering( const Partition& partition ) {
+  auto clustering = partition.to_clustering();
+
+  int nbr_non_singletons = 0;
+  int total = 0;
+  double ave_count = 0.0;
+  int total_elems = 0;
+  for ( auto clt: clustering ) {
+    total++;
+    total_elems += clt.size();
+    if (clt.size() > 1)
+    {
+      nbr_non_singletons++;
+      ave_count += clt.size();
+    }
+  }
+  ave_count /= nbr_non_singletons;
+  printf("nbr non-singeleton: %d (over: %d - %d), average: %f over %d\n",
+         nbr_non_singletons, total, partition.nbrClusters(), ave_count, total_elems);
 }

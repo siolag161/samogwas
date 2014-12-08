@@ -14,26 +14,36 @@ namespace samogwas
 {
 namespace louvain {
   
-Graph::Graph( WeightsPtr l): weights(l), total_weights(0.0) {
-  initialize();
+Graph::Graph( WeightMatPtr l, bool keep_self_loops): weights(l), total_weights(0.0), nbr_links(0) {
+  initialize(keep_self_loops);
+  
 }
 
-void Graph::initialize() {
+void Graph::initialize(bool keep_self_loops) {
+  
+  linked_weights = std::make_shared<Weights>(nbrNodes(), -1);
+  self_loops = std::make_shared<Weights>(nbrNodes(), 0.0);
+  
   for ( int i = 0; i < this->nbrNodes(); ++i) {      
     addNode();      
   }
+  
   for ( int i = 0; i < this->nbrNodes(); ++i) {
-    total_weights += selfLoopWeight(i) / 2;
+    if (keep_self_loops) {
+      (*self_loops)[i] = this->weights->compute(i,i);
+    }
+    total_weights += selfLoopWeight(i)/2;
+
     for ( int j = i+1; j < this->nbrNodes(); ++j ) {
       Weight w = this->weights->compute(i,j);
       if (w > 0) { 
         addLink(i,j,w);
         total_weights += w;
+        nbr_links++;
       }
     }
   }
-  nbr_links = boost::num_edges(*this);
-  linked_weights.resize(nbrNodes(), -1);
+
 }
   
 

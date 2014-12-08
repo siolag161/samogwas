@@ -123,9 +123,7 @@ BOOST_AUTO_TEST_CASE( Test_Linked_Weights_Wikipedia ) {
   // BOOST_CHECK_EQUAL( g->linkedWeights(0) 120);
   for (int i=0;i<10;++i)
   {
-
-    BOOST_CHECK_EQUAL( g->linkedWeights(i), network.tot_linked_weights[i]);
- 
+    BOOST_CHECK_EQUAL( g->linkedWeights(i), network.tot_linked_weights[i]); 
   }
   
   const int A = 0, B = 1, C = 2;
@@ -167,7 +165,6 @@ BOOST_AUTO_TEST_CASE( Test_Linked_Weights_Wikipedia ) {
   network.moveNode(8, A);
   network.moveNode(8, C);
 
-
   for (int i=0;i<10;++i)
   {
     if ( i < 3 || i == 9)
@@ -177,7 +174,6 @@ BOOST_AUTO_TEST_CASE( Test_Linked_Weights_Wikipedia ) {
     else if ( i < 9)
       BOOST_CHECK_EQUAL( network.getCommunity(i), C);
   }
-
   
   BOOST_CHECK_EQUAL( network.nbrCommunities(), 3);
   BOOST_CHECK_EQUAL( network.totalWeights(), 12.0);
@@ -191,10 +187,42 @@ BOOST_AUTO_TEST_CASE( Test_Linked_Weights_Wikipedia ) {
   //BOOST_CHECK_EQUAL( network.modularityGain(9,C,-1.0) , 0.0 );
   BOOST_CHECK_EQUAL( network.tot_linked_weights[C] , 7 );
   BOOST_CHECK_EQUAL( network.linkedWeights(9), 3 );
-
   
   BOOST_CHECK_CLOSE( network.modularity(), 0.4895833, 0.001);
 
+}
+
+BOOST_AUTO_TEST_CASE( Test_Modularity ) {
+  // http://en.wikipedia.org/wiki/Modularity_%28networks%29
+  std::vector< std::vector<double> > sim {
+    {0,1,1},
+    {1,0,1},
+    {1,1,0}
+  };
+    // SimilarityMatrix* simi = new Simi(sim);
+  std::shared_ptr<SimilarityMatrix> simi(new Simi(sim));
+  std::shared_ptr<Graph> g(new Graph(simi));
+  Network network(g);
+
+  BOOST_CHECK_EQUAL(network.modularity(), -1.0/3);
+
+  std::vector< std::vector<double> > sim2 {
+    {0,1,0},
+    {1,0,1},
+    {0,1,0}
+  };
+  
+  network.setGraph(std::make_shared<Graph>(std::make_shared<Simi>(sim2)));
+  BOOST_CHECK_EQUAL(network.modularity(), -0.375);
+
+  std::vector< std::vector<double> > sim3 {
+    {0,1,0},
+    {1,0,0},
+    {0,0,0}
+  };
+  
+  network.setGraph(std::make_shared<Graph>(std::make_shared<Simi>(sim3)));
+  BOOST_CHECK_EQUAL(network.modularity(), -0.5);
 
 }
 

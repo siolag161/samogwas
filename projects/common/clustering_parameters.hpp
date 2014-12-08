@@ -81,11 +81,7 @@ inline std::vector<ClustAlgoPtr> read_clustering_algos( MatrixPtr matrix, Positi
         algorithm = std::make_shared<CAST_Algo>( simi, cast);
 
       } else if ( algo_cfg.get<std::string>("name") == "LOUVAIN" ) {
-        auto simi = std::make_shared<MutInfoSimi>( matrix, positions, maxDist, simiThres );
-
-
-        
-        
+        auto simi = std::make_shared<MutInfoSimi>( matrix, positions, maxDist, simiThres );           
         algorithm = std::make_shared<louvain::MethodLouvain>(simi);
       } else {
         throw std::invalid_argument( "unknown algorithm" );
