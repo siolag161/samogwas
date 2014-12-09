@@ -35,7 +35,13 @@ class MethodLouvain: public AlgoClusteringInterface  {
   MethodLouvain( WeightsPtr wts);
   virtual Partition run();
   virtual char* name() const;
-  virtual void invalidate() {}  
+  virtual void invalidate() {
+    network->invalidate();
+    partition = std::make_shared<Partition>();
+    for ( NodeIndex n = 0; n < network->nbrNodes(); ++n ) {
+      partition->setLabel(n, network->getCommunity(n));
+    }
+  }  
   //protected:
  public:
   /////////
@@ -76,8 +82,8 @@ inline void MethodLouvain::randomize_order( std::vector<NodeIndex>& vt ) {
  */
 bool MethodLouvain::first_phase() {
   
-  printf("----------------haha 1s phase - we have %d over %d: %f---------------\n",
-         network->modularity(), network->nbrNodes(), network->nbrCommunities() );
+  // printf("----------------haha 1s phase - we have %d over %d: %f---------------\n",
+         // network->modularity(), network->nbrNodes(), network->nbrCommunities() );
   resize_order(node_order, network->nbrNodes());
   changed = false;
   double local_changed = true;  
@@ -97,7 +103,7 @@ bool MethodLouvain::first_phase() {
       } 
     }    
   }
-  printf("\n----------------hehe end 1st phase -  now %d vars -> %d communitities, with %f modularity ---------------\n\n", network->nbrNodes(), network->nbrCommunities(), network->modularity() );
+  // printf("\n----------------hehe end 1st phase -  now %d vars -> %d communitities, with %f modularity ---------------\n\n", network->nbrNodes(), network->nbrCommunities(), network->modularity() );
   return changed;
 }
 

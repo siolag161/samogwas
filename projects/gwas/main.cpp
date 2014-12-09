@@ -59,8 +59,10 @@ ValueMatPtr loadThres(std::string& infile);
 PhenoVecPtr loadPhenotype(std::string& phenoFile);
 //////////////////////////////////////////////////////////////
 Vertex addVirtualRoot( Graph& g, std::vector<Vertex>& parent);
-void saveResult( std::string& outFileName, Graph& graph, std::vector<Vertex>& parent,
+void saveGWASSearching( std::string& outFileName, Graph& graph, std::vector<Vertex>& parent,
                  std::vector<Vertex>& visited, std::vector<std::vector<double>>& scores );
+void saveRegions( std::string& outFileName, int chromosome, Graph& graph );
+
 //////////////////////////////////////////////////////////////
 int main( int argc, char** argv ) {
   Options pos = getProgramOptions( argc, argv );
@@ -81,30 +83,39 @@ int main( int argc, char** argv ) {
              pos.bayesVertices,
              pos.bayesDist );
 
-  std::cout << "Done loading graph data...\n" << std::endl;
-  auto scores = loadScores(pos.scoreFile);
-  auto thres = loadThres(pos.thresFile);
-  auto criteria = std::make_shared<MultiSourceNodeCriterion>(*thres, *scores, pos.overall_thres); 
-  
-  typedef std::map<Vertex, boost::default_color_type> ColorMap;
-  typedef boost::associative_property_map<ColorMap> Color;
-  typedef std::map<Vertex, double> ScoreMap;
+  // printf("load graph of %d edges and %d vertices\n", boost::num_edges(*result.graph),
+  //        boost::num_vertices(*result.graph));
 
-  std::vector<Vertex> parent( boost::num_vertices(graph), -1);
+  printf("Done loading graph of %d edges and %d vertices\n", boost::num_edges(graph),
+         boost::num_vertices(graph));
   
-  auto root = addVirtualRoot(graph, parent);    
-  ColorMap cmap;
-  auto colorMap = std::make_shared<Color>(cmap);
-  GWAS_Basic_Visitor visitor( criteria, std::make_shared<ScoreMap>(), colorMap);
-  boost::queue<vertex_t> q;
-  boost::breadth_first_search( graph, root, q, visitor, *colorMap);
-  boost::remove_vertex(root,graph); 
-  
-
   auto outputPath = outputDir(pos);
-  auto outFileName = ( outputPath / "gwas_result.txt").string();
-  saveResult( outFileName, graph, parent, visitor.visitedVertices(), *scores ) ;
+  if ( pos.task == 0 ) {
+    auto scores = loadScores(pos.scoreFile);
+    auto thres = loadThres(pos.thresFile);
+    auto criteria = std::make_shared<MultiSourceNodeCriterion>(*thres, *scores, pos.overall_thres); 
+  
+    typedef std::map<Vertex, boost::default_color_type> ColorMap;
+    typedef boost::associative_property_map<ColorMap> Color;
+    typedef std::map<Vertex, double> ScoreMap;
 
+    std::vector<Vertex> parent( boost::num_vertices(graph), -1);
+  
+    auto root = addVirtualRoot(graph, parent);    
+    ColorMap cmap;
+    auto colorMap = std::make_shared<Color>(cmap);
+    GWAS_Basic_Visitor visitor( criteria, std::make_shared<ScoreMap>(), colorMap);
+    boost::queue<vertex_t> q;
+    boost::breadth_first_search( graph, root, q, visitor, *colorMap);
+    boost::remove_vertex(root,graph); 
+    auto outFileName = ( outputPath / "gwas_result.txt").string();
+    saveGWASSearching( outFileName, graph, parent, visitor.visitedVertices(), *scores );
+  } else {
+    auto outFileName = ( outputPath / "regions.txt").string();
+    std::cout << "performing saving regions task to: " << outFileName << std::endl;
+    saveRegions( outFileName, pos.chromosome, graph );   
+  }
+  std::cout << "done! program now exits\n";
 }
 
 
@@ -233,13 +244,14 @@ Vertex addVirtualRoot( Graph& g, std::vector<Vertex>& parent ) {
 // static const char SEPARATOR = ',';
 
 
-void saveResult( std::string& outFileName, Graph& graph, std::vector<Vertex>& parent,
+void saveGWASSearching( std::string& outFileName, Graph& graph, std::vector<Vertex>& parent,
                  std::vector<Vertex>& visited, std::vector<std::vector<double>>& scores ) {
   std::ofstream rsOut(outFileName);
   rsOut << ID << SEPARATOR
         << LATENT << SEPARATOR
         << PARENT << SEPARATOR
         << LEVEL << SEPARATOR
+        << POSITION << SEPARATOR
         << CARDINALITY << "\n";  // writes header
 
   for ( auto v: visited ) {
@@ -250,6 +262,7 @@ void saveResult( std::string& outFileName, Graph& graph, std::vector<Vertex>& pa
           << graph[v].label << SEPARATOR
           << parent[v] << SEPARATOR
           << node.level << SEPARATOR
+          << node.position << SEPARATOR
           << node.variable.cardinality() << std::endl;
           // << SEPARATOR
   }
@@ -257,3 +270,34 @@ void saveResult( std::string& outFileName, Graph& graph, std::vector<Vertex>& pa
   rsOut.close();
 
 }
+
+void saveRegions( std::string& outFileName, int chromosome, Graph& graph ) {
+  std::ofstream rsOut(outFileName);
+  for ( auto vi = boost::vertices(graph); vi.first != vi.second; ++vi.first ) {
+    auto v = *vi.first;
+    auto node = graph[v];
+    int sz_start = node.position, sz_end = node.position;
+    for ( auto ei = boost::out_edges(v, graph); ei.first != ei.second; ++ei.first ) {
+      auto child = graph[boost::target(*ei.first, graph)];
+      sz_start = std::min(sz_start, child.position);
+      sz_end = std::max(sz_end, child.position);
+    }
+    if ( sz_start != sz_end ) {
+      rsOut << "chr" << chromosome << SEPARATOR
+            << v << SEPARATOR
+            << sz_start << SEPARATOR
+            << sz_end << std::endl;
+    }
+  }
+  rsOut.close();
+}
+
+
+
+
+
+
+
+
+
+

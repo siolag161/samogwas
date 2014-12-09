@@ -68,6 +68,7 @@ struct FLTM {
 
   vertex_t addLatentNode( Graph &graph,
                           const Variable &latentVar,
+                          std::vector<int> &cluster,
                           ResultEM &resultEM,
                           StrLabel2GraphIndex &label2GraphIndex );
 

@@ -28,6 +28,7 @@ struct Options {
   std::string inputImputedDataFile;
   std::string inputLabelFile;
   std::string inputPheno;
+  int chromosome;
 
   std::string graphFile;
   std::string bayesVertices;  
@@ -37,8 +38,9 @@ struct Options {
   std::string thresFile;
 
   double overall_thres;
-
   std::string outputDir;
+
+  int task;
   
 };
 
@@ -55,6 +57,8 @@ inline Options getProgramOptions(int argc, char** argv) {
         ("help,h", "Print help messages")        
         ("in_dat,i", po::value<std::string>(&result.inputDataFile)->required(), "Input Data File")
         // ("in_imputed,i", po::value<std::string>(&result.inputDataFile)->required(), "Input Imputed Data File")
+        ("chr,c", po::value<int>(&result.chromosome)->default_value(2), "chromosome")
+
         ("in_pheno,p", po::value<std::string>(&result.inputPheno)->required(), "Input Pheno File")
         ("in_graph,g", po::value<std::string>(&result.graphFile)->required(), "Input Graph File")
         ("in_bayes_vertex,v", po::value<std::string>(&result.bayesVertices)->required(), "Input Bayes File")
@@ -67,6 +71,7 @@ inline Options getProgramOptions(int argc, char** argv) {
         ("overral_thres,r", po::value<double>(&result.overall_thres)->required(), "Input Overral Threshold")
 
         ("outDir,o", po::value<std::string>(&result.outputDir)->required(), "Output Dir")
+        ("task,k", po::value<int>(&result.task)->default_value(0), "task. 0: gwas; 1: obtain: regions")
 
         ;
     po::variables_map vm; 

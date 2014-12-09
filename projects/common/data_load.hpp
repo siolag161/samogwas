@@ -63,10 +63,12 @@ void loadLabelPosition( std::vector< std::string > & labels,
     printf("file lab-post %s not existing\n", infile.c_str());
     exit(-1);
   }
+  printf("beginning loading label...\n");
   std::vector<std::string>().swap(labels); //lab2Pos.clear();
   std::vector<int>().swap(positions); //.clear();
   utility::CSVIterator<std::string> labPosLine(labPosFile);// ++labPosLine;
-  for( ; labPosLine != utility::CSVIterator<std::string>(); ++labPosLine ) {    
+  int id = 0;
+  for( ; labPosLine != utility::CSVIterator<std::string>(); ++labPosLine ) {
     std::string label =  (*labPosLine)[2];
     int position = boost::lexical_cast<int>( (*labPosLine)[3]);
     unsigned id = boost::lexical_cast<unsigned>( (*labPosLine)[1]);
@@ -75,7 +77,7 @@ void loadLabelPosition( std::vector< std::string > & labels,
     positions.push_back(position);
   }
 
-  std::cout << "load " << labels.size() << " variables.\n";
+  std::cout << "done loading. loaded " << labels.size() << " variables.\n";
 }
 
 } // namespace clusteringends here. clustering

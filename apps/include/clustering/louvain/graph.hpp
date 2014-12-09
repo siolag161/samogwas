@@ -119,7 +119,10 @@ class Graph: public BaseGraph {
 
   inline NodeIndex addNode() { return boost::add_vertex(*this); }
   inline LinkDesc addLink( const NodeIndex& s, const NodeIndex& t, const Weight w ) { return boost::add_edge(s,t,w,*this).first; }
-  
+
+  virtual void invalidate() {
+    weights->invalidate();
+  }
  public:
   /**
    *

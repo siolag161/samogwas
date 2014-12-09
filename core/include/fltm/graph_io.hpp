@@ -161,11 +161,18 @@ LabPosMap FLTMGraphReader::readLabPos( const std::string labPosFileName ) const 
   utility::CSVIterator<std::string> labPosLine(labPosFile);
 
   for( ; labPosLine != utility::CSVIterator<std::string>(); ++labPosLine ) {
-    size_t id = boost::lexical_cast<size_t>( (*labPosLine)[LP_ID] );
-    std::string label = (*labPosLine)[LP_LABEL] ;
-    int position = boost::lexical_cast<int>( (*labPosLine)[LP_POSITION] );
-
+    size_t id; int position; std::string label;
+    if (labPosLine->size() == 4) {
+      id = boost::lexical_cast<size_t>( (*labPosLine)[LP_ID] );
+      label = (*labPosLine)[LP_LABEL] ;
+      position = boost::lexical_cast<int>( (*labPosLine)[LP_POSITION] );
+    } else {
+      id = boost::lexical_cast<size_t>( (*labPosLine)[LP_ID+1] );
+      label = (*labPosLine)[LP_LABEL+1] ;
+      position = boost::lexical_cast<int>( (*labPosLine)[LP_POSITION+1] );
+    }
     lpMap[id] = std::pair<std::string, int>(label, position);
+
   }
   return lpMap;
 }
@@ -257,7 +264,9 @@ void BayesGraphLoad::operator()( Graph& graph,
                                  const std::string vertexFileName,
                                  const std::string distributionFileName ) const {  
 
+  std::cout << "begin loading label..." << std::endl;
   LabPosMap labPosMap = readLabPos(labPosFileName);
+  std::cout << "end loading label..." << std::endl;
 
   std::ifstream vertexFile(vertexFileName.c_str()), distributionFile(distributionFileName.c_str());
 
@@ -332,10 +341,16 @@ void SingleGraphSave::operator()( Graph& graph, const std::string singleFileName
   
   std::ofstream singleFile(singleFileName.c_str());
   
-  std::map<int, int> edgeMap;
-  edge_iterator ei, ei_end;
-  for (boost::tie(ei, ei_end) = boost::edges(graph); ei != ei_end; ++ei) {
-    edgeMap[boost::target(*ei, graph)] = boost::source(*ei, graph);
+  // std::map<int, int> parent;
+  // edge_iterator ei, ei_end;
+  // for (boost::tie(ei, ei_end) = boost::edges(graph); ei != ei_end; ++ei) {
+  //   edgeMap[boost::target(*ei, graph)] = boost::source(*ei, graph);
+  // }
+  std::cout << "wrting graph of " << boost::num_edges(graph) << " edges " << std::endl;
+  std::vector<int> parent( boost::num_vertices(graph), -1);
+  for ( auto ep = boost::edges(graph); ep.first != ep.second; ++ep.first ) {
+    int s = boost::source(*ep.first, graph), t = boost::target(*ep.first, graph);
+    parent[t] = s;
   }
    
   vertex_iterator vi, vi_end;
@@ -344,14 +359,12 @@ void SingleGraphSave::operator()( Graph& graph, const std::string singleFileName
   for ( boost::tie(vi, vi_end) = boost::vertices(graph); vi != vi_end; ++vi ) {
     int vertex = *vi;
     singleFile << graph[vertex].index << SEPARATOR
-               << !graph[vertex].isLeaf << SEPARATOR;
-    if (edgeMap.find( vertex ) == edgeMap.end()) 
-      singleFile << -1 << SEPARATOR;
-    else
-      singleFile << edgeMap[vertex] << SEPARATOR;
-    
-    singleFile << graph[vertex].level << SEPARATOR
+               << !graph[vertex].isLeaf << SEPARATOR    
+               << parent[vertex] << SEPARATOR
+               << graph[vertex].level << SEPARATOR
                << graph[vertex].variable.cardinality() << std::endl;
+    // printf("we have this %d->%d\n", parent[vertex], vertex);
+
   }  
   
   singleFile.close();

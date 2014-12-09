@@ -87,7 +87,9 @@ int main( int argc, char** argv ) {
       outImpDat = (outputPath / imputedDat_fn).string(),
       outImpLab = (outputPath / imputedLab_fn).string(),
       outGraph = (outputPath / graph_fn).string();
-  
+
+  printf("writing graph of %d edges and %d vertices\n", boost::num_edges(*result.graph),
+         boost::num_vertices(*result.graph));
   SingleGraphSave()( *result.graph, outGraph );
   BayesGraphSave()( *result.graph, outBayesVertex, outBayesDist );  
   saveImputedData( outImpDat, outImpLab, fltm_data, tmpMatrix, result );
@@ -156,10 +158,10 @@ void saveImputedData( std::string dataPath, std::string labposPath,
   for ( boost::tie(vi, vi_end) = boost::vertices(graph); vi != vi_end; ++vi ) {
     vertex_t vertex = *vi;
     if ( vertex < input.indexes.size() )
-      labPosOut << "," << input.indexes[vertex] << "," << graph[vertex].label << "," << graph[vertex].position
+      labPosOut <<  input.indexes[vertex] << "," << graph[vertex].label << "," << graph[vertex].position
                 << "," << graph[vertex].variable.cardinality() << std::endl;
     else {
-      labPosOut << "," << ++latId << "," << "\"imputed-" + graph[vertex].label << "\"," << graph[vertex].position
+      labPosOut <<  ++latId << "," << "\"imputed-" + graph[vertex].label << "\"," << graph[vertex].position
                 << "," << graph[vertex].variable.cardinality() << std::endl;
     }
   }

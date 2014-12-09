@@ -158,7 +158,9 @@ class Network: public Partition {
   
   Weight sharedWeights( const NodeIndex& node, const CommunityIndex& comm ) const;
   
-
+  virtual void invalidate() {
+    graph->invalidate();
+  }
   // void buildDendogram(const Graph& curr_graph);
  public:
   std::shared_ptr<Graph> graph;
