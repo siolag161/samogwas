@@ -42,9 +42,11 @@ char* current_date()
   return buffer;
 }
 
-boost::filesystem::path outputDir( std::string& outputDir ) {
+boost::filesystem::path outputDir( std::string& outputDir, bool hasDate  ) {
   auto path = boost::filesystem::absolute(outputDir);
-  path /= current_date();
+  if (hasDate) {
+    path /= current_date();
+  }
   boost::filesystem::create_directories(path);
   return path;
 }

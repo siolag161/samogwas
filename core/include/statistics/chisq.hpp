@@ -66,6 +66,7 @@ struct TestChiSquared {
     catch ( std::exception& e) {
       p_value = 1.0;
     }
+
     return p_value;
   }
 
@@ -80,9 +81,10 @@ struct TestChiSquared {
    */
   template<class ContingencyTabT>
   double chisqTest( const ContingencyTabT& contingencyTab, bool useYates = false ) const {
-    assert(contingencyTab.size() > 0);
     const unsigned nbrRows = contingencyTab.size();
     const unsigned nbrColumns = contingencyTab[0].size();
+    // printf("we have here: %d - %d\n", nbrRows, nbrColumns);
+    assert(contingencyTab.size() > 0 && (nbrRows>1) && (nbrColumns>1) );
 
     ContingencyTabT tab = contingencyTab;
     double tableSum = 0.0;

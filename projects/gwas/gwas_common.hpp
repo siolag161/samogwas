@@ -27,7 +27,7 @@ void assureGraphPositions( samogwas::Graph& g );
 
 char* current_date();
 
-boost::filesystem::path outputDir( std::string& outputDir );
+boost::filesystem::path outputDir( std::string& outputDir, bool date = true);
 
 PhenoVecPtr loadPhenotype(std::string& phenoFile);
 

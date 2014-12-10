@@ -23,60 +23,97 @@ namespace stats
 {
 
 struct CollectionPermute {
-
   CollectionPermute( unsigned long seed = 1 ) {
     rng.seed(seed);
   }
 
-  // returns the current time in nanoseconds.
-  static unsigned long currenttime() {
+  static unsigned long currentTime() {
     unsigned long time =
-        std::chrono::system_clock::now().time_since_epoch() /
+        std::chrono::system_clock::now().time_since_epoch() / 
         std::chrono::nanoseconds(1);
     return time;
   }
-
-  /** internal functor which returns a random unsigned integer in a given interval [0,upperlim[.
-   *  it utilizes the uniform distribution for generating the random number.
-   */
-  struct rand: std::unary_function<unsigned, unsigned> {
-
-    rand(boost::mt19937 &s) : state(s) {}
-
-    /////////////////////////////////////////
-    // returns a random unsigned integer in a given interval [0,upperlim[.
-    unsigned operator()(unsigned upperLim) {
-      boost::uniform_int<> rng(0, upperLim - 1);
-      return rng(state);
+  
+  struct Rand: std::unary_function<unsigned, unsigned> {
+    boost::mt19937 &_state;
+    unsigned operator()(unsigned i) {
+      boost::uniform_int<> rng(0, i - 1);
+      return rng(_state);
     }
-
-    boost::mt19937 &state;
-
+    Rand(boost::mt19937 &state) : _state(state) {}    
   };
 
-  ///////////////////////////////////////////////////////////////
-  // permutation with the default random number generator
-  template<typename VecType>
-  void operator()(VecType& vec) {
+  template<typename VecT>
+  void operator()(VecT& vec, boost::mt19937 &state) {    
+    Rand rand(state);
     std::random_shuffle(vec.begin(), vec.end());
   }
 
-  // permutation with a specific state
-  template<typename VecType>
-  void operator()(VecType& vec, boost::mt19937 &state) {
-    rand rand(state);
-    std::random_shuffle(vec.begin(), vec.end(), rand);
-  }
-
-  // permutation with the current state
-  template<typename VecType>
-  void operator()(VecType vec) {
-    rand rand(rng); // current state
+  template<typename VecT>
+  void operator()(VecT& vec) {
+    Rand rand(CollectionPermute::rng);
     std::random_shuffle(vec.begin(), vec.end(), rand );
   }
  private:
-  boost::mt19937 rng; // random number generator of type mersenne twister 19937
+  boost::mt19937 rng;    
 };
+
+// struct CollectionPermute {
+
+//   CollectionPermute( unsigned long seed = 1 ) {
+//     rng.seed(seed);
+//   }
+
+//   // returns the current time in nanoseconds.
+//   static unsigned long currenttime() {
+//     unsigned long time =
+//         std::chrono::system_clock::now().time_since_epoch() /
+//         std::chrono::nanoseconds(1);
+//     return time;
+//   }
+
+//   /** internal functor which returns a random unsigned integer in a given interval [0,upperlim[.
+//    *  it utilizes the uniform distribution for generating the random number.
+//    */
+//   struct rand: std::unary_function<unsigned, unsigned> {
+
+//     rand(boost::mt19937 &s) : state(s) {}
+
+//     /////////////////////////////////////////
+//     // returns a random unsigned integer in a given interval [0,upperlim[.
+//     unsigned operator()(unsigned upperLim) {
+//       boost::uniform_int<> rng(0, upperLim - 1);
+//       return rng(state);
+//     }
+
+//     boost::mt19937 &state;
+
+//   };
+
+//   ///////////////////////////////////////////////////////////////
+//   // permutation with the default random number generator
+//   // template<typename VecType>
+//   // void operator()(VecType& vec) {
+//   //   std::random_shuffle(vec.begin(), vec.end());
+//   // }
+
+//   // permutation with a specific state
+//   template<typename VecType>
+//   void operator()(VecType& vec, boost::mt19937 &state) {
+//     rand rand(state);
+//     std::random_shuffle(vec.begin(), vec.end(), rand);
+//   }
+
+//   // permutation with the current state
+//   template<typename VecType>
+//   void operator()(VecType vec) {
+//     std::cout << "beginning of the shuffering..." << std::endl;
+//     rand rand(rng); // current state
+//     std::random_shuffle(vec.begin(), vec.end(), rand );
+//   }
+//  private:
+//   boost::mt19937 rng; // random number generator of type mersenne twister 19937
+// };
 
 //////////////////////////////////////////////////////////////////////////////////
 // returns the p-value of observing a value less than or equal to v. 
@@ -93,7 +130,7 @@ double p_value( const T v, const std::vector<T>& dist ) {
 template< class Matrix, class Vector >
 void permutationProcedure( std::vector<double> &distri,
                            std::vector<double> &pvals,
-                           StatTest* statTest,
+                           std::shared_ptr<StatTest> statTest,
                            const Matrix &xData,
                            const Vector &yData,
                            const std::vector<size_t> &xCandidates,
@@ -103,32 +140,35 @@ void permutationProcedure( std::vector<double> &distri,
   assert(xCardinalities.size() == xCandidates.size());
 
   size_t nvars = xCandidates.size();
-  pvals.resize(nvars, 0.0);
+  pvals.resize(nvars*2, 0.0);
 
   for ( size_t c = 0; c < nvars; ++c) {
     size_t var = xCandidates[c];
-    pvals[c] = statTest->execute( xData.at(var), yData,
-                                  xCardinalities[c], permu );
+    pvals[2*c] = statTest->execute( xData.at(var), yData,
+                                  xCardinalities[c], yCardinality );
   }
 
   if ( permu > 0 ) {
     Vector localYData = yData;
     distri.resize(permu, 2.0);
+    CollectionPermute permutate;
+    
+    #pragma omp parallel for
     for ( int p = 0; p < permu; ++p ) {
-      permute(localYData);
+      #pragma omp critical 
+      permutate(localYData);
+    
       for ( size_t c = 0; c < nvars; ++c) {
         size_t var = xCandidates[c];
         double pval = statTest->execute( xData.at(var), localYData,
-                                         xCardinalities[c], permu );
-        distri[p] = std::min( distri[p], pval );
-      }
-                
-    }
+                                         xCardinalities[c], yCardinality );
 
+        distri[p] = std::min( distri[p], pval );
+      }                
+    }
     for ( size_t c = 0; c < nvars; ++c) {
       size_t var = xCandidates[c];
-      pvals[c]= p_value( pvals[c], distri );
-
+      pvals[2*c+1]= p_value( pvals[2*c], distri );
     }
   }
 }

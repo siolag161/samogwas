@@ -49,6 +49,7 @@ struct Tool_Options: public Options {
 
 struct GWAS_Options: public Options {
   double threshold;
+  int permutations;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -71,8 +72,10 @@ inline GWAS_Options getGwasProgramOptions(int argc, char** argv) {
         ("in_bayes_vertex,v", po::value<std::string>(&result.bayesVertices)->required(), "Input Bayes File")
         ("in_bayes_dist,d", po::value<std::string>(&result.bayesDist)->required(), "Input Dist File")
 
-        ("in_lab,l", po::value<std::string>(&result.inputLabelFile)->required(), "Input Label File")
-        
+        ("in_lab,l", po::value<std::string>(&result.inputLabelFile)->required(), "Input Label File")        
+
+        ("permutations,n", po::value<int>(&result.permutations)->default_value(1000), "Nbr Permutations")
+        ("threshold,t", po::value<double>(&result.threshold)->default_value(.005), "threshold")
 
         ("outDir,o", po::value<std::string>(&result.outputDir)->required(), "Output Dir")
         ("task,k", po::value<int>(&result.task)->default_value(0), "task. 0: gwas,  1: obtain: filter")
