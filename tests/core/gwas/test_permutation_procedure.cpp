@@ -20,21 +20,13 @@ BOOST_FIXTURE_TEST_SUITE( Test_GWAS, Data )
 
 
 //////////////////////////////////////////////////////////////////
-    BOOST_AUTO_TEST_CASE( Test_Def ) {
-        std::vector<double> distri;
-        std::vector<double> pvals;
-        StatTest* statTest;
-      /*  permutationProcedure( std::vector<double> &distri,
-                                std::vector<double> &pvals,
-                                StatTest* statTest,
-                                const Matrix &xData,
-                                const Vector &yData,
-                                const std::vector<size_t> &xCandidates,
-                                const std::vector<int> &xCardinalities,
-                                const int yCardinality,
-                                const int permu = 2)*/
+BOOST_AUTO_TEST_CASE( Test_Def ) {
+  std::vector<double> distri;
+  std::vector<double> pvals;
+  StatTest* statTest;
 
-    }
+
+}
 
 
 BOOST_AUTO_TEST_SUITE_END()  /// Test InfoTheo ends here

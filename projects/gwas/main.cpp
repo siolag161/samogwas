@@ -9,6 +9,7 @@
 #include <thread>
 #include <chrono>
 #include <memory>
+#include <limits>
 
 #include <fstream>
 #include <cstdio>
@@ -43,38 +44,22 @@
 #include <memory>
 #include <boost/lockfree/queue.hpp>
 
+#include "gwas_common.hpp"
+
 using namespace utility;
 using namespace samogwas;
 
-typedef std::vector<int> PhenoVec;
-typedef std::shared_ptr<PhenoVec> PhenoVecPtr;
-typedef std::vector<std::vector<double>> ValueMat;
-typedef std::shared_ptr<ValueMat> ValueMatPtr;
-
-char* current_date();
-boost::filesystem::path outputDir( Options& progOpt );
-
-ValueMatPtr loadScores(std::string& infile);
-ValueMatPtr loadThres(std::string& infile);
-PhenoVecPtr loadPhenotype(std::string& phenoFile);
 //////////////////////////////////////////////////////////////
 Vertex addVirtualRoot( Graph& g, std::vector<Vertex>& parent);
 void saveGWASSearching( std::string& outFileName, Graph& graph, std::vector<Vertex>& parent,
                  std::vector<Vertex>& visited, std::vector<std::vector<double>>& scores );
 void saveRegions( std::string& outFileName, int chromosome, Graph& graph );
 
+void assureGraphPositions(Graph& graph);
+
 //////////////////////////////////////////////////////////////
 int main( int argc, char** argv ) {
-  Options pos = getProgramOptions( argc, argv );
-  FLTM_Data fltm_data;  
-  
-  std::cout << "Loading geno data from " << pos.inputDataFile << std::endl; // todo: logging
-  fltm_data.matrix = loadDataTable(pos.inputDataFile);
-  std::cout << "Loading pheno data from " << pos.inputPheno<< std::endl; // todo: logging
-  auto pheno = loadPhenotype( pos.inputPheno );
-  std::cout << "Loading label data from " << pos.inputLabelFile << std::endl; // todo: logging
-  loadLabelPosition( fltm_data.labels, fltm_data.indexes, fltm_data.positions, pos.inputLabelFile );
-
+  auto pos = getToolProgramOptions( argc, argv );
   std::cout << "Loading graph data...\n" << std::endl;
   Graph graph;
   BayesGraphLoad graphLoad;
@@ -83,14 +68,24 @@ int main( int argc, char** argv ) {
              pos.bayesVertices,
              pos.bayesDist );
 
+  // assurePosition(graph);
+
   // printf("load graph of %d edges and %d vertices\n", boost::num_edges(*result.graph),
   //        boost::num_vertices(*result.graph));
 
   printf("Done loading graph of %d edges and %d vertices\n", boost::num_edges(graph),
          boost::num_vertices(graph));
   
-  auto outputPath = outputDir(pos);
-  if ( pos.task == 0 ) {
+  auto outputPath = outputDir(pos.outputDir);
+  if ( pos.task == 0 ) {    
+    FLTM_Data fltm_data;  
+    std::cout << "Loading geno data from " << pos.inputDataFile << std::endl; // todo: logging
+    fltm_data.matrix = loadDataTable(pos.inputDataFile);
+    std::cout << "Loading pheno data from " << pos.inputPheno<< std::endl; // todo: logging
+    auto pheno = loadPhenotype( pos.inputPheno );
+    std::cout << "Loading label data from " << pos.inputLabelFile << std::endl; // todo: logging
+    loadLabelPosition( fltm_data.labels, fltm_data.indexes, fltm_data.positions, pos.inputLabelFile );
+  
     auto scores = loadScores(pos.scoreFile);
     auto thres = loadThres(pos.thresFile);
     auto criteria = std::make_shared<MultiSourceNodeCriterion>(*thres, *scores, pos.overall_thres); 
@@ -98,9 +93,7 @@ int main( int argc, char** argv ) {
     typedef std::map<Vertex, boost::default_color_type> ColorMap;
     typedef boost::associative_property_map<ColorMap> Color;
     typedef std::map<Vertex, double> ScoreMap;
-
-    std::vector<Vertex> parent( boost::num_vertices(graph), -1);
-  
+    std::vector<Vertex> parent( boost::num_vertices(graph), -1);  
     auto root = addVirtualRoot(graph, parent);    
     ColorMap cmap;
     auto colorMap = std::make_shared<Color>(cmap);
@@ -117,54 +110,6 @@ int main( int argc, char** argv ) {
   }
   std::cout << "done! program now exits\n";
 }
-
-
-PhenoVecPtr loadPhenotype(std::string& phenoFile) {
-  auto phenoVec = std::make_shared<PhenoVec>();
-
-  std::ifstream labPosFile(phenoFile.c_str());
-  if (!labPosFile) {
-    std::cout << "phenotype file does not exist. program aborted\n";
-    exit(-1);
-  }
-  utility::CSVIterator<std::string> labPosLine(labPosFile);// ++labPosLine;
-  for( ; labPosLine != utility::CSVIterator<std::string>(); ++labPosLine ) {    
-    int pheno = boost::lexical_cast<int>( (*labPosLine)[0]);
-    phenoVec->push_back(pheno);
-  }
-
-  return phenoVec;
-}
-
-
-char* current_date()
-{
-  time_t rawtime;
-  struct tm * timeinfo;
-  char* buffer = new char[80];
-  time (&rawtime);
-  timeinfo = localtime (&rawtime);
-  strftime (buffer,80,"%Y_%m_%d_%H_%M_%S",timeinfo);
-
-  return buffer;
-}
-
-boost::filesystem::path outputDir( Options& progOpt ) {
-  auto path = boost::filesystem::absolute(progOpt.outputDir);
-  path /= current_date();
-  boost::filesystem::create_directories(path);
-  return path;
-}
-
-// std::string outFileName( ApplicationOptions& progOpt, boost::filesystem::path& path ) {
-//   std::string outputFileName = path.string();
-    
-//   char fn[256];
-//   sprintf( fn, "%s.txt", name() );
-//   outputFileName = (path / clustering_fn).string();
-
-//   return outputFileName;
-// }
 
 
 ValueMatPtr loadScores(std::string& infile) {
@@ -272,19 +217,39 @@ void saveGWASSearching( std::string& outFileName, Graph& graph, std::vector<Vert
 }
 
 void saveRegions( std::string& outFileName, int chromosome, Graph& graph ) {
+  const char SEPARATOR = ' ';
   std::ofstream rsOut(outFileName);
   for ( auto vi = boost::vertices(graph); vi.first != vi.second; ++vi.first ) {
     auto v = *vi.first;
-    auto node = graph[v];
-    int sz_start = node.position, sz_end = node.position;
+    Node& node = graph[v];
+    int sz_start = std::numeric_limits<int>::max(), sz_end = -std::numeric_limits<int>::max();
+
+    int sum = 0, pos = 0, count = 0;
     for ( auto ei = boost::out_edges(v, graph); ei.first != ei.second; ++ei.first ) {
       auto child = graph[boost::target(*ei.first, graph)];
       sz_start = std::min(sz_start, child.position);
       sz_end = std::max(sz_end, child.position);
+      pos += child.position;
+      sum += child.position;
+      count++;
+      
+      // if ( v == 0 ) {
+      //   printf(" +++ bo nguoi ta v: %d - child: %d, c_pos: %d - %d, start: %d, end: %d\n", v, boost::target(*ei.first, graph), child.position, node.position, sz_start, sz_end);
+      // }
     }
-    if ( sz_start != sz_end ) {
+
+    if ( v == 0 ) {
+      printf(" +++ bo nguoi ta v: %d, count: %d - %d, start: %d, end: %d\n", v, count, node.position, sz_start, sz_end);
+    }
+    
+    pos = count == 0 ? 0 : pos/count;
+    if ( pos != 0 )
+      node.position = pos;
+        
+    if ( sz_start != sz_end && sz_start != node.position && sz_end != node.position  && count != 0 ) {
       rsOut << "chr" << chromosome << SEPARATOR
-            << v << SEPARATOR
+            // << v  << SEPARATOR
+            // << count << SEPARATOR
             << sz_start << SEPARATOR
             << sz_end << std::endl;
     }
@@ -292,7 +257,13 @@ void saveRegions( std::string& outFileName, int chromosome, Graph& graph ) {
   rsOut.close();
 }
 
-
+// void assureGraphPositions(Graph& graph) {  
+//   for ( auto vi = boost::vertices(graph); vi.first != vi.second; ++vi.first ) {
+//     auto v = *vi.first;
+//     auto node = graph[v];
+   
+//   }
+// }
 
 
 

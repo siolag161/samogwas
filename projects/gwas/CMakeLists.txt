@@ -27,8 +27,11 @@ link_directories(${Boost_LIBRARY_DIR} ${ProBT_LIBRARY_DIR})
 
 file(GLOB_RECURSE SOURCE "${PROJECT_SOURCE_DIR}/core/src/*.cpp" )
 file(GLOB LOUVAIN_SRC  ${LOUVAIN_SRC}/*.cpp  )
-file(GLOB MAIN ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp  )
 
-add_executable( gwas ${SOURCE} ${MAIN} ${LOUVAIN_SRC} )
+add_executable( gwas_tools main.cpp gwas_common.cpp ${SOURCE}  ${LOUVAIN_SRC} )
+target_link_libraries( gwas_tools boost_program_options boost_filesystem boost_system boost_regex spl  )
+
+
+
+add_executable( gwas main_gwas.cpp gwas_common.cpp ${SOURCE}  ${LOUVAIN_SRC} )
 target_link_libraries( gwas boost_program_options boost_filesystem boost_system boost_regex spl  )
-

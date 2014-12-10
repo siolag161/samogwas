@@ -34,19 +34,88 @@ struct Options {
   std::string bayesVertices;  
   std::string bayesDist;
 
-  std::string scoreFile;
-  std::string thresFile;
-
-  double overall_thres;
   std::string outputDir;
 
   int task;
   
 };
 
+struct Tool_Options: public Options {  
+  std::string scoreFile;
+  std::string thresFile;
 
-inline Options getProgramOptions(int argc, char** argv) {
-  Options result;
+  double overall_thres;
+};
+
+struct GWAS_Options: public Options {
+  double threshold;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+inline GWAS_Options getGwasProgramOptions(int argc, char** argv) {
+  GWAS_Options result;
+  std::string appName = boost::filesystem::basename(argv[0]);
+  po::options_description optDesc("Options");
+
+  try  {
+    /** Define and parse the program options 
+     */
+    optDesc.add_options()
+        ("help,h", "Print help messages")        
+        ("in_dat,i", po::value<std::string>(&result.inputDataFile)->required(), "Input Data File")
+        // ("in_imputed,i", po::value<std::string>(&result.inputDataFile)->required(), "Input Imputed Data File")
+        ("chr,c", po::value<int>(&result.chromosome)->default_value(2), "chromosome")
+
+        ("in_pheno,p", po::value<std::string>(&result.inputPheno)->required(), "Input Pheno File")
+        ("in_graph,g", po::value<std::string>(&result.graphFile)->required(), "Input Graph File")
+        ("in_bayes_vertex,v", po::value<std::string>(&result.bayesVertices)->required(), "Input Bayes File")
+        ("in_bayes_dist,d", po::value<std::string>(&result.bayesDist)->required(), "Input Dist File")
+
+        ("in_lab,l", po::value<std::string>(&result.inputLabelFile)->required(), "Input Label File")
+        
+
+        ("outDir,o", po::value<std::string>(&result.outputDir)->required(), "Output Dir")
+        ("task,k", po::value<int>(&result.task)->default_value(0), "task. 0: gwas,  1: obtain: filter")
+
+        ;
+    po::variables_map vm; 
+    try { 
+      po::store(po::command_line_parser(argc, argv).options(optDesc).run(), vm); // throws on error
+      if (vm.count("help") ) {
+        samogwas::OptionPrinter::printStandardAppDesc(appName,std::cout, optDesc, NULL);
+        exit(1);
+      }
+      po::notify(vm);   	    
+
+    } 
+    catch(boost::program_options::required_option& e) /** missing arguments **/
+    {
+      samogwas::OptionPrinter::formatRequiredOptionError(e);
+      std::cout << e.what() << std::endl << std::endl;
+      samogwas::OptionPrinter::printStandardAppDesc( appName,std::cout,
+                                                optDesc, NULL);
+
+      exit(-1);
+    }
+
+  }
+  catch(std::exception e)    
+  {
+    std::cout << "Unhandled Exception reached the top of main: "
+              << e.what() << ", application will now exit" << std::endl;
+
+    samogwas::OptionPrinter::printStandardAppDesc(appName, std::cout, optDesc, NULL);
+    exit(-1);
+  }
+
+  return result;
+}
+
+
+
+////////////////////////////////////////////////////////////
+inline Tool_Options getToolProgramOptions(int argc, char** argv) {
+  Tool_Options result;
   std::string appName = boost::filesystem::basename(argv[0]);
   po::options_description optDesc("Options");
 

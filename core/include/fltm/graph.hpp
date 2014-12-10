@@ -181,7 +181,7 @@ Node& Node::setPosition(Label2Index &label2Index, plComputableObjectList &object
   
   if (nbrChildren > 0) {    
     unsigned totalPos = 0;
-    for (unsigned child = 0; child < nbrChildren; ++ child) {
+    for (unsigned child = 1; child <= nbrChildren; ++ child) {
       LabelType label = objectList[child].get_variables()[0].name();
       IndexType index = label2Index[label];
       totalPos += (*graph)[index].position; 
