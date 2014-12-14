@@ -61,27 +61,39 @@ CandidatesByLevel retrieveCandidates( const Graph& g );
 Cardinalities retrieveCardinalities( const Graph& g );
 Cardinalities retrieveCardinalities( const Graph& g, const Candidates& candidates );
 
+
 void performTest( const FLTM_Data& fltmData, const Graph& g,
                   const PhenoVec& pheno, std::shared_ptr<StatTest> statTest,
                   const CandidatesByLevel& candidates,
                   const Cardinalities &cardinalities,
                   const int permu,
                   const int chr,
-                  const double threshold,
+                  const std::vector<double> thresholds,
                   boost::filesystem::path outFile );
 
-/*  permutationProcedure( std::vector<double> &distri,
-    std::vector<double> &pvals,
-    StatTest* statTest,
-    const Matrix &xData,
-    const Vector &yData,
-    const std::vector<size_t> &xCandidates,
-    const std::vector<int> &xCardinalities,
-    const int yCardinality,
-    const int permu = 2)*/
+void performFilteredPermutationTest( const FLTM_Data& fltmData, const Graph& graph,
+                                     const PhenoVec& pheno, std::shared_ptr<StatTest> statTest,
+                                     const CandidatesByLevel& candidatesByLevel,
+                                     const Cardinalities &cardinalities,
+                                     const int permutations,
+                                     const int chr,
+                                     const std::vector<double> thresholds,
+                                     boost::filesystem::path outDir);
+
+
+void performHasGoodParentPermutationTest( const FLTM_Data& fltmData, const Graph& graph,
+                                          const PhenoVec& pheno, std::shared_ptr<StatTest> statTest,
+                                          const CandidatesByLevel& candidatesByLevel,
+                                          const Cardinalities &cardinalities,
+                                          const int permutations,
+                                          const int chr,
+                                          const std::vector<double> thresholds,
+                                          boost::filesystem::path outDir);
+
 
 //////////////////////////////////////////////////////////////
 int main( int argc, char** argv ) {
+  
   auto pos = getGwasProgramOptions( argc, argv );
   std::cout << "Loading graph data...\n" << std::endl;
   Graph graph;
@@ -97,44 +109,75 @@ int main( int argc, char** argv ) {
   Timer timer, totalTimer; timer.start(); totalTimer.start();
 
   auto outputPath = outputDir(pos.outputDir, false);
+  FLTM_Data fltm_data;  
+  std::cout << "Loading geno data from " << pos.inputDataFile << std::endl; // todo: logging
+  fltm_data.matrix = loadDataTable(pos.inputDataFile);
+  std::cout << "Loading pheno data from " << pos.inputPheno<< std::endl; // todo: logging
+  auto pheno = loadPhenotype( pos.inputPheno );
+  std::cout << "Loading label data from " << pos.inputLabelFile << std::endl; // todo: logging
+  loadLabelPosition( fltm_data.labels, fltm_data.indexes, fltm_data.positions, pos.inputLabelFile );
+
+  printf("assuring the graph position\n\n");
+  assureGraphPositions(graph);
+  std::cout << "done pre-processing takes: " << timer.display() << std::endl << std::endl;
+  timer.restart();
+
+  std::cout << "retrieving the candidates...\n\n";
+  auto candidatesByLevel = retrieveCandidates(graph);
+
+  std::cout << "retrieving the cardinalities...\n\n";
+  auto cardinalities = retrieveCardinalities(graph);
+
+  // auto outFileName = ( outputPath / "gwas_p_values_result.txt").string();
+  auto chisq = std::make_shared<ChiSq>();
+
+  std::cout << "start performing test...\n";
+
+  std::vector<double> thresholds {
+    0.5,1,1, 1, 1, 1, 1, 1
+  };
+
   if ( pos.task == 0 ) { // gwas
-    FLTM_Data fltm_data;  
-    std::cout << "Loading geno data from " << pos.inputDataFile << std::endl; // todo: logging
-    fltm_data.matrix = loadDataTable(pos.inputDataFile);
-    std::cout << "Loading pheno data from " << pos.inputPheno<< std::endl; // todo: logging
-    auto pheno = loadPhenotype( pos.inputPheno );
-    std::cout << "Loading label data from " << pos.inputLabelFile << std::endl; // todo: logging
-    loadLabelPosition( fltm_data.labels, fltm_data.indexes, fltm_data.positions, pos.inputLabelFile );
-
-    printf("assuring the graph position\n\n");
-    assureGraphPositions(graph);
-    std::cout << "done pre-processing takes: " << timer.display() << std::endl << std::endl;
-    timer.restart();
-
-    std::cout << "retrieving the candidates...\n\n";
-    auto candidatesByLevel = retrieveCandidates(graph);
-
-    std::cout << "retrieving the cardinalities...\n\n";
-    auto cardinalities = retrieveCardinalities(graph);
-
-    // auto outFileName = ( outputPath / "gwas_p_values_result.txt").string();
-    auto chisq = std::make_shared<ChiSq>();
-
-    std::cout << "start performing test...\n";
-    performTest( fltm_data, graph,
-                 *pheno, chisq,
-                 candidatesByLevel,
-                 cardinalities,
-                 pos.permutations,
-                 pos.chromosome,
-                 pos.threshold,
-                 outputPath );
-  
-  } else {
-    // auto outFileName = ( outputPath / "regions.txt").string();
-    // std::cout << "performing saving regions task to: " << outFileName << std::endl;
-    // saveRegions( outFileName, pos.chromosome, graph );   
+    performHasGoodParentPermutationTest
+        ( fltm_data, graph,
+          *pheno, chisq,
+          candidatesByLevel,
+          cardinalities,
+          pos.permutations,
+          pos.chromosome,
+          thresholds,
+          outputPath );
   }
+  else if (pos.task == 1) {
+    performTest
+        ( fltm_data, graph,
+          *pheno, chisq,
+          candidatesByLevel,
+          cardinalities,
+          pos.permutations,
+          pos.chromosome,
+          thresholds,
+          outputPath );  
+  } else {
+
+  }
+    // what we do here is:
+    // we inforce that children should have parent in uppler
+    // performTest
+    //     ( fltm_data, graph,
+    //              *pheno, chisq,
+    //              candidatesByLevel,
+    //              cardinalities,
+    //              pos.permutations,
+    //              pos.chromosome,
+    //              pos.threshold,
+    //              outputPath );
+  
+  // } else {
+  //   // auto outFileName = ( outputPath / "regions.txt").string();
+  //   // std::cout << "performing saving regions task to: " << outFileName << std::endl;
+  //   // saveRegions( outFileName, pos.chromosome, graph );   
+  // }
   std::cout << "done! program now exits\n";
 }
 
@@ -171,6 +214,19 @@ Cardinalities retrieveCardinalities( const Graph& graph ) {
   return cards;
 }
 
+/////////////////////////////////////////////////////////////////////////
+Candidates getChildrenFromCandidates( const Graph& graph,
+                                      const Candidates& curr_candidates ) {
+  Candidates rs;
+  for ( auto cand: curr_candidates ) {
+    for ( auto ei = boost::out_edges(cand,graph); ei.first != ei.second; ++ei.first ) {
+      auto child = boost::target(*ei.first, graph);
+      rs.push_back(child);
+    }  
+  } 
+  return rs;
+}
+
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -180,14 +236,15 @@ void performTest( const FLTM_Data& fltmData, const Graph& graph,
                   const Cardinalities &cardinalities,
                   const int permutations,
                   const int chr,
-                  const double threshold,
+                  const std::vector<double> thresholds,
                   boost::filesystem::path outDir) {
 
   auto gwas_outFile = ( outDir / "gwas.txt").string();
+  auto parent = getGraphParent(graph); 
 
   char gwas_filtered_buffer[80], region_filtered_buffer[80];
-  sprintf( gwas_filtered_buffer, "gwas_filtered_%f.txt", threshold);
-  sprintf( region_filtered_buffer, "region_filtered_%f.txt", threshold);
+  sprintf( gwas_filtered_buffer, "gwas_filtered.txt");
+  sprintf( region_filtered_buffer, "region_filtered.txt");
 
   auto gwas_filtered_outFile = ( outDir / gwas_filtered_buffer).string();
   auto region_outFile = ( outDir / region_filtered_buffer).string();
@@ -211,39 +268,49 @@ void performTest( const FLTM_Data& fltmData, const Graph& graph,
 
       for ( int i = 0; i < candidates.size(); ++i ) {
         auto cand = candidates[i];
-        scores[cand] =  pvals[2*i];
+        scores[cand] =  pvals[2*i+1];
         gwasFile << "chr" << chr << SEPARATOR
                  << cand << SEPARATOR
                  << graph[cand].label << SEPARATOR
                  << l << SEPARATOR
+                 << parent[cand] << SEPARATOR
                  << graph[cand].position << SEPARATOR
                  << pvals[2*i] << SEPARATOR
                  << pvals[2*i+1] << std::endl;
 
-        if ( scores[cand] <= threshold && l > 0 ) {
+        if ( scores[cand] < thresholds[l]) {
           Node node = graph[cand];
-          int sz_start = std::numeric_limits<int>::max(), sz_end = -std::numeric_limits<int>::max();
-          int sum = 0, pos = 0, count = 0;
+          size_t sz_start = std::numeric_limits<int>::max(), sz_end = 0;
+          size_t sum = 0, pos = 0, count = 0;
           for ( auto ei = boost::out_edges(cand, graph); ei.first != ei.second; ++ei.first ) {
             auto child = graph[boost::target(*ei.first, graph)];
-            sz_start = std::min(sz_start, child.position);
-            sz_end = std::max(sz_end, child.position);
+            sz_start = std::min(sz_start, (size_t)child.position);
+            sz_end = std::max(sz_end, (size_t)child.position);
             count++;
-          }
-          if ( sz_start != sz_end && sz_start != node.position && sz_end != node.position  && count > 1 ) {
-            printf("level: %d, var: %d, score: %f, thres: %f, start: %d, end: %d\n", l, cand, scores[cand], threshold, sz_start, sz_end);
+          }         
+         
+          gwasFilteredFile << "chr" << chr << SEPARATOR
+                           << cand << SEPARATOR
+                           << graph[cand].label << SEPARATOR
+                           << l << SEPARATOR
+                           << parent[cand] << SEPARATOR
+                           << graph[cand].position << SEPARATOR
+                           << pvals[2*i] << SEPARATOR
+                           << pvals[2*i+1] << std::endl;
 
-            gwasFilteredFile << "chr" << chr << SEPARATOR
-                                  << cand << SEPARATOR
-                                  << graph[cand].label << SEPARATOR
-                                  << l << SEPARATOR
-                                  << graph[cand].position << SEPARATOR
-                                  << pvals[2*i] << SEPARATOR
-                                  << pvals[2*i+1] << std::endl;
-                
-            regionFile << "chr" << chr << " "
-                  << sz_start << " "
-                  << sz_end << std::endl;
+            
+          if ( sz_start != sz_end && sz_start != node.position && sz_end != node.position  && count > 1 ) {
+            printf("level: %d, var: %d, score: %f, thres: %f, start: %d, end: %d\n", l, cand, scores[cand], thresholds[l], sz_start, sz_end);
+          if (sz_start < 0) {
+            printf("level: %d, var: %d, score: %f, thres: %f, start: %d, end: %d\n", l, cand, scores[cand], thresholds[l], sz_start, sz_end);
+            exit(-1);
+
+          }
+            if ( l > 0) {
+              regionFile << "chr" << chr << " "
+                         << sz_start << " "
+                         << sz_end << std::endl;
+            }
           }
         }
         
@@ -255,9 +322,86 @@ void performTest( const FLTM_Data& fltmData, const Graph& graph,
   std::cout << "writing to: " << gwas_outFile << std::endl;
   std::cout << "writing to: " << gwas_filtered_outFile << std::endl;
   std::cout << "writing to: " << region_outFile << std::endl;
-
-
 }
+
+/////////////////////
+
+void performFilteredPermutationTest( const FLTM_Data& fltmData, const Graph& graph,
+                                     const PhenoVec& pheno, std::shared_ptr<StatTest> statTest,
+                                     const CandidatesByLevel& candidatesByLevel,
+                                     const Cardinalities &cardinalities,
+                                     const int permutations,
+                                     const int chr,
+                                     const std::vector<double> thresholds,
+                                     boost::filesystem::path outDir) {
+
+  // auto gwas_outFile = ( outDir / "gwas.txt").string();
+
+  char gwas_filtered_buffer[80], region_filtered_buffer[80];
+  sprintf( gwas_filtered_buffer, "gwas_filtered.txt");
+  sprintf( region_filtered_buffer, "region_filtered.txt");
+
+  auto gwas_filtered_outFile = ( outDir / gwas_filtered_buffer).string();
+  auto region_outFile = ( outDir / region_filtered_buffer).string();
+  
+  std::ofstream gwasFilteredFile(gwas_filtered_outFile), regionFile(region_outFile);
+  printf("beginning of testing of %d permutations by test: %s\n", permutations, statTest->name.c_str());
+  int levels = candidatesByLevel.size();
+
+  Candidates candidates = candidatesByLevel[candidatesByLevel.size()-1];
+  std::vector<double> scores(fltmData.matrix->size(), 0.0);
+  while ( !candidates.empty() ) {
+    auto cards = retrieveCardinalities(graph,candidates);
+    std::vector<double> dist;
+    std::vector<double> pvals;
+    printf("\nWe now tests %d vars - @level over %d\n\n", candidates.size(), levels - 1);
+    permutationProcedure( dist, pvals, statTest, *fltmData.matrix, pheno,
+                          candidates, cards, 2, permutations);
+
+    Candidates filtered_cands;
+    for ( int i = 0; i < candidates.size(); ++i ) {
+      auto cand = candidates[i]; auto &node = graph[cand]; auto l = node.level;
+      scores[cand] =  pvals[2*i];
+      double corrected = pvals[2*i+1];
+      if (corrected<1)
+        
+      if ( corrected < thresholds[l] ) {
+        filtered_cands.push_back(cand);
+        Node node = graph[cand];
+        int sz_start = std::numeric_limits<int>::max(), sz_end = -std::numeric_limits<int>::max();
+        int sum = 0, pos = 0, count = 0;
+        for ( auto ei = boost::out_edges(cand, graph); ei.first != ei.second; ++ei.first ) {
+          auto child = graph[boost::target(*ei.first, graph)];
+          sz_start = std::min(sz_start, child.position); sz_end = std::max(sz_end, child.position); count++;
+        }          
+        gwasFilteredFile << "chr" << chr << SEPARATOR << cand << SEPARATOR
+                         << graph[cand].label << SEPARATOR << l << SEPARATOR
+                         << graph[cand].position << SEPARATOR << pvals[2*i] << SEPARATOR
+                         << pvals[2*i+1] << std::endl;
+            
+        if ( sz_start != sz_end && sz_start != node.position && sz_end != node.position  && count > 1 ) {
+          printf("level: %d, var: %d, score: %f, start: %d, end: %d\n",
+                 l, cand, scores[cand], sz_start, sz_end);
+          if ( l > 0) {
+            regionFile << "chr" << chr << " " << sz_start << " "   << sz_end << std::endl;
+          }
+        }
+      }        
+    }
+    candidates = getChildrenFromCandidates(graph,filtered_cands);
+  }
+
+  gwasFilteredFile.close(); regionFile.close();
+  // std::cout << "writing to: " << gwas_outFile << std::endl;
+  std::cout << "writing to: " << gwas_filtered_outFile << std::endl;
+  std::cout << "writing to: " << region_outFile << std::endl;
+}
+
+
+
+
+//////////////////p
+
 
 Cardinalities retrieveCardinalities( const Graph& g, const Candidates& candidates ) {
   Cardinalities cards;
@@ -267,8 +411,90 @@ Cardinalities retrieveCardinalities( const Graph& g, const Candidates& candidate
   return cards;
 }
 
+///////////////////
+bool verifyVariable( const Vertex v, const Graph& graph, const std::vector<int>& parent, const std::vector<double>& scores, double threshold ) {
+  if ( scores[v] >= threshold ) return false;  
+  auto latent = parent[v];
+  if ( latent == -1 ) return true;
+  return scores[latent] < threshold;
+  // return scores[v] < threshold;
+}
 
+void performHasGoodParentPermutationTest( const FLTM_Data& fltmData, const Graph& graph,
+                                          const PhenoVec& pheno, std::shared_ptr<StatTest> statTest,
+                                          const CandidatesByLevel& candidatesByLevel,
+                                          const Cardinalities &cardinalities,
+                                          const int permutations,
+                                          const int chr,
+                                          const std::vector<double> thresholds,
+                                          boost::filesystem::path outDir) {
+    // auto gwas_outFile = ( outDir / "gwas.txt").string();
+  auto gwas_outFile = ( outDir / "gwas.txt").string(); std::ofstream gwasFile(gwas_outFile);
+  
+  char gwas_filtered_buffer[80], region_filtered_buffer[80];
+  sprintf( gwas_filtered_buffer, "gwas_ok_parent_filtered.txt");
+  sprintf( region_filtered_buffer, "region_ok_parent_filtered.txt");
+  auto parent = getGraphParent(graph); 
+  auto gwas_filtered_outFile = ( outDir / gwas_filtered_buffer).string();
+  auto region_outFile = ( outDir / region_filtered_buffer).string();
+  
+  std::ofstream gwasFilteredFile(gwas_filtered_outFile), regionFile(region_outFile);
+  printf("beginning of testing of %d permutations by test: %s\n", permutations, statTest->name.c_str());
+  int levels = candidatesByLevel.size();
 
+  std::vector<double> scores(fltmData.matrix->size(), 0.0);
+  for ( int l = levels - 1; l >= 0; --l ) {
+    auto &candidates = candidatesByLevel[l];
+    auto cards = retrieveCardinalities(graph,candidates);
+    std::vector<double> dist;
+    std::vector<double> pvals;
+    printf("\nWe now tests %d vars - @level %d over %d\n\n", candidates.size(), l, levels - 1);
+    permutationProcedure( dist, pvals, statTest, *fltmData.matrix, pheno,
+                          candidates, cards, 2, permutations);
 
+    for ( int i = 0; i < candidates.size(); ++i ) {
+      auto cand = candidates[i]; auto &node = graph[cand]; auto l = node.level;
+      scores[cand] =  pvals[2*i+1];
+      double corrected = pvals[2*i+1];
+      gwasFile << "chr" << chr << SEPARATOR << cand << SEPARATOR
+                         << graph[cand].label << SEPARATOR << l << SEPARATOR
+                         << parent[cand] << SEPARATOR        
+                         << graph[cand].position << SEPARATOR << pvals[2*i] << SEPARATOR
+                         << pvals[2*i+1] << std::endl;
+          
+      if ( verifyVariable(cand, graph, parent, scores, thresholds[l] ) ) {
+        Node node = graph[cand];
+        int sz_start = std::numeric_limits<int>::max(), sz_end = -std::numeric_limits<int>::max();
+        int sum = 0, pos = 0, count = 0;
+        for ( auto ei = boost::out_edges(cand, graph); ei.first != ei.second; ++ei.first ) {
+          auto child = graph[boost::target(*ei.first, graph)];
+          sz_start = std::min(sz_start, child.position); sz_end = std::max(sz_end, child.position); count++;
+        }
+        std::cout << "chr" << chr << SEPARATOR << cand << SEPARATOR
+                         << graph[cand].label << SEPARATOR << l << SEPARATOR
+                         << parent[cand] << SEPARATOR        
+                         << graph[cand].position << SEPARATOR << pvals[2*i] << SEPARATOR
+                         << pvals[2*i+1] << std::endl;
+        gwasFilteredFile << "chr" << chr << SEPARATOR << cand << SEPARATOR
+                         << graph[cand].label << SEPARATOR << l << SEPARATOR
+                         << parent[cand] << SEPARATOR        
+                         << graph[cand].position << SEPARATOR << pvals[2*i] << SEPARATOR
+                         << pvals[2*i+1] << std::endl;
+            
+        if ( sz_start != sz_end && sz_start != node.position && sz_end != node.position  && count > 1 ) {
+          printf("level: %d, var: %d, score: %f - %f, start: %d, end: %d\n",
+                 l, cand, pvals[2*i], corrected, sz_start, sz_end);
+          if ( l > 0) {
+            regionFile << "chr" << chr << " " << sz_start << " "   << sz_end << std::endl;
+          }
+        }
+      } // verify        
+    } // candidates iter
+  } // level
 
+  gwasFilteredFile.close(); regionFile.close(); gwasFile.close();
+  std::cout << "writing to: " << gwas_outFile << std::endl;  
+  std::cout << "writing to: " << gwas_filtered_outFile << std::endl;
+  std::cout << "writing to: " << region_outFile << std::endl;
+}
 

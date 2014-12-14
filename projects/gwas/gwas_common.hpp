@@ -31,5 +31,11 @@ boost::filesystem::path outputDir( std::string& outputDir, bool date = true);
 
 PhenoVecPtr loadPhenotype(std::string& phenoFile);
 
+void count_cluster(Graph&g, std::vector<double>& scores);
+
+std::vector<int> getGraphParent( const Graph& graph );
+
+std::vector<int> countClusterSiblings( Graph& graph );
+
 /****************************************************************************************/
 #endif // _GWAS_COMMON_HPP

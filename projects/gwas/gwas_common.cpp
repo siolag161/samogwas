@@ -9,12 +9,12 @@ void assureGraphPositions( Graph& graph ) {
   for ( auto vi = boost::vertices(graph); vi.first != vi.second; ++vi.first ) {
     auto v = *vi.first;
     Node& node = graph[v];
-    int sz_start = std::numeric_limits<int>::max(), sz_end = -std::numeric_limits<int>::max();
-    int sum = 0, pos = 0, count = 0;
+    size_t sz_start = std::numeric_limits<int>::max(), sz_end = 0;
+    size_t sum = 0, pos = 0, count = 0;
     for ( auto ei = boost::out_edges(v, graph); ei.first != ei.second; ++ei.first ) {
       auto child = graph[boost::target(*ei.first, graph)];
-      sz_start = std::min(sz_start, child.position);
-      sz_end = std::max(sz_end, child.position);
+      sz_start = std::min(sz_start, (size_t)child.position);
+      sz_end = std::max(sz_end, (size_t)child.position);
       pos += child.position;
       sum += child.position;
       count++;
@@ -67,4 +67,36 @@ PhenoVecPtr loadPhenotype(std::string& phenoFile) {
   }
 
   return phenoVec;
+}
+
+
+std::vector<int> getGraphParent( const Graph& graph ) {
+  std::vector<int> parent( boost::num_vertices(graph), -1 );
+  for ( auto ei = boost::edges(graph); ei.first != ei.second; ++ei.first ) {
+    auto source = boost::source(*ei.first, graph);
+    auto target = boost::target(*ei.first, graph);
+    parent[target] = source;
+  }
+  
+  return parent;
+}
+
+
+////////////////
+std::vector<int> countClusterSiblings( Graph& graph ) {
+  std::vector<int> sibling_count( boost::num_vertices(graph) , 0);
+  
+  for ( auto vi = boost::vertices(graph); vi.first != vi.second; ++vi.first ) {
+    auto v = *vi.first;
+    Node& node = graph[v];
+
+    auto ei = boost::out_edges(v, graph);
+    int count = std::distance(ei.first, ei.last);
+    for ( ; ei.first != ei.second; ++ei.first ) {
+      auto child = graph[boost::target(*ei.first, graph)];
+      sibling_count[child] = count-1;
+    }    
+  }
+
+  return sibling_count;                                  
 }
