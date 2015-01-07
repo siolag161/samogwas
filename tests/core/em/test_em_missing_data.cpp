@@ -22,7 +22,7 @@
 
 #define NOT_MISSING 1
 #define MISSING 0
-
+#define MISSING_VALUE -1
 class Data 
 { 
 };
@@ -64,13 +64,13 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
   std::vector<int> positions; for ( int i = 0; i < nrows; ++i ) positions.push_back(i);
   auto data = GenerateClusteredData( nclusts, N, CARD, ncols )();  
   for ( int i = 0; i < 15; ++i ) {
-    (*data)[i][i] = -1;
+    (*data)[i][i] = MISSING_VALUE;
   }
 
   // std::cout << "dim of mat: "
-  printf("dim of data: %d-%d\n", (int)data->size(), (int)(*data)[0].size());
+  // printf("dim of data: %d-%d\n", (int)data->size(), (int)(*data)[0].size());
   
-  auto simi = std::make_shared<MutInfoSimi>(data, positions, MAX_POS, -1);
+  auto simi = std::make_shared<MutInfoSimi>(data, positions, MAX_POS, MISSING_VALUE);
   
   CAST cast( simi, 0.3 );  
   Partition result = cast();
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
     //        utility::ncols(*emMat),
     //        utility::nrows(*defTab), 
     //        utility::ncols(*defTab) );
-    multiEM( resultEM, latentVar, vars, emMat, 0.000001, defTab );
+    // multiEM( resultEM, latentVar, vars, emMat, 0.000001, defTab );
 
     // printMatrix(emMat);
     // printMatrix(*defTab);
@@ -122,17 +122,19 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
 }
 
 BOOST_AUTO_TEST_CASE( Test_EM_bool ) {
-  auto emMat = std::make_shared<Matrix>(std::initializer_list<std::vector<int>>{
-      std::vector<int>{-1,-1,1,1},
-          std::vector<int>{-1,0,1,2},
-              std::vector<int>{-1,0,1,2},
-                  std::vector<int>{-1,2,2,0} });
+
+   auto emMat = std::make_shared<Matrix>(std::initializer_list<std::vector<int>>{
+      std::vector<int>{ MISSING_VALUE,1,1,1},
+      std::vector<int>{ MISSING_VALUE,0,1,2},
+      std::vector<int>{ MISSING_VALUE,0,1,2},
+      std::vector<int>{ MISSING_VALUE,2,2,0} });
   auto defTab = std::make_shared<DefTab>(std::initializer_list< std::vector<bool> >{
-    std::vector<bool>{MISSING, MISSING, NOT_MISSING, NOT_MISSING},
+    std::vector<bool>{MISSING, NOT_MISSING, NOT_MISSING, NOT_MISSING},
     std::vector<bool>{MISSING, NOT_MISSING, NOT_MISSING, NOT_MISSING},
     std::vector<bool>{MISSING, NOT_MISSING, NOT_MISSING, NOT_MISSING},
     std::vector<bool>{MISSING, NOT_MISSING, NOT_MISSING, NOT_MISSING}    
     });
+
 
   samogwas::ResultEM resultEM;
   samogwas::NaiveBayesEM multiEM(3,1);
@@ -157,7 +159,7 @@ inline void prepareEM( MatrixPtr& emMat,
   auto tEMMat = std::make_shared<Matrix>();
   tEMMat->reserve(cluster.size());
   vars.clear();  
-  tEMMat->push_back( std::vector<int>( ncols(*cltMat), -1) );  
+  tEMMat->push_back( std::vector<int>( ncols(*cltMat), MISSING_VALUE) );  
   for ( auto& it: cluster ) {    
     vars ^= graph[local2Global.at(it)].variable;
     tEMMat->push_back( cltMat->at(it) );      

@@ -128,10 +128,10 @@ struct EMInterface {
    */
   static plComputableObjectList createComputableObjects( const Variable& latentVar, const Variables& variables );
 
-  /** Takes a reference to the "EM learner" and the data set and returns the logLikelihood.
+  /** Takes a reference to the "EM learner" and the data set and returns the scoreBIC.
    *
    */
-  static double logLikelihood( EMLearner& learner, plMatrixDataDescriptor<int>& dataDesc );
+  static double scoreBIC( EMLearner& learner, plMatrixDataDescriptor<int>& dataDesc );
 
   /** Takes a set of models and returns one that has the best likelihood.
    *

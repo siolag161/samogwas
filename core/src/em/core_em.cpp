@@ -64,14 +64,16 @@ plComputableObjectList EMInterface::createComputableObjects( const Variable& lat
 }
 ////////////////////////////////////////////////////////////////////
 
-double EMInterface::logLikelihood( EMLearner& learner, plMatrixDataDescriptor<int>& dataDesc )
+double EMInterface::scoreBIC( EMLearner& learner, plMatrixDataDescriptor<int>& dataDesc )
 {
-  double result = 0.0;
+  double llh = 0.0;
   try {
-    result = learner.get_last_computed_loglikelihood(); // if stored value available
+    llh = learner.get_last_computed_loglikelihood(); // if stored value available
   } catch (plError& e) {
-    result = (double)learner.compute_loglikelihood(dataDesc); // otherwise, computes the value
+    llh = (double)learner.compute_loglikelihood(dataDesc); // otherwise, computes the value
   }
+  
+  double result = llh - 0.5*learner.get_n_parameters()*std::log(dataDesc.get_n_records());
   return result;
 }
 
@@ -81,7 +83,7 @@ EMInterface::EMLearner EMInterface::getBestModel( CandidateModels& learners,
 {
   EMLearner bestModel = learners[0];  
   for (size_t i = 1; i < learners.size(); ++i) {
-    if ( logLikelihood( learners[i], dataDesc) > logLikelihood(bestModel, dataDesc)) {
+    if ( scoreBIC( learners[i], dataDesc) > scoreBIC(bestModel, dataDesc)) {
       bestModel = learners[i];
     }
   }  
