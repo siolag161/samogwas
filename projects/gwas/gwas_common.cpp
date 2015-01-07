@@ -70,7 +70,7 @@ PhenoVecPtr loadPhenotype(std::string& phenoFile) {
 }
 
 
-std::vector<int> getGraphParent( const Graph& graph ) {
+std::vector<int> getGraphParent( const samogwas::Graph& graph ) {
   std::vector<int> parent( boost::num_vertices(graph), -1 );
   for ( auto ei = boost::edges(graph); ei.first != ei.second; ++ei.first ) {
     auto source = boost::source(*ei.first, graph);
@@ -83,7 +83,7 @@ std::vector<int> getGraphParent( const Graph& graph ) {
 
 
 ////////////////
-std::vector<int> countClusterSiblings( Graph& graph ) {
+std::vector<int> countClusterSiblings( samogwas::Graph& graph ) {
   std::vector<int> sibling_count( boost::num_vertices(graph) , 0);
   
   for ( auto vi = boost::vertices(graph); vi.first != vi.second; ++vi.first ) {
@@ -91,10 +91,10 @@ std::vector<int> countClusterSiblings( Graph& graph ) {
     Node& node = graph[v];
 
     auto ei = boost::out_edges(v, graph);
-    int count = std::distance(ei.first, ei.last);
+    int count = std::distance(ei.first, ei.second);
     for ( ; ei.first != ei.second; ++ei.first ) {
-      auto child = graph[boost::target(*ei.first, graph)];
-      sibling_count[child] = count-1;
+      auto child_idx = boost::target(*ei.first, graph);
+      sibling_count[child_idx] = count-1;
     }    
   }
 

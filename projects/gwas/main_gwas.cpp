@@ -451,7 +451,7 @@ void performHasGoodParentPermutationTest( const FLTM_Data& fltmData, const Graph
     printf("\nWe now tests %d vars - @level %d over %d\n\n", candidates.size(), l, levels - 1);
     permutationProcedure( dist, pvals, statTest, *fltmData.matrix, pheno,
                           candidates, cards, 2, permutations);
-
+    printf("done testing, now processing\n");
     for ( int i = 0; i < candidates.size(); ++i ) {
       auto cand = candidates[i]; auto &node = graph[cand]; auto l = node.level;
       scores[cand] =  pvals[2*i+1];
