@@ -46,7 +46,18 @@ struct Partition {
   
   /** An Index depicts an Item index, relative to its position in the dataset.
    */
-  typedef std::map<Index,Label> Index2Label; 
+  typedef std::map<Index,Label> Index2Label;
+
+  Partition() {}
+  Partition( const Clustering& clustering) {
+    auto nbrClusters = clustering.size();
+    for ( size_t clt = 0; clt < nbrClusters; ++clt ) {
+      for (auto& item: clustering.at(clt)) {
+        setLabel(item, clt);
+      }
+    }
+  }
+
   
   virtual size_t nbrClusters() const { return m_labelSet.size(); }
   virtual size_t nbrItems() const { return m_index2Label.size(); } 
@@ -62,11 +73,11 @@ struct Partition {
 
   virtual Label getLabel(Index itemIdx) const { return m_index2Label.at(itemIdx); } //@todo: getLabel +change Cluster -> Label
   
-  virtual void setLabel(Index itemIdx, Label clusterIdx) {  //@doto: setLabel
+  virtual Partition& setLabel(Index itemIdx, Label clusterIdx) {  //@doto: setLabel
 
      auto it = m_index2Label.find(itemIdx);
      if ( it != m_index2Label.end() && it->second == clusterIdx )
-       return;
+       return *this;
 
      if ( m_cluster_member_counts.find(clusterIdx) == m_cluster_member_counts.end() )
        m_cluster_member_counts[clusterIdx] = 0;
@@ -79,6 +90,8 @@ struct Partition {
      m_labelSet.insert(clusterIdx);
      m_index2Label[itemIdx] = clusterIdx;
      m_cluster_member_counts[clusterIdx]++;
+
+     return *this;
   }
 
   virtual void removeLabel(Index clusterIdx) {

@@ -76,7 +76,7 @@ inline const DistValues createNBUniVarProbTab(const size_t card);
 inline DistValueMat createNBProbTables( const Variables& variables, const Variable& latentVar);
 inline plComputableObjectList createNBCndTable( Variables& variables, Variable& latentVar);
 ///////////////////////////////////////////////////////////////////////////////////////////////
-typedef std::vector<size_t> Cluster;
+typedef std::vector<int> Cluster;
 typedef std::vector<Cluster> Clustering;
 inline plJointDistribution createClusteringJointDist( const Variables& variables, const Clustering& clusterint);
 inline plComputableObjectList  createClusterJointDist( const Variables& variables, const Cluster& cluster );

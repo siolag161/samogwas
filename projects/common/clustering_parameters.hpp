@@ -78,7 +78,7 @@ inline std::vector<ClustAlgoPtr> read_clustering_algos( MatrixPtr matrix, Positi
             cast = boost::lexical_cast<double>(dat);
           }
         }
-        algorithm = std::make_shared<CAST_Algo>( simi, cast);
+        algorithm = std::make_shared<CAST_Algo>(simi, cast);
 
       } else if ( algo_cfg.get<std::string>("name") == "LOUVAIN" ) {
         auto simi = std::make_shared<MutInfoSimi>( matrix, positions, maxDist, simiThres );           

@@ -147,9 +147,10 @@ class Network: public Partition {
   
   virtual size_t nbrClusters() const { return m_labelSet.size(); }
   virtual size_t nbrItems() const { return graph->nbrNodes(); }
-  virtual void setLabel( NodeIndex node, CommunityIndex comm ) {  //@doto: setLabel
+  virtual Partition& setLabel( NodeIndex node, CommunityIndex comm ) {  //@doto: setLabel
     if (comm != TEMP_COMMUNITY) m_labelSet.insert(comm);
     m_index2Label[node] = comm;
+    return *this;
   }
 
   const std::set<CommunityIndex>& communities() const {

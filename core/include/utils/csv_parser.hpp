@@ -17,7 +17,7 @@
 #include <iostream> // std::istream
 #include <vector>
 #include <string>
-
+#include <algorithm>
 namespace utility // the common namesapce for utils files @todo: utility -> utils
 {
 
@@ -49,6 +49,7 @@ class CSVRow
   {
     std::string line;
     std::getline(str,line);
+    line.erase(std::remove( line.begin(), line.end(), '\"' ), line.end());
 
     std::stringstream lineStream(line);
     T cell;
@@ -155,6 +156,7 @@ class CSVRow<std::string>
   {
     std::string line;
     std::getline(str,line);
+    line.erase(std::remove( line.begin(), line.end(), '\"' ), line.end());
 
     std::stringstream lineStream(line);
     std::string cell;

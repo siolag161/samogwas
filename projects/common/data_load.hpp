@@ -23,7 +23,7 @@ typedef std::vector< std::vector<int> > Matrix;
 typedef std::shared_ptr<Matrix> MatrixPtr;
 // template< typename T >
 
-MatrixPtr loadDataTable( const std::string& infile,
+inline MatrixPtr loadDataTable( const std::string& infile,
                          const char& sep = ',',
                          const char& quote = '"' ) {
 
@@ -54,7 +54,7 @@ MatrixPtr loadDataTable( const std::string& infile,
   return dt;
 }
 
-void loadLabelPosition( std::vector< std::string > & labels,
+inline void loadLabelPosition( std::vector< std::string > & labels,
                         std::vector<unsigned>& ids,
                         std::vector< int >& positions,
                         const std::string& infile )  {
