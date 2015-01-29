@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
   std::cout << "data loaded. rows: " << utl::nrows(*matrix) << ", columns: "
             << utl::ncols(*matrix) << ". takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
 
-  printf("Parameters: maxDist: %u, simi: %.2f\n",  progOpt.maxDist, -1 );  
+  printf("Parameters - : - maxDist: %u, simi: %f\n",  progOpt.maxDist, -1.0 );  
 
   ClustAlgoPtr algo;
   // // // // find the best cast config
@@ -88,7 +88,26 @@ int main(int argc, char** argv) {
             << (double)nbrSings / nbrClusters << ";"
             << averageSize(clustering) << ";"
             << std::endl;
-  } 
+  }
+
+  auto diss = std::make_shared<MutInfoDiss>( matrix, positions, progOpt.maxDist, -1 );      
+
+
+  for ( int minPts = 1; minPts < 4; ++minPts ) {
+    for ( double eps = 0.2; eps < 0.75; ++eps ) {
+      algo = std::make_shared<DBSCAN_Algo>( diss, minPts, eps );      
+      samogwas::Partition partition = algo->run();
+      auto nbrClusters = partition.nbrClusters();
+      auto clustering = partition.to_clustering();
+      auto nbrSings = nbrSingletons(clustering);
+      outFile << algo->name() << ";" << ""
+              << nbrSings  << ";"
+              << nbrClusters << ";"
+              << (double)nbrSings / nbrClusters << ";"
+              << averageSize(clustering) << ";"
+              << std::endl;
+    }
+  }
   
   outFile.close();
   // find the best dbscan config
@@ -207,7 +226,7 @@ std::string getOutFilePath(std::string path) {
 
   boost::filesystem::create_directories(outputPath);
   char fn[256];
-  sprintf( fn, "statistic.txt" );
+  sprintf( fn, "statistic.csv" );
   outputFileName = (outputPath / fn).string();
 
   std::cout << "filename: " << outputFileName << std::endl;

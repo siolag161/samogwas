@@ -15,7 +15,6 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp> // to obtain the program's nam
 
-
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/median.hpp>
