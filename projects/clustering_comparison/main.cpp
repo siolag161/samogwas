@@ -46,7 +46,7 @@ typedef MutInfoSimilarity<Matrix> MutInfoSimi;
 double averageSize(const Clustering& clustering);
 int nbrSingletons(const Clustering& clustering);
 inline void outputStatistics(const Partition& clustering, const std::string& algo_params, const std::string& file);
-std::string getOutFilePath(std::string path);
+std::string getOutFilePath(std::string path, std::string inf);
 
 
 ////////////////////////////////////////////
@@ -63,14 +63,18 @@ int main(int argc, char** argv) {
   std::cout << "data loaded. rows: " << utl::nrows(*matrix) << ", columns: "
             << utl::ncols(*matrix) << ". takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
 
-  printf("Parameters - : - maxDist: %u, simi: %f\n",  progOpt.maxDist, -1.0 );  
+  printf("Parameters - : - maxDist: %u, simi: %f\n",  progOpt.maxDist, -1.0 );
+
+  boost::filesystem::path inputPath(progOpt.dataInFile);
 
   ClustAlgoPtr algo;
   // // // // find the best cast config
   double cast = 0.05;
   auto simi = std::make_shared<MutInfoSimi>( matrix, positions, progOpt.maxDist, -1 );      
 
-  std::string outFilePath = getOutFilePath(progOpt.outputDir);
+  std::string outFilePath = getOutFilePath(progOpt.outputDir, inputPath.filename().string());
+
+    
   std::ofstream outFile(outFilePath);
   double score = -1.0;
   while (cast < 0.9) {
@@ -220,16 +224,16 @@ int nbrSingletons(const Clustering& clustering) {
 // }
 
 
-std::string getOutFilePath(std::string path) {
+std::string getOutFilePath(std::string path, std::string inf) {
   boost::filesystem::path outputPath = boost::filesystem::absolute(path);
   std::string outputFileName = outputPath.string();
 
   boost::filesystem::create_directories(outputPath);
   char fn[256];
-  sprintf( fn, "statistic.csv" );
+  sprintf( fn, "statistic_%s", inf.c_str() );
   outputFileName = (outputPath / fn).string();
-
   std::cout << "filename: " << outputFileName << std::endl;
+  
   return outputFileName;
 
 }
