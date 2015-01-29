@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
 
 
   for ( int minPts = 1; minPts < 4; ++minPts ) {
-    for ( double eps = 0.2; eps < 0.75; eps + 0.05 ) {
+    for ( double eps = 0.2; eps < 0.75; eps += 0.05 ) {
       algo = std::make_shared<DBSCAN_Algo>( diss, minPts, eps );      
       samogwas::Partition partition = algo->run();
       auto nbrClusters = partition.nbrClusters();
