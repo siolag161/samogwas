@@ -86,6 +86,7 @@ int main(int argc, char** argv) {
     auto nbrClusters = partition.nbrClusters();
     auto clustering = partition.to_clustering();
     auto nbrSings = nbrSingletons(clustering);
+    std::cout << "doing " << algo->name() << std::endl;
     outFile << algo->name() << ";" << ""
             << nbrSings  << ";"
             << nbrClusters << ";"
@@ -104,6 +105,7 @@ int main(int argc, char** argv) {
       auto nbrClusters = partition.nbrClusters();
       auto clustering = partition.to_clustering();
       auto nbrSings = nbrSingletons(clustering);
+      std::cout << "doing " << algo->name() << std::endl;
       outFile << algo->name() << ";" << ""
               << nbrSings  << ";"
               << nbrClusters << ";"
