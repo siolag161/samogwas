@@ -9,8 +9,8 @@ set(Boost_LIBRARY_DIR "${LIB_DIR}/boost_1_55_0/target/lib/")
 
 
 
-set(ProBT_INCLUDE_DIR "${LIB_DIR}/probt_spl_2_3_0/include/")
-set(ProBT_LIBRARY_DIR "${LIB_DIR}/probt_spl_2_3_0/lib/" )
+set(ProBT_INCLUDE_DIR "${LIB_DIR}/probt_spl_2_3_99/include/")
+set(ProBT_LIBRARY_DIR "${LIB_DIR}/probt_spl_2_3_99/lib/" )
 
 
 MESSAGE(${ProBT_LIBRARY_DIR})

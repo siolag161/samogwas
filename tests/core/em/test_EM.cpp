@@ -64,7 +64,6 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
     BOOST_CHECK_EQUAL(result.getLabel(i), expected_cluster );
   }
 
-  printf("TEST_EM_FUNC-1\n");
   
   std::vector<int> local2Global;
 

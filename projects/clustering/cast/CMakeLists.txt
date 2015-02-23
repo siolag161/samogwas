@@ -7,8 +7,8 @@ set(LIB_DIR "${PROJECT_SOURCE_DIR}/dependencies/" )
 set(Boost_INCLUDE_DIR "${LIB_DIR}/boost_1_55_0/target/include/")
 set(Boost_LIBRARY_DIR "${LIB_DIR}/boost_1_55_0/target/lib/")
 
-set(ProBT_INCLUDE_DIR "${LIB_DIR}/probt_spl_2_3_0/include/")
-set(ProBT_LIBRARY_DIR "${LIB_DIR}/probt_spl_2_3_0/lib/" )
+set(ProBT_INCLUDE_DIR "${LIB_DIR}/probt_spl_2_3_99/include/")
+set(ProBT_LIBRARY_DIR "${LIB_DIR}/probt_spl_2_3_99/lib/" )
 
 include_directories( 
   "${ProBT_INCLUDE_DIR}"

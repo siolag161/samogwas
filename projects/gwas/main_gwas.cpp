@@ -115,7 +115,7 @@ int main( int argc, char** argv ) {
   std::cout << "Loading pheno data from " << pos.inputPheno<< std::endl; // todo: logging
   auto pheno = loadPhenotype( pos.inputPheno );
   std::cout << "Loading label data from " << pos.inputLabelFile << std::endl; // todo: logging
-  loadLabelPosition( fltm_data.labels, fltm_data.indexes, fltm_data.positions, pos.inputLabelFile );
+  loadLabelPosition2( fltm_data.labels, fltm_data.indexes, fltm_data.positions, pos.inputLabelFile );
 
   printf("assuring the graph position\n\n");
   assureGraphPositions(graph);

@@ -35,8 +35,8 @@ typedef samogwas::Partition Partition;
 
 using namespace data_gen;// using namespace samogwas;
 using namespace utility;
-  typedef std::vector< std::vector<bool>> DefTab;
-  typedef std::shared_ptr<DefTab> DefTabPtr;
+typedef std::vector< std::vector<bool>> DefTab;
+typedef std::shared_ptr<DefTab> DefTabPtr;
 template<typename T>
 void printMatrix(T& mat);
 
@@ -80,7 +80,6 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
     BOOST_CHECK_EQUAL(result.getLabel(i), expected_cluster );
   }
 
-  printf("clustering-done\n\n");
   std::vector<int> local2Global;
   samogwas::Graph graph;
   for (size_t i = 0; i < N*nclusts; ++i) {
@@ -112,9 +111,9 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
 
     // for (int i=0; i<emMat.size();++i) {
     //   for (int j=0; j<emMat[0].size();++j) {
-    //     std::cout << "("<<emMat[i][j]<< " - " << (*defTab)[i][j] << "), ";
+    //     // std::cout << "("<<(*emMat)[i][j]<< " - " << (*defTab)[i][j] << "), "; // 
     //   }
-    //   std::cout<<std::endl;
+    //   // std::cout<<std::endl;
     // }
     
     // break;
@@ -131,20 +130,20 @@ BOOST_AUTO_TEST_CASE( Test_EM_bool ) {
   auto defTab = std::make_shared<DefTab>(std::initializer_list< std::vector<bool> >{
     std::vector<bool>{MISSING, NOT_MISSING, NOT_MISSING, NOT_MISSING},
     std::vector<bool>{MISSING, NOT_MISSING, NOT_MISSING, NOT_MISSING},
-    std::vector<bool>{MISSING, NOT_MISSING, NOT_MISSING, NOT_MISSING},
+    std::vector<bool>{MISSING, MISSING, NOT_MISSING, NOT_MISSING},
     std::vector<bool>{MISSING, NOT_MISSING, NOT_MISSING, NOT_MISSING}    
     });
 
 
   samogwas::ResultEM resultEM;
   samogwas::NaiveBayesEM multiEM(3,1);
-  Variable latentVar = createLatentVar( 3, 3 );
+  Variable latentVar = Variable( "3", plIntegerType(0, 2) );
   Variables vars;
   vars ^= Variable( "0", plIntegerType(0, 2) );
   vars ^= Variable( "1", plIntegerType(0, 2) );
   vars ^= Variable( "2", plIntegerType(0, 2) );
 
-  multiEM( resultEM, latentVar, vars, emMat, 0.000001, defTab );
+  // multiEM( resultEM, latentVar, vars, emMat, 0.000001, defTab );
   
 }
 
