@@ -10,6 +10,7 @@
 #include <chrono>
 #include <memory>
 #include <limits>
+#include "utils/csv_parser.hpp"
 
 #include <fstream>
 #include <cstdio>
@@ -62,7 +63,7 @@ Cardinalities retrieveCardinalities( const Graph& g );
 Cardinalities retrieveCardinalities( const Graph& g, const Candidates& candidates );
 
 
-void performTest( const FLTM_Data& fltmData, const Graph& g,
+void performTest( const FLTM_Data& fltmData, const Graph& g, std::map<std::string, std::string>& snp2rs,
                   const PhenoVec& pheno, std::shared_ptr<StatTest> statTest,
                   const CandidatesByLevel& candidates,
                   const Cardinalities &cardinalities,
@@ -90,10 +91,11 @@ void performHasGoodParentPermutationTest( const FLTM_Data& fltmData, const Graph
                                           const std::vector<double> thresholds,
                                           boost::filesystem::path outDir);
 
+void snpMapping(std::map<std::string, std::string>& snp2rs, std::string& mapFile);
 
 //////////////////////////////////////////////////////////////
 int main( int argc, char** argv ) {
-  
+
   auto pos = getGwasProgramOptions( argc, argv );
   std::cout << "Loading graph data...\n" << std::endl;
   Graph graph;
@@ -116,6 +118,10 @@ int main( int argc, char** argv ) {
   auto pheno = loadPhenotype( pos.inputPheno );
   std::cout << "Loading label data from " << pos.inputLabelFile << std::endl; // todo: logging
   loadLabelPosition2( fltm_data.labels, fltm_data.indexes, fltm_data.positions, pos.inputLabelFile );
+  
+  std::cout << "Loading mapping snp data from " << pos.mappingFile << std::endl; // todo: logging
+  std::map<std::string, std::string> snp2rs;
+  snpMapping(snp2rs, pos.mappingFile);
 
   printf("assuring the graph position\n\n");
   assureGraphPositions(graph);
@@ -150,7 +156,7 @@ int main( int argc, char** argv ) {
   }
   else if (pos.task == 1) {
     performTest
-        ( fltm_data, graph,
+        ( fltm_data, graph, snp2rs,
           *pheno, chisq,
           candidatesByLevel,
           cardinalities,
@@ -230,7 +236,7 @@ Candidates getChildrenFromCandidates( const Graph& graph,
 
 /////////////////////////////////////////////////////////////////////////
 
-void performTest( const FLTM_Data& fltmData, const Graph& graph,
+void performTest( const FLTM_Data& fltmData, const Graph& graph, std::map<std::string, std::string>& snp2rs,
                   const PhenoVec& pheno, std::shared_ptr<StatTest> statTest,
                   const CandidatesByLevel& candidatesByLevel,
                   const Cardinalities &cardinalities,
@@ -254,9 +260,21 @@ void performTest( const FLTM_Data& fltmData, const Graph& graph,
   int levels = candidatesByLevel.size();
 
   std::vector<double> scores(fltmData.matrix->size(), 0.0);
-  for ( int l = 0; l < levels; ++l) {
+
+  gwasFile << "chr" << chr << SEPARATOR
+           << "idx" << SEPARATOR
+           << "snp" << SEPARATOR
+           <<  "snp-id" << SEPARATOR
+           << "level" << SEPARATOR
+           << "parent" << SEPARATOR
+           << "position"<< SEPARATOR
+           << "pval" << SEPARATOR
+           << "corrected-pval" << std::endl;
+  
+  for ( int l = 0; l < candidatesByLevel.size(); ++l) {
     auto &candidates = candidatesByLevel[l];
     auto cards = retrieveCardinalities(graph,candidates);
+    
     std::vector<double> dist;
     std::vector<double> pvals;
     if ( candidates.size() ) {
@@ -266,12 +284,21 @@ void performTest( const FLTM_Data& fltmData, const Graph& graph,
                             candidates, cards,
                             2, permutations);
 
-      for ( int i = 0; i < candidates.size(); ++i ) {
+
+
+      for ( int i = 0; i < candidates.size(); ++i ) {        
         auto cand = candidates[i];
+        std::string rs = "";
+        if ( snp2rs.find(graph[cand].label) != snp2rs.end() ) {
+          rs =  snp2rs[graph[cand].label];
+        } else {
+          rs = "NA";
+        }        
         scores[cand] =  pvals[2*i+1];
         gwasFile << "chr" << chr << SEPARATOR
-                 << cand << SEPARATOR
+                 << fltmData.indexes[cand] << SEPARATOR
                  << graph[cand].label << SEPARATOR
+                 << rs << SEPARATOR
                  << l << SEPARATOR
                  << parent[cand] << SEPARATOR
                  << graph[cand].position << SEPARATOR
@@ -498,3 +525,20 @@ void performHasGoodParentPermutationTest( const FLTM_Data& fltmData, const Graph
   std::cout << "writing to: " << region_outFile << std::endl;
 }
 
+void snpMapping(std::map<std::string, std::string>& snp2rs, std::string& infile) {
+
+  std::ifstream mapFile(infile.c_str());
+  if (!mapFile) {
+    printf("file mapping %s not existing\n", infile.c_str());
+    exit(-1);
+  }
+  
+  utility::CSVIterator<std::string> mapLine(mapFile);// ++labPosLine;
+  for( ; mapLine != utility::CSVIterator<std::string>(); ++mapLine ) {
+    auto snp = (*mapLine)[0];
+    auto rs = (*mapLine)[1];
+    snp2rs[snp] = rs;
+  }
+
+  mapFile.close();
+}

@@ -65,8 +65,7 @@ struct TestChiSquared {
     }
     catch ( std::exception& e) {
       p_value = 1.0;
-    }
-
+    } 
     return p_value;
   }
 

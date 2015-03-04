@@ -88,7 +88,7 @@ struct TulipGraphLoad: public FLTMGraphReader {
 };
 
 
-/** Loads the Bayesian network corresponding to the FLTM model from two files:
+/** Loads the Bayian network corresponding to the FLTM model from two files:
  *  - vertexFileName: information regarding vertices of the following (SINGLE) format: ID, LATENT, PARENT, LEVEL, CARDINALITY
  *  - distributionFileName:
  *     == example: Z has 2 children X1 and X2; card(Z) = 3; card(X1) = card(X2) = 2;
@@ -160,19 +160,20 @@ LabPosMap FLTMGraphReader::readLabPos( const std::string labPosFileName ) const 
   std::ifstream labPosFile(labPosFileName.c_str());    
   utility::CSVIterator<std::string> labPosLine(labPosFile);
 
+  size_t id = 0;
   for( ; labPosLine != utility::CSVIterator<std::string>(); ++labPosLine ) {
-    size_t id; int position; std::string label;
+    int position; std::string label;
     if (labPosLine->size() == 4) {
-      id = boost::lexical_cast<size_t>( (*labPosLine)[LP_ID] );
+      // id = boost::lexical_cast<size_t>( (*labPosLine)[LP_ID] );
       label = (*labPosLine)[LP_LABEL] ;
       position = boost::lexical_cast<int>( (*labPosLine)[LP_POSITION] );
     } else {
-      id = boost::lexical_cast<size_t>( (*labPosLine)[LP_ID+1] );
+      // id = boost::lexical_cast<size_t>( (*labPosLine)[LP_ID+1] );
       label = (*labPosLine)[LP_LABEL+1] ;
       position = boost::lexical_cast<int>( (*labPosLine)[LP_POSITION+1] );
     }
     lpMap[id] = std::pair<std::string, int>(label, position);
-
+    id++;
   }
   return lpMap;
 }

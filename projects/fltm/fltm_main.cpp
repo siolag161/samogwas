@@ -55,7 +55,6 @@ typedef measure<std::chrono::seconds> mea; // measure execution time in seconds
 int main( int argc, char** argv ) {
   Options pos = getProgramOptions( argc, argv );
   FLTM_Data fltm_data;
-  // mea::log_execution( "load_data", "second", loadDataTable, fltm_data.matrix, pos.inputDataFile, ',','"' );
   fltm_data.matrix = loadDataTable(pos.inputDataFile);
       
   loadLabelPosition( fltm_data.labels, fltm_data.indexes, fltm_data.positions, pos.inputLabelFile );

@@ -34,6 +34,7 @@ struct Options {
   std::string bayesVertices;  
   std::string bayesDist;
 
+  std::string mappingFile;
   std::string outputDir;
 
   int task;
@@ -62,23 +63,26 @@ inline GWAS_Options getGwasProgramOptions(int argc, char** argv) {
     /** Define and parse the program options 
      */
     optDesc.add_options()
-        ("help,h", "Print help messages")        
-        ("in_dat,i", po::value<std::string>(&result.inputDataFile)->required(), "Input Data File")
-        // ("in_imputed,i", po::value<std::string>(&result.inputDataFile)->required(), "Input Imputed Data File")
+        ("help,h", "Print help messages")
         ("chr,c", po::value<int>(&result.chromosome)->default_value(2), "chromosome")
+
+        ("in_dat,i", po::value<std::string>(&result.inputDataFile)->required(), "Input Data File")
+        ("in_lab,l", po::value<std::string>(&result.inputLabelFile)->required(), "Input Label File")        
+
+        // ("in_imputed,i", po::value<std::string>(&result.inputDataFile)->required(), "Input Imputed Data File")
 
         ("in_pheno,p", po::value<std::string>(&result.inputPheno)->required(), "Input Pheno File")
         ("in_graph,g", po::value<std::string>(&result.graphFile)->required(), "Input Graph File")
         ("in_bayes_vertex,v", po::value<std::string>(&result.bayesVertices)->required(), "Input Bayes File")
         ("in_bayes_dist,d", po::value<std::string>(&result.bayesDist)->required(), "Input Dist File")
 
-        ("in_lab,l", po::value<std::string>(&result.inputLabelFile)->required(), "Input Label File")        
 
         ("permutations,n", po::value<int>(&result.permutations)->default_value(1000), "Nbr Permutations")
         ("threshold,t", po::value<double>(&result.threshold)->default_value(.005), "threshold")
+        ("mappingFile,m", po::value<std::string>(&result.mappingFile)->required(), "SNP - RS Mapping File")
 
+        ("task,k", po::value<int>(&result.task)->default_value(0), "task. 0: gwas_good_parent,  1: gwas_test")
         ("outDir,o", po::value<std::string>(&result.outputDir)->required(), "Output Dir")
-        ("task,k", po::value<int>(&result.task)->default_value(0), "task. 0: gwas,  1: obtain: filter")
 
         ;
     po::variables_map vm; 
