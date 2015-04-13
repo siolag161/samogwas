@@ -44,16 +44,6 @@ void FLTM::operator()( FLTM_Result &result,
     auto clustering = partition.to_clustering(); // auto: to prevent explicite declaration of the type.
     printf( "end clustering, obtained: %zu clusters...\n", clustering.size() );
 
-    // if (step==1) {
-    //   for (auto &clt: clustering) {
-    //     printf("cluster: ");
-    //     for ( auto cit: clt ) {
-    //       printf("%d ", cit);
-    //     }
-    //     std::cout << std::endl;
-    //   }
-    //   // exit(-1);
-    // }
     int singletonCount = 0;
     if ( containsOnlySingletons( singletonCount, clustering) ) {
       std::cout << "stops due to only singleton. " << std::endl;
@@ -79,18 +69,13 @@ void FLTM::operator()( FLTM_Result &result,
         emFunc->run( resultEM, latentVar, emVars, emMat, options.emThres );
         std::cout << "done EM" << std::endl << std::endl;        
         if ( goodLatentVariable( resultEM.imputedData, *input.matrix, cluster, options.latentVarQualityThres) ) {
-          // std::cout << "it's a good cluster" << std::endl;    
           vertex_t vertex = addLatentNode( graph, latentVar, cluster, resultEM, label2GraphIndex ); // vertex is the index of the newly added node
           goodClusterCount++;
           nextStepMatrix->push_back(resultEM.imputedData);
           nextStepMat2GraphIndex.push_back( (int)vertex );
           result.imputedData->push_back(resultEM.imputedData );
-          // std::cout << "moves on" << std::endl;    
         } else {
-          // std::cout << "it's a bad cluster. init..." << std::endl;   
           initializeNextStep(*nextStepMatrix, nextStepMat2GraphIndex, mat2GraphIndex, *input.matrix, cluster);
-          // std::cout << "i know, it's a bad cluster. what's next..." << std::endl << std::endl;   
-
         }
       } else {
         // std::cout << "it's a singleton luster. init..." << std::endl;           

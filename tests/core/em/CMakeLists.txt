@@ -27,6 +27,6 @@ file(GLOB TESTS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp  )
 
 file(GLOB_RECURSE SOURCE "${PROJECT_SOURCE_DIR}/core/src/*.cpp" )
 
-add_executable( test_em ${CMAKE_CURRENT_SOURCE_DIR}/test_runner.cpp ${CMAKE_CURRENT_SOURCE_DIR}/test_probayes.cpp ${SOURCE} )
+add_executable( test_em ${CMAKE_CURRENT_SOURCE_DIR}/test_runner.cpp ${CMAKE_CURRENT_SOURCE_DIR}/test_EM.cpp ${SOURCE} )
 target_link_libraries( test_em boost_program_options boost_filesystem boost_system boost_regex boost_unit_test_framework spl  )
 

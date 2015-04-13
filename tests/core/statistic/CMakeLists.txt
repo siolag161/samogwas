@@ -23,5 +23,5 @@ link_directories(${Boost_LIBRARY_DIR} ${ProBT_LIBRARY_DIR})
 file(GLOB TESTS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp  )
 
 add_executable( test_stats ${TESTS}  )
-target_link_libraries( test_stats boost_program_options boost_filesystem boost_system boost_regex boost_unit_test_framework  )
+target_link_libraries( test_stats boost_program_options boost_filesystem boost_system boost_regex boost_unit_test_framework spl )
 

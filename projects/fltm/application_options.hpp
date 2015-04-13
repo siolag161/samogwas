@@ -16,8 +16,6 @@
 #include "fltm/core_fltm.hpp"
 #include "utils/option_printer.hpp"
 #include "utils/custom_option_desc.hpp"
-// #include "OptionPrinter.hpp" //for printing
-// #include "FLTM.hpp"
 namespace po = boost::program_options;   
 
 namespace samogwas
@@ -72,7 +70,7 @@ inline Options getProgramOptions(int argc, char** argv) {
         
         ("out,o", po::value<std::string>(&result.outputDir)->required(), "Output Dir")
 
-        ("clust,c", po::value<int>(&result.clustAlgo)->required(), "Clust Algo. (0): DBSCAN (1): CAST")
+        ("clust,c", po::value<int>(&result.clustAlgo)->required(), "Clust Algo. (0): DBSCAN (1): CAST, (2): LOUV")
 
         ("max_dist,x", po::value<int>(&result.fltm_maxDist)->required(), "Max Dist")
         ("simi_thres,t", po::value<double>(&result.fltm_simiThres)->required(), "Simi Thres")

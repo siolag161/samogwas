@@ -16,7 +16,6 @@
 #include <boost/filesystem.hpp> // to obtain the program's name
 
 #include "distance/comparable.hpp"
-
 #include "clustering/cast.hpp"
 #include "clustering/dbscan.hpp"
 #include "clustering/louvain/louv.hpp"
@@ -48,7 +47,6 @@ void saveImputedData( std::string dataPath, std::string labposPath,
 char* current_date();
 boost::filesystem::path outputDir( Options& progOpt );
 
-// void printOptions( Options& opt ); // 
 std::shared_ptr<AlgoClusteringInterface> getAlgoClust( FLTM_Data& input, Options& opt );
 typedef measure<std::chrono::seconds> mea; // measure execution time in seconds
  

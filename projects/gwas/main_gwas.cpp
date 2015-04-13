@@ -262,7 +262,7 @@ void performTest( const FLTM_Data& fltmData, const Graph& graph, std::map<std::s
   std::vector<double> scores(fltmData.matrix->size(), 0.0);
 
   gwasFile << "chr" << chr << SEPARATOR
-           << "idx" << SEPARATOR
+           << "id" << SEPARATOR
            << "snp" << SEPARATOR
            <<  "snp-id" << SEPARATOR
            << "level" << SEPARATOR

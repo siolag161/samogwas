@@ -47,7 +47,7 @@ Variable createLatentVar( const int lab, const int cardinality ) {
 }
 
 BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
-  
+  std::cout  << "ca-vang-vang" << std::endl;
   size_t nclusts = 5, ncols = 40;
   size_t N = 3, CARD = 3, MAX_POS = 50;
   int nrows = nclusts*N;
@@ -83,6 +83,26 @@ BOOST_AUTO_TEST_CASE( Test_EM_functional ) {
     samogwas::ResultEM resultEM;
     samogwas::NaiveBayesEM multiEM(3,1);
     multiEM( resultEM, latentVar, vars, emMat, 0.000001 );
+
+    std::cout << resultEM.jointDistribution << std::endl;
+
+
+    auto mvars = resultEM.jointDistribution.get_variables();
+    // plValues evidence = plValues().add(mvars[0], 0).add(mvars[1], 0);
+    std::cout << resultEM.jointDistribution.get_computable_object_list()[0].get_computable_object_type() << std::endl;
+    //auto comp = resultEM.jointDistribution.get_computable_object_list()[0];
+    // resultEM.jointDistribution.ask(
+    
+    //plDistribution* dist = dynamic_cast<plDistribution*>(&comp);
+    // plDistribution dist = static_cast<plDistribution>(comp);
+    // std::cout << dist << std::endl << dist.compute(0) << std::endl;
+
+    // std::cout << resultEM.jointDistribution.get_computable_object_list()[1].get_computable_object_type() << std::emdl;
+    // std::cout << resultEM.jointDistribution.get_computable_object_list()[0].compute((int)0);
+    // std::cout << resultEM.jointDistribution.get_computable_object_list()[1];
+    break;
+
+    
   }
 }
 

@@ -22,13 +22,18 @@
 #include <stdlib.h> // abs
 #include <algorithm>  // std::min
 #include <numeric> // std::accumulate //
+#include <pl.h>
 
 #include "utils/type_utils.hpp" // utility::Int2Type
 
 namespace samogwas // change namespace
 {
 
-enum EstimationMethod {EMP = 0, DIRICHLET, SCALED_MI}; //EMP = empirical
+enum EstimationMethod {EMP = 0, EXACT, EMP_EXACT, 
+                       DIRICHLET, SCALED_MI}; //EMP = empirical, EXACT = given a distribution
+
+enum MutualInformationType { PRO_BT = 7 }; //EMP = empirical, EXACT = given a distribution
+
 
 /** Computes entropy in base 2 (@todo: log2).
  *
@@ -48,15 +53,17 @@ struct Entropy
     return compute(xVec.begin(), xVec.end(), utility::Int2Type<EstimationMethodType>());
   }
 
+  template<typename VecType>
+  double compute_from_distribution( const VecType& xVec, bool is_normalized = true );
+
  protected:
   template<typename VIterator>
   double compute(VIterator xBegin, VIterator xEnd, utility::Int2Type<EMP>, bool has_missing = false);
 
-  // template<typename VIterator>
-  // double compute(VIterator xBegin, VIterator xEnd, utility::Int2Type<DIRICHLET>);
+  
+  template<typename VIterator>
+  double compute(VIterator xBegin, VIterator xEnd, utility::Int2Type<EXACT>, bool has_missing = false);
 
-  // template<typename VIterator>
-  // double compute(VIterator xBegin, VIterator xEnd, utility::Int2Type<SCALED_MI>);
 };
 
 
@@ -77,17 +84,43 @@ struct JointEntropy
   double operator()(const VecXType& xVec, const VecYType& yVec, bool has_missing = false)
   { return compute(xVec.begin(), xVec.end(), yVec.begin(), utility::Int2Type<EstimationMethodType>(), has_missing); }
 
- protected:
-  template<typename VIterator>
-  double compute(VIterator xBegin, VIterator xEnd, VIterator yBegin, utility::Int2Type<EMP>, bool has_missing = false);
-
-  // template<typename VIterator>
-  // double compute(VIterator xBegin, VIterator xEnd, VIterator yBegin, utility::Int2Type<DIRICHLET>);
-
-
   
-  // template<typename VIterator>
-  // double compute(VIterator xBegin, VIterator xEnd, VIterator yBegin, utility::Int2Type<SCALED_MI>);
+  template<typename VecXType, typename VecYType, typename VecXYType>
+  double operator()(const VecXType& xVec, const VecYType& yVec, const VecXYType& jointVec)
+  {
+    return compute(xVec.begin(), xVec.end(), yVec.begin(), jointVec, utility::Int2Type<EstimationMethodType>());
+  }
+
+  /**
+   *
+   */
+
+  template< typename JointFuncType >
+  double compute_from_joint_function( plSymbol& X, plSymbol& Y, const JointFuncType jointFunc ) {
+    double rs = 0.0;
+    for ( int x = 0; x < X.cardinality(); ++x ) {
+      for (int y = 0; y < Y.cardinality(); ++y ) {
+        double jointProb = jointFunc(X,Y,x,y);
+        rs += -jointProb*log2(jointProb);
+      }
+    }
+    return rs;
+  }
+  
+ protected:
+  // template<typename JointFuncType >
+  // double operator()(const JointFuncType jointFunc) {
+  //   return compute(jointFunc);
+  // }
+  
+  template<typename VIterator>
+  double compute(VIterator xBegin, VIterator xEnd, VIterator yBegin,
+                 utility::Int2Type<EMP>, bool has_missing = false);
+
+ 
+  template<typename VecType>
+  double compute(const VecType& xVec, const VecType& yVec,  utility::Int2Type<PRO_BT>);
+  
 };
 
 
@@ -130,6 +163,56 @@ double Entropy<EstimationMethodType>::compute(VIterator xBegin, VIterator xEnd, 
 
   return entrop;
 }
+
+
+template<int EstimationMethodType>
+template<typename VecType>
+double Entropy<EstimationMethodType>::compute_from_distribution( const VecType& xVec, bool is_normalized) {
+  double rs = 0.0;
+
+  double sum = 0.0;
+  for ( auto prob: xVec ) {
+    rs += -prob*log2(prob);
+    sum += prob;
+  }
+
+  if ( sum == 0 ) return 0;
+  return (rs/sum) + log2(sum);
+}
+
+
+/**
+ * The entropy is computed using the following derivation:
+ * H(X) = -sum_i p(i) log_2(p(i))
+ *      = -sum_i n_i/N log_2(n_i) + sum_i n_i/N log_2(N)
+ *      = -1/N sum_i n_i log_2(n_i) + log_2(N),
+ * with p_i = n_i/N.
+ */
+// @todo: if sum != 1 --> raise
+template<int EstimationMethodType>
+template<typename VIterator>
+double Entropy<EstimationMethodType>::compute( VIterator xBegin,
+                                               VIterator xEnd,
+                                               utility::Int2Type<EXACT>,
+                                               bool has_missing )
+{
+  double rs = 0.0;
+  for (; xBegin != xEnd; ++xBegin)
+  {
+    const double val = *xBegin;
+    rs += -val*log(val);    
+    // printf("rs: %f, val: %f:, val.logval: %f\n", rs, val, -val*log(val));
+  }
+  
+  return rs;
+}
+
+
+
+
+
+
+
 /////////////////////////////////////////////////////////////////////////////
 template<int EstimationMethodType>
 template<typename VIterator>
@@ -156,6 +239,42 @@ double JointEntropy<EstimationMethodType>::compute( VIterator xBegin, VIterator 
                                         0.0, sumLogCount<IntPair>);
 
   return log(vecLen) - 1/vecLen*(jointLogSum);
+}
+
+/**
+ */
+template<int EstimationMethodType> 
+template<typename VecType>
+double JointEntropy<EstimationMethodType>::compute( const VecType& xVec,
+                                                    const VecType& yVec,
+                                                    utility::Int2Type<PRO_BT> ) {
+
+  const auto N = xVec.size();
+  const auto cardX = xVec[0].get_variables()[0].cardinality(),
+      cardY = yVec[0].get_variables()[0].cardinality();
+
+  auto jointTab = std::vector<std::vector<double>>(cardX, std::vector<double>(cardY, 0.0));
+
+  for ( int o = 0; o < N; ++o ) {
+    auto tabX = xVec[o], tabY = yVec[o];
+    for ( int x = 0; x < cardX; ++x ) {
+      for ( int y = 0; y < cardY; ++y ) {        
+        jointTab[x][y] += tabX[x]*tabY[y];
+      }
+    }
+  }
+
+  double rs = 0.0;
+  for ( int x = 0; x < cardX; ++x ) {
+    for ( int y = 0; y < cardY; ++y ) {        
+      jointTab[x][y] /= N;
+
+      rs += -jointTab[x][y]*log2(jointTab[x][y]);
+    }
+  }
+
+  return rs;
+  
 }
 
 /////////////////////////////////////////////////////////////////////////////

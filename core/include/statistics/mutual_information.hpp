@@ -20,6 +20,8 @@
 #include "utils/type_utils.hpp" // for utility::Int2Type
 #include "entropy.hpp"
 
+#include <pl.h>
+
 namespace samogwas
 {
 
@@ -44,6 +46,16 @@ struct MutualInformation
     return compute(xVec.begin(), xVec.end(), yVec.begin(), utility::Int2Type<EstimateMethodType>(), has_missing );
   }
 
+  /**
+   *
+   */
+  template<typename VecType>
+  double operator()( const plProbTable& xTab, const plProbTable& yTab,
+                     const VecType& xGivenO, const VecType& yGivenO )  {    
+    return compute( xTab, yTab, xGivenO, yGivenO,
+                    utility::Int2Type<EstimateMethodType>() );
+  }
+
   /** MatrixT passed as parameter is a row-major Matrix in which each Row denotes a variable.
   */
   template<template<class> class MatrixT, class T>
@@ -52,17 +64,19 @@ struct MutualInformation
  protected:  
   template<typename VIterator>
   double compute( VIterator xBegin, VIterator xEnd, VIterator yBegin, utility::Int2Type<EMP>, bool has_missing = false);
+
+  template<typename VecType>
+  double compute( const plProbTable& xTab, const plProbTable& yTab,
+                  const VecType& xGivenO, const VecType& yGivenO,
+                  utility::Int2Type<PRO_BT>);
   
   /** MatrixT passed as parameter is a row-major Matrix in which each Row denotes a variable.
   */
   template<template<class> class MatrixT, class T>
-  boost::shared_ptr<MatrixT<double> > compute(const MatrixT<T>& mat, utility::Int2Type<EMP>, bool has_missing = false );
-  
-  //template<typename XIterator, typename YIterator>
-  //double compute(XIterator xBegin, XIterator xEnd, YIterator yBegin, utility::Int2Type<DIRICHLET>);
-  
-  //template<template<class> class MatrixT, class T>
-  //boost::shared_ptr<MatrixT<double> > compute(const MatrixT<T>& mat, utility::Int2Type<SCALED_MI>);
+  boost::shared_ptr<MatrixT<double> > compute(const MatrixT<T>& mat, utility::Int2Type<EMP>,
+                                              bool has_missing = false );
+
+
 
 };
 
@@ -114,6 +128,35 @@ double MutualInformation<EstimateMethodType>::compute( VIterator xBegin, VIterat
   // double entropyY = log(vecLen) - 1/vecLen*(yLogSum);
   // double jEntropy = log(vecLen) - 1/vecLen*(jointLogSum);
   return log(vecLen) + 1/vecLen*(jointLogSum - xLogSum - yLogSum);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+//@todo: verify the unit
+template<int EstimateMethodType> 
+template<typename VecType>
+double MutualInformation<EstimateMethodType>::compute( const plProbTable& xTab, const plProbTable& yTab,
+                                                       const VecType& xGivenO, const VecType& yGivenO,
+                                                       utility::Int2Type<PRO_BT>) {  
+  // double entropyX = xTab.compute_shannon_entropy(),
+  //        entropyY = yTab.compute_shannon_entropy();
+  
+  // const auto N = xGivenO.size();
+  // const auto cardX = xTab.get_variables()[0].cardinality(),
+  //     cardY = xTab.get_variables()[0].cardinality();
+  // auto jointTab = std::vector<std::vector<double>>(cardX, std::vector<double>(cardY, 0.0));
+
+  
+  // for ( int o = 0; o < N; ++o ) {
+  //   auto tabX = xGivenO[o], tabY = yGiven[o];
+  //   for ( int x = 0; x < cardX; ++x ) {
+  //     for ( int y = 0; y < cardY; ++y ) {        
+  //       jointTab[x][y] += tabX[x]*tabY[y];
+  //     }
+  //   }
+  // }
+      
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

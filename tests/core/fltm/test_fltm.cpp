@@ -45,33 +45,53 @@ void initData( FLTM_Data& input, int nclusts, int N, int ncols, int CARD) {
 }
 
 //////////////////////////////////////////////////////////////////
-BOOST_AUTO_TEST_CASE( Test_Def ) {
-  // define a clustering
-  // plug in the fltm
-  size_t nclusts = 5, ncols = 40;
-  size_t N = 3, CARD = 3, MAX_POS = 50;
-  int nrows = nclusts*N;
+// BOOST_AUTO_TEST_CASE( Test_Def ) {
+//   // define a clustering
+//   // plug in the fltm
+//   size_t nclusts = 5, ncols = 40;
+//   size_t N = 3, CARD = 3, MAX_POS = 50;
+//   int nrows = nclusts*N;
 
-  FLTM_Data input;
-  FLTM_Options opt;
-  FLTM_Result result;
-  initData( input, nclusts, N, ncols, CARD );
-  std::vector<int> positions; for ( int i = 0; i < nrows; ++i ) positions.push_back(i);
-  // auto data = GenerateClusteredData( nclusts, N, CARD, ncols )();
-  typedef samogwas::MutInfoDissimilarity<data_gen::Matrix> MutInfoDiss;
+//   FLTM_Data input;
+//   FLTM_Options opt;
+//   FLTM_Result result;
+//   initData( input, nclusts, N, ncols, CARD );
+//   std::vector<int> positions; for ( int i = 0; i < nrows; ++i ) positions.push_back(i);
+//   // auto data = GenerateClusteredData( nclusts, N, CARD, ncols )();
+//   typedef samogwas::MutInfoDissimilarity<data_gen::Matrix> MutInfoDiss;
 
-  // MutInfoDiss* diss = new MutInfoDiss( input.matrix, input.positions, MAX_POS, -1);
-  auto diss = std::make_shared<MutInfoDiss>( input.matrix, input.positions, MAX_POS, -1);
+//   // MutInfoDiss* diss = new MutInfoDiss( input.matrix, input.positions, MAX_POS, -1);
+//   auto diss = std::make_shared<MutInfoDiss>( input.matrix, input.positions, MAX_POS, -1);
 
-  initOptions(opt);
+//   initOptions(opt);
 
-  LinearCardinality emLC(0.2, 1, 5);
-  auto multiEM = std::make_shared<NaiveBayesEM>(CARD, 3);
+//   LinearCardinality emLC(0.2, 1, 5);
+//   auto multiEM = std::make_shared<NaiveBayesEM>(CARD, 3);
 
-  auto dbscan = std::make_shared<DBSCAN<MutInfoDiss>>( diss, 2, 0.2);
-  FLTM fltm( dbscan, emLC, multiEM ); 
-  fltm( result, input, opt );
+//   auto dbscan = std::make_shared<DBSCAN<MutInfoDiss>>( diss, 2, 0.2);
+//   FLTM fltm( dbscan, emLC, multiEM ); 
+//   fltm( result, input, opt );
+
   
+// }
+
+BOOST_AUTO_TEST_CASE( Test_Def_1 ) {
+
+  Graph graph;
+  BayesGraphLoad loader;
+  TulipGraphSave saver;
+
+  const std::string labPosFileName = "./graph/fltm.lab";
+  const std::string vertexFileName = "./graph/fltm.vex";
+  const std::string distributionFileName = "./graph/fltm.dist";
+
+  const std::string vertexTulipFileName = "./graph/fltm_tulip.vex";
+  const std::string edgeFileName = "./graph/fltm_tulip.edge";
+  
+  loader(graph, labPosFileName, vertexFileName, distributionFileName);
+  saver(graph, vertexTulipFileName, edgeFileName );
+
+   
 }
 
 
