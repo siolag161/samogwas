@@ -26,6 +26,7 @@
 
 namespace samogwas
 {
+
 typedef std::shared_ptr<EMInterface> EM_Algo_Ptr;
 typedef std::shared_ptr<AlgoClusteringInterface> Clust_Algo_Ptr;
 struct FLTM {
@@ -36,7 +37,6 @@ struct FLTM {
 
   void operator()( FLTM_Result &result, FLTM_Data &data, FLTM_Options &options);
     
-  // ~FLTM() { delete clustAlgo; delete emFunc; }
 
  protected:
   void initializeFLTM( FLTM_Data &input,
